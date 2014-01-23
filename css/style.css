@@ -1,0 +1,178 @@
+
+html, body {
+  
+	height: 100%;
+	padding: 0;
+  margin: 0;
+  /*overflow: hidden;*/
+  background-color: white;  
+  /*font-family: "Helvetica Neue", Helvetica, Arial, freesans, sans-serif; */ 
+  font-family: 'Gudea', sans-serif;
+  color:#666;
+  font-size: 1em;
+}
+
+#stage{
+  position:absolute;
+  top:0em;
+  left:0em;
+  width:48em; /*768px*/
+  
+}
+
+h1, h2, h3, h4 {
+  font-weight: normal;
+  margin: 0px;
+}
+
+.hLine {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #666;
+    margin: 1em 0em 1em 0em;
+    padding: 0;
+}
+
+.vLine {
+    display: block;
+    width: 1px;
+    border: 0;
+    border-left: 1px solid #666;
+    margin: 0em 0em 0em 0em;
+    padding: 0;
+}
+
+td, th {
+    position:relative;
+    top:-1em;
+    left:3em;
+    padding: 1px 1px;
+}
+
+
+.menu_container {
+  position:absolute;
+  top:0em;
+  height: 8em;
+  width:100%;
+  background-color:#FEE6CE;
+  z-index:100;
+  -webkit-box-shadow: 0 8px 6px -6px black;
+  -moz-box-shadow: 0 8px 6px -6px black;
+  box-shadow: 0 8px 6px -6px black;
+  
+}
+
+.menu_container #menu_bar {
+  position:absolute;
+  padding:1em;
+  
+    
+}
+
+.menu_container #btn_menu{
+  position:relative;
+  top:-6em;
+  left:640px;
+  width:64px;
+  height:64px;
+}
+
+#menu_bar h1 {
+
+}
+.menu_container #menu_bar h2 {
+  position:relative;
+  top:-0.75em;
+}
+
+.menu_container #menu_bar .hLine {
+  position:relative;
+  top:-0.5em;
+}
+
+.menu_container #menu_bar .vLine {
+  position:absolute;
+  top:1em;
+  height:6em;
+}
+
+.domain_container{
+  position:absolute;
+  top:8em;
+  height: 14em;
+  width:100%;
+  /*background-color:#FDD0A2; dynamic set by domain class*/
+  z-index:0;
+
+}
+
+.domain_container h2{
+  position:absolute;
+  left:2.25em;
+  top:0.75em;
+}
+
+
+.domain_container .domainIcon{
+  left:2.25em;
+  top:0.75em;
+  width:2em;
+  height:2em;
+}
+
+.domain_container .plusIcon{
+  position:absolute;
+  left:43em;
+  top:0.75em;
+  width:2em;
+  height:2em;
+}
+
+.domain_container .subDomainA{
+  position:absolute;
+  top:5.5em;
+  padding-left:1em;
+  padding-right:1em;
+  width:50%;
+
+}
+
+.domain_container .subDomainB{
+  position:absolute;
+  top:5.5em;
+  left:24em;
+  padding-left:1em;
+  padding-right:1em;
+  width:50%;
+
+}
+.subDomainIcon{
+  position:absolute;
+  top:-0.75em;
+  width:2em;
+  height:2em;
+
+}
+.tickerTable{
+  position:absolute;
+  width:18em;
+  left:1.5em;
+  font-size: 0.8em;
+  width:21em;
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

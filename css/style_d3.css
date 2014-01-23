@@ -1,0 +1,36 @@
+.bar {
+  fill: #666;
+  stroke-width:0.25px;
+}
+
+.bar:hover {
+  fill: #333;
+}
+
+.axis {
+  font-family: 'Gudea', sans-serif;
+  color:#666;
+  font-size: 0.5em;
+  /*font: 10px sans-serif;*/
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #666;
+  shape-rendering: crispEdges;
+}
+
+.tooltip {   
+  position: absolute;           
+  text-align: left;
+  font-family: sans-serif;
+  color:white;
+  font-size: 0.65em;           
+  padding: 4px;             
+  background: #333;   
+  border: 0px;      
+  border-radius: 4px;           
+  pointer-events: none;         
+}
+
