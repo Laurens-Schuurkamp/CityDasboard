@@ -1,6 +1,6 @@
 .bar {
   fill: #666;
-  stroke-width:0.25px;
+  stroke-width:1px;
 }
 
 .bar:hover {
@@ -9,7 +9,7 @@
 
 .axis {
   font-family: 'Gudea', sans-serif;
-  color:#666;
+  color:#fff;
   font-size: 0.5em;
   /*font: 10px sans-serif;*/
 }
