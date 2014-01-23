@@ -110,7 +110,7 @@ WAAG.Domains = function Domains(_properties) {
 
 	
 	function setDomainA(_properties){
-	      
+	  var data =_properties.graphData;    
     subDomainA=container.append("div")
       .attr("class", "subDomainA")
       .attr("id", _properties.id);
@@ -124,25 +124,16 @@ WAAG.Domains = function Domains(_properties) {
 
     // render the table
     var tickerTable = createTickerTable(_properties.tickerData, ["discription", "value"], subDomainA);
-      
-        // set tick graph
-      svgDomainA = subDomainA.append("svg")
-        .attr("class", "subDomainSVG")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .style("position", "absolute")
-        .style("left", 1+"em")
-        .style("top", 3+"em")
-      .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      
-      
-      updateDomain(_properties.graphData, svgDomainA);  
+    
+    createGraph(_properties.graphData, subDomainA) 
+ 
 
 	};
 	
 	
 	function setDomainB(_properties){
+    
+    var data=_properties.graphData;
               
     subDomainB=container.append("div")
       .attr("class", "subDomainB")
@@ -156,44 +147,50 @@ WAAG.Domains = function Domains(_properties) {
         
     var tickerTable = createTickerTable(_properties.tickerData, ["discription", "value"], subDomainB);        
     
-        // set tick graph
-        svgDomainB = subDomainB.append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .style("position", "absolute")
-          .style("left", 1+"em")
-          .style("top", 3+"em")
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
-        updateDomain(_properties.graphData, svgDomainB);  
+    createGraph(_properties.graphData, subDomainB);    
         
 
 	};
+	
+  function createGraph( data, _subDomain){
+     
+     var subDomain = _subDomain;
+      svgDomain = subDomain.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .style("position", "absolute")
+        .style("left", 1+"em")
+        .style("top", 3+"em")
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+        x.domain(data.map(function(d) { return d.hour; }));
+        y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+        svgDomain.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        svgDomain.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + width + ",0)")
+            .call(yAxis)
+          .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "-38em")
+            .style("text-anchor", "end")
+            .text("pressure (%)");      
+      
+      updateDomain(data, svgDomain);
+
+  };
 	
 	function updateDomain(data, _svgDomain){
 	  
 	  
 	  var svgDomain=_svgDomain;
-
-    x.domain(data.map(function(d) { return d.hour; }));
-    y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
-    svgDomain.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    svgDomain.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + width + ",0)")
-        .call(yAxis)
-      .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "-38em")
-        .style("text-anchor", "end")
-        .text("pressure (%)");
 
     var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
     
@@ -214,11 +211,15 @@ WAAG.Domains = function Domains(_properties) {
                         .style("left", (d3.event.pageX) + 10+"px")     
                         .style("top", (d3.event.pageY - 28 - 10) + "px");    
                     })                  
-                .on("mouseout", function(d) {       
-                    toolTip.transition()        
-                        .duration(250)      
-                        .style("opacity", 0);   
-                });
+         .on("mouseout", function(d) {       
+            toolTip.transition()        
+                .duration(250)      
+                .style("opacity", 0);   
+        })
+        .on("click", function(d){
+            updateDummySet(data, _svgDomain);
+			      
+			    });
 
     var time=500+(Math.random()*1000);    
     vis.transition()
@@ -231,6 +232,12 @@ WAAG.Domains = function Domains(_properties) {
         .style("opacity", 0 )
         .remove();        
 
+	};
+	
+	function updateDummySet(data, _svgDomain){
+	  data=getDummyData();
+	  updateDomain(data, _svgDomain);
+	  
 	};
 	
   function createTickerTable(data, columns, _domain) {
