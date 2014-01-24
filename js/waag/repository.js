@@ -1,12 +1,13 @@
 var dNow = new Date();
 var hNow = dNow.getHours();
 var mNow = dNow.getMinutes();
-console.log("hours ="+hNow)
+
+var apiUrl="http://api.citysdk.waag.org/";
+var apiGeom="&geom&per_page=1000";
 
 
 function createDomains(){
   var domainList=[];
-  
   // domain DIVV
   var mainDomain={id:"transport", label:"Transport", icon:"images/svg/icon_transport.svg"};
   var dummyData=getDummyData();

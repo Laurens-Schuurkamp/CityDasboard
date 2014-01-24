@@ -20,6 +20,9 @@ $(document).bind("ready", function() {
 	  domains[i].index=i;
 	  var domain = new WAAG.Domains( domains[i]); 
 	};
+	
+	//set map
+	var map = new WAAG.Map(domains); 
 
 });
 

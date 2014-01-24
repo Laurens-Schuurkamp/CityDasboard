@@ -21,6 +21,14 @@
   shape-rendering: crispEdges;
 }
 
+path {
+  fill: white;
+  stroke: #666;
+  stroke-width: 0.25px;
+  
+}
+
+
 .tooltip {   
   position: absolute;           
   text-align: left;
@@ -31,6 +39,7 @@
   background: #333;   
   border: 0px;      
   border-radius: 4px;           
-  pointer-events: none;         
+  pointer-events: none;
+  
 }
 
