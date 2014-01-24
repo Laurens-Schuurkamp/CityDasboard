@@ -3,7 +3,7 @@ var widgetHeight=14;
 var menuHeight=8;
 
 var toolTip;
-
+var map;
 $(document).bind("ready", function() {
 	console.log("kick off dashboard");
 	
@@ -15,11 +15,13 @@ $(document).bind("ready", function() {
 	onWindowResize(null);
 	
 	var domains=createDomains();
-	var map = new WAAG.Map(domains);
+	map = new WAAG.Map(domains);
 	
 	for(var i=0; i<domains.length; i++){
 	  domains[i].index=i;
 	  var domain = new WAAG.Domains( domains[i]);
+	  
+	  //test data for map testing
 	  map.addDomainLayer(domains[i].mainDomain.id); 
 	};
 	
@@ -55,12 +57,25 @@ WAAG.Domains = function Domains(_properties) {
       .attr("class", "domain_container")
       .attr("id", properties.mainDomain.id)
       .style("background-color", properties.color)
-      .style("top", menuHeight+(properties.index*widgetHeight)+"em");
+      .style("top", menuHeight+(properties.index*widgetHeight)+"em")
+      
     
     // header setup  
     var header=container.append("div")
       .attr("id", "header")
-      .style("padding", 1+"em");
+      .style("padding", 1+"em")
+      //not correct hit area
+      .on("click", function(){
+        
+        //map.addDomainLayer(properties.mainDomain.id); 
+        
+        
+        // container.transition()        
+        //     .duration(5000)      
+        //     .style("top", 0+"em");
+        
+        
+        });
        
     header.append("object")
         .attr("class", "domainIcon")
@@ -83,12 +98,14 @@ WAAG.Domains = function Domains(_properties) {
       .style("margin-bottom", 0.5+"em")
       .style("left", 768/2+"px")
       .style("height", 8+"em");  
+    
       
     header.append("object")
         .attr("class", "plusIcon")
+        .attr("id", "plusIcon")
         .attr("data", "images/svg/icon_plus.svg")
         .attr("type", "image/svg+xml")
-
+  
 	  setDomainA(properties.subDomainA);
     setDomainB(properties.subDomainB);
    
@@ -112,7 +129,7 @@ WAAG.Domains = function Domains(_properties) {
         .attr("type", "image/svg+xml");
     
     // create ticker table
-    var tickerTable = createTickerTable(_properties.tickerData, ["discription", "value"], subDomainA);
+    var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainA);
 
     var barGraph = new WAAG.BarGraph(_properties.graphData, subDomainA);
     
@@ -136,7 +153,7 @@ WAAG.Domains = function Domains(_properties) {
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml")
         
-    var tickerTable = createTickerTable(_properties.tickerData, ["discription", "value"], subDomainB);        
+    var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainB);        
     var barGraph = new WAAG.BarGraph(_properties.graphData, subDomainB);
 
 	};
@@ -170,6 +187,7 @@ WAAG.Domains = function Domains(_properties) {
       var cells = rows.selectAll("td")
           .data(function(row) {
               return columns.map(function(column) {
+                  //console.log(column);
                   return {column: column, value: row[column]};
               });
           })
@@ -177,9 +195,11 @@ WAAG.Domains = function Domains(_properties) {
           .append("td")
               .style("width", function(d){ 
                 if(d.column=="discription"){
-                  return "70%";
-                }else{
+                  return "60%";
+                }else if(d.column=="value"){
                   return "30%";
+                }else{
+                  return "10%";
                 }
 
                 })

@@ -78,13 +78,13 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
         .style("shape-rendering", function(d) { if(d.hour>hNow) return "crispEdges" })
         .style("stroke", function(d) { if(d.hour>hNow) return "#666" })
         .on("mouseover", function(d) {
-                    toolTip.transition()        
-                        .duration(100)      
-                        .style("opacity", .9);      
-                    toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
-                        .style("left", (d3.event.pageX) + 10+"px")     
-                        .style("top", (d3.event.pageY - 28 - 10) + "px");    
-                    })                  
+              toolTip.transition()        
+                  .duration(100)      
+                  .style("opacity", .9);      
+              toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
+                  .style("left", (d3.event.pageX) + 10+"px")     
+                  .style("top", (d3.event.pageY - 28 - 10) + "px");    
+              })                  
          .on("mouseout", function(d) {       
             toolTip.transition()        
                 .duration(250)      

@@ -117,7 +117,6 @@ WAAG.Map = function Map(domains) {
    			  .attr("id", function(d, i){return d.cdk_id;})
    			  .attr("d", path)
    			  .style("fill", "white")
-   			  .style("stroke", "#666")
    			  .on("mouseover", function(d){
    			    d3.select(this).style("stroke-width", 1+"px" );
    			    d3.select(this).style("fill", "#F9F1EA" );
@@ -160,7 +159,7 @@ WAAG.Map = function Map(domains) {
         d.visLabel=g.data.velocity;
     });
     
-    var max =  d3.max(data, function(d) {console.log(d.visData); return d.visData; });
+    var max =  d3.max(data, function(d) {return d.visData; });
 	  
 	  var color = d3.scale.linear()
             .domain([1, max])
@@ -182,8 +181,8 @@ WAAG.Map = function Map(domains) {
                 .duration(100)      
                 .style("opacity", .9);      
             toolTip.html(d.name+"<br> value: "+d.visLabel+" km/u")  
-                .style("left", (d3.event.pageX) + 10+"px")     
-                .style("top", (d3.event.pageY - 28 - 10) + "px");    
+                .style("left", (d3.event.pageX) + 5+"px")     
+                .style("top", (d3.event.pageY - 28 - 5) + "px");    
             })
       		.on("mouseout", function(d){
             toolTip.transition()        
@@ -197,7 +196,7 @@ WAAG.Map = function Map(domains) {
   			
   	    vis.transition()
             .duration(500)
-            .style("stroke-width", function(d){return d.visData})
+            .style("stroke-width", function(d){return (d.visData/2)})
 
          vis.exit().transition()
             .duration(250)
