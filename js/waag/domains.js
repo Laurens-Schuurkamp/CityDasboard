@@ -15,14 +15,16 @@ $(document).bind("ready", function() {
 	onWindowResize(null);
 	
 	var domains=createDomains();
+	var map = new WAAG.Map(domains);
 	
 	for(var i=0; i<domains.length; i++){
 	  domains[i].index=i;
-	  var domain = new WAAG.Domains( domains[i]); 
+	  var domain = new WAAG.Domains( domains[i]);
+	  map.addDomainLayer(domains[i].mainDomain.id); 
 	};
 	
 	//set map
-	var map = new WAAG.Map(domains); 
+	 
 
 });
 
@@ -113,6 +115,7 @@ WAAG.Domains = function Domains(_properties) {
     var tickerTable = createTickerTable(_properties.tickerData, ["discription", "value"], subDomainA);
 
     var barGraph = new WAAG.BarGraph(_properties.graphData, subDomainA);
+    
 
 	};
 	

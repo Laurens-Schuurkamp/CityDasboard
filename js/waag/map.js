@@ -3,7 +3,7 @@ WAAG.Map = function Map(domains) {
   console.log("map constructor");
   var container;
   var mapScale=125000;
-	var svg, projection, path, map;
+	var svg, projection, path, map, main_map;
 	var centered, zoom;
 	var defs, filter, feMerge;
 	var rangeCB=9; //range colorbrewer
@@ -41,9 +41,12 @@ WAAG.Map = function Map(domains) {
   		    .call(zoom);   
 
   		map = svg.append("g")
-  		   .attr("id", "main_map")
-  		   .attr("class", "Oranges");
- 
+  		   .attr("id", "map");
+  		   
+  		   
+  		main_map = map.append("g")
+     		   .attr("id", "main_map")
+     		   .attr("class", "Oranges");
 
   	// set dropshadow filters	   
      defs = map.append("defs");
@@ -68,13 +71,13 @@ WAAG.Map = function Map(domains) {
        feMerge.append("feMergeNode")
            .attr("in", "SourceGraphic");
            
-      getGeoData();     		   
+      getGeoData("admr.nl.amsterdam/nodes?admr::admn_level=5", "main_map");     		   
 
   };
   
-  function getGeoData(){
+  function getGeoData(url, domain){
   	  
-  	d3.json(apiUrl+"admr.nl.amsterdam/nodes?admr::admn_level=5"+apiGeom, function(results){
+  	d3.json(apiUrl+url+apiGeom, function(results){
   		var data=results.results;
       
       // rewrite results to geojson
@@ -91,8 +94,13 @@ WAAG.Map = function Map(domains) {
         }
 
     	  });
-    	  //console.log(data);
-  			updateRegionsMap(data);
+
+        if(domain=="main_map"){
+          updateRegionsMap(data);
+        }else if(domain=="transport"){
+          updateTrafficMap(data, domain);
+        }
+  			
   		});
 
   };
@@ -112,6 +120,7 @@ WAAG.Map = function Map(domains) {
    			  .style("stroke", "#666")
    			  .on("mouseover", function(d){
    			    d3.select(this).style("stroke-width", 1+"px" );
+   			    d3.select(this).style("fill", "#F9F1EA" );
   			    toolTip.transition()        
                 .duration(100)      
                 .style("opacity", .9);      
@@ -121,6 +130,7 @@ WAAG.Map = function Map(domains) {
             })
       			.on("mouseout", function(d){
       			  d3.select(this).style("stroke-width", 0.25+"px" );
+      			  d3.select(this).style("fill", "white" );
               toolTip.transition()        
                   .duration(250)      
                   .style("opacity", 0);			  
@@ -130,7 +140,82 @@ WAAG.Map = function Map(domains) {
     			        			    
       			})
 
- 
+  };
+  
+  updateTrafficMap = function(data, domain){
+  	//console.log("setting traffic map "+data);
+  	
+  	data.forEach(function(d){
+	     var g= d.layers["divv.traffic"];
+	    
+	     var tt=parseInt(g.data.traveltime);
+	     var tt_ff=parseInt(g.data.traveltime_freeflow);
+       d.visData=tt/tt_ff;
+       
+       //console.log("trafel perc ="+d.visData);
+       if(d.visData<0 || isNaN(d.visData) || d.visData=="Infinity"){
+            d.visData=0.1;
+        }
+        
+        d.visLabel=g.data.velocity;
+    });
+    
+    var max =  d3.max(data, function(d) {console.log(d.visData); return d.visData; });
+	  
+	  var color = d3.scale.linear()
+            .domain([1, max])
+            .range(['green', 'red']);
+    
+  	
+  	var visTraffic=d3.select("#map_"+domain);
+  	
+    var vis=visTraffic.selectAll("path").data(data, function(d, i){return d.cdk_id});
+
+		vis.enter().append("path")
+  			  .attr("id", function(d, i){return d.cdk_id})
+  			  .attr("d", path)
+  			  .style("fill", "none")
+  			  .style("stroke-width", function(d){return 0})
+  			  .style("stroke", function(d) { return color(d.visData)})
+  			  .on("mouseover", function(d){
+  			    toolTip.transition()        
+                .duration(100)      
+                .style("opacity", .9);      
+            toolTip.html(d.name+"<br> value: "+d.visLabel+" km/u")  
+                .style("left", (d3.event.pageX) + 10+"px")     
+                .style("top", (d3.event.pageY - 28 - 10) + "px");    
+            })
+      		.on("mouseout", function(d){
+            toolTip.transition()        
+                .duration(250)      
+                .style("opacity", 0);			  
+    			  
+    			})
+  			  .on("click", function(d){
+  			        			    
+    			})
+  			
+  	    vis.transition()
+            .duration(500)
+            .style("stroke-width", function(d){return d.visData})
+
+         vis.exit().transition()
+            .duration(250)
+            .style("stroke-width", function(d){return 0})
+            .remove();		  
+
+	}
+  
+  addDomainLayer = function(domain){
+      map.append("g")
+        .attr("id", "map_"+domain)
+        .attr("class", "Oranges");
+        
+    if(domain=="transport"){
+      getGeoData("nodes?layer=divv.traffic", domain);
+    };
+  
+    console.log("adding domain layer "+domain);
   };
   
   function zoomed() {
@@ -140,6 +225,7 @@ WAAG.Map = function Map(domains) {
 
 
   init();
+  this.addDomainLayer=addDomainLayer;
   return this;   
 
 };
