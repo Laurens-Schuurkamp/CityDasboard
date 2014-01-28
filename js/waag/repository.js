@@ -1,19 +1,13 @@
-var dNow = new Date();
-var hNow = dNow.getHours();
-var mNow = dNow.getMinutes();
-
-var apiUrl="http://api.citysdk.waag.org/";
-var apiGeom="&geom&per_page=1000";
-
-
+var domainList;
 function createDomains(){
-  var domainList=[];
+  
+  var list=[];
   // domain DIVV
   var mainDomain={id:"transport", label:"Transport", icon:"images/svg/icon_transport.svg"};
   var dummyData=getDummyData();
   var tickerData = [
       {bullet:">", discription: "Road pressure", value: "30%"},
-      {bullet:"+", discription: "Avg. speed", value: "32%"},
+      {bullet:"+", discription: "Avg. speed", value: "32 km/u"},
       {bullet:"+", discription: "Parking", value: "29%"},
   ];
   var subDomainA={id:"divv", label:"Transport & Infrastructure", icon:"images/svg/icon_divv.svg", graphData:dummyData, tickerData:tickerData, type:"bar"};
@@ -21,8 +15,8 @@ function createDomains(){
   dummyData=getDummyData();
   tickerData = [
       {bullet:">", discription: "Ontime", value: "30 %"},
-      {bullet:"+", discription: "Avg. delay time", value: "30 %"},
-      {bullet:"+", discription: "Total trips", value: "30 %"},
+      {bullet:"+", discription: "Avg. delay time", value: "156 sec"},
+      {bullet:"+", discription: "Total trips", value: "308 (410)"},
   ];  
   var subDomainB={id:"pt", label:"Public transport", icon:"images/svg/icon_pt.svg", graphData:dummyData, tickerData:tickerData, type:"bar"};
 	var properties={
@@ -33,7 +27,7 @@ function createDomains(){
 	  subDomainB:subDomainB,
 
 	};
-	domainList.push(properties);
+	list.push(properties);
   
   // domain environment  
   mainDomain={id:"environment", label:"Environment", icon:"images/svg/icon_environment.svg"};
@@ -59,7 +53,7 @@ function createDomains(){
 	  subDomainB:subDomainB,
 
 	};
-	domainList.push(properties);
+	list.push(properties);
 
   // domain economy 
   mainDomain={id:"economy", label:"Economy", icon:"images/svg/icon_economy.svg"};
@@ -85,11 +79,11 @@ function createDomains(){
 	  subDomainB:false,
 
 	};
-	domainList.push(properties);
+	list.push(properties);
 
 
   //domainList.reverse();
-  return domainList;
+  return list;
 }
 
 

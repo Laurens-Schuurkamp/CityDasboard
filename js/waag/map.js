@@ -18,7 +18,7 @@ WAAG.Map = function Map(domains) {
         .style("top", menuHeight+(domains.length*widgetHeight)+"em");
         
   		projection = d3.geo.mercator()
-  			     .translate([ (768/2) , (576/2) ])
+  			     .translate([ (mapWidth*16)/2 , (mapHeight*16)/2 ])
   			     .scale([mapScale]);
 
   		projection.center([4.9000,52.3725])
@@ -77,7 +77,7 @@ WAAG.Map = function Map(domains) {
   
   function getGeoData(url, domain){
   	  
-  	d3.json(apiUrl+url+apiGeom, function(results){
+  	d3.json(apiUrlSDK+url+apiGeom, function(results){
   		var data=results.results;
       
       // rewrite results to geojson

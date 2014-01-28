@@ -1,45 +1,4 @@
-var WAAG = WAAG || {};
-var widgetHeight=14;
-var menuHeight=8;
-
-var toolTip;
-var map;
-$(document).bind("ready", function() {
-	console.log("kick off dashboard");
-	
-	toolTip = d3.select("body").append("div")   
-      .attr("class", "tooltip")               
-      .style("opacity", 1);
-	
-	window.addEventListener('resize', onWindowResize, false);
-	onWindowResize(null);
-	
-	var domains=createDomains();
-	map = new WAAG.Map(domains);
-	
-	for(var i=0; i<domains.length; i++){
-	  domains[i].index=i;
-	  var domain = new WAAG.Domains( domains[i]);
-	  
-	  //test data for map testing
-	  map.addDomainLayer(domains[i].mainDomain.id); 
-	};
-	
-	//set map
-	 
-
-});
-
-function onWindowResize( event ) {
-  console.log('resize');
-	w = window.innerWidth;
-  h = window.innerHeight;
-  var stage=d3.select("#stage").style("left", (window.innerWidth/2)-(768/2)+"px");
-
-};
-
-
-WAAG.Domains = function Domains(_properties) {
+WAAG.Domain = function Domain(_properties) {
   var properties=_properties;
   var container;
   var subDomianA, subDomianB;
@@ -51,6 +10,7 @@ WAAG.Domains = function Domains(_properties) {
   var x,y,xaxis,yaxis;  
 
 	function init(){
+	  
 
 	  var stage = d3.select("#stage");
     container = stage.append("div")
@@ -65,17 +25,7 @@ WAAG.Domains = function Domains(_properties) {
       .attr("id", "header")
       .style("padding", 1+"em")
       //not correct hit area
-      .on("click", function(){
-        
-        //map.addDomainLayer(properties.mainDomain.id); 
-        
-        
-        // container.transition()        
-        //     .duration(5000)      
-        //     .style("top", 0+"em");
-        
-        
-        });
+      
        
     header.append("object")
         .attr("class", "domainIcon")
@@ -97,15 +47,20 @@ WAAG.Domains = function Domains(_properties) {
       .style("margin-top", 0.5+"em")
       .style("margin-bottom", 0.5+"em")
       .style("left", 768/2+"px")
-      .style("height", 8+"em");  
-    
+      .style("height", 8+"em");
       
-    header.append("object")
+      header.append("object")
         .attr("class", "plusIcon")
-        .attr("id", "plusIcon")
         .attr("data", "images/svg/icon_plus.svg")
-        .attr("type", "image/svg+xml")
-  
+        .attr("type", "image/svg+xml")    
+    
+    var hit=header.append("div")
+      .attr("class", "plusIcon")
+      .on("click", function(){
+         repositionDomains(properties.index);
+        
+        });
+
 	  setDomainA(properties.subDomainA);
     setDomainB(properties.subDomainB);
    
@@ -218,6 +173,7 @@ WAAG.Domains = function Domains(_properties) {
   
 
   init();
+  
   return this;   
 
 };
