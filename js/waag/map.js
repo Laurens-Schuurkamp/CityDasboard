@@ -16,6 +16,22 @@ WAAG.Map = function Map(domains) {
         .attr("class", "map_container")
         .attr("id", "map_container")
         .style("top", menuHeight+(domains.length*widgetHeight)+"em");
+      
+        container.append("div")
+            .attr("class", "mapMenu")
+            .style("position", "relative")
+            .style("background-color", "#e3ddd7")
+            .style("top", 0+"em")
+            .style("height", 2+"em")
+            .style("margin-bottom", 0.5+"em");
+        
+      // container.append("div")
+      //     .attr("class", "hLine")
+      //     .style("position", "relative")
+      //     .style("top", 0+"em")
+      //     .style("margin-top", 0.5+"em")
+      //     .style("margin-bottom", 0.5+"em");
+ 
         
   		projection = d3.geo.mercator()
   			     .translate([ (mapWidth*16)/2 , (mapHeight*16)/2 ])
@@ -37,7 +53,6 @@ WAAG.Map = function Map(domains) {
   		svg = d3.select("#map_container").append("svg")
   		    .attr("width", 768+"px")
   		    .attr("height", 576+"px")
-  		    .style("fill", "white")
   		    .call(zoom);   
 
   		map = svg.append("g")
@@ -118,8 +133,8 @@ WAAG.Map = function Map(domains) {
    			  .attr("d", path)
    			  .style("fill", "white")
    			  .on("mouseover", function(d){
-   			    d3.select(this).style("stroke-width", 1+"px" );
-   			    d3.select(this).style("fill", "#F9F1EA" );
+   			    d3.select(this).style("stroke-width", 0.1+"px" );
+   			    d3.select(this).style("fill", "#f3ece5" );
   			    toolTip.transition()        
                 .duration(100)      
                 .style("opacity", .9);      
@@ -128,7 +143,7 @@ WAAG.Map = function Map(domains) {
                 .style("top", (d3.event.pageY - 28 - 10) + "px");    
             })
       			.on("mouseout", function(d){
-      			  d3.select(this).style("stroke-width", 0.25+"px" );
+      			  d3.select(this).style("stroke-width", 0.05+"px" );
       			  d3.select(this).style("fill", "white" );
               toolTip.transition()        
                   .duration(250)      

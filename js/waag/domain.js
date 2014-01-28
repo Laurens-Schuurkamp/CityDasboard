@@ -51,7 +51,7 @@ WAAG.Domain = function Domain(_properties) {
       
       header.append("object")
         .attr("class", "plusIcon")
-        .attr("data", "images/svg/icon_plus.svg")
+        .attr("data", "images/svg/icon_map-small.svg")
         .attr("type", "image/svg+xml")    
     
     var hit=header.append("div")
@@ -87,6 +87,29 @@ WAAG.Domain = function Domain(_properties) {
     var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainA);
 
     var barGraph = new WAAG.BarGraph(_properties.graphData, subDomainA);
+    
+    if(_properties.id=="smartcitizen"){
+      subDomainA.append("object")
+          .attr("id", "tempGraph")
+          .attr("data", "images/svg/icon_tempGraph.svg")
+          .attr("type", "image/svg+xml")
+          .style("position", "relative")
+          .style("left", 20.5+"em")
+          .style("top", -0.75+"em")
+          .on("mouseover", function(d) {
+                toolTip.transition()        
+                    .duration(100)      
+                    .style("opacity", .9);      
+                toolTip.html("temp 22.4")  
+                    .style("left", (d3.event.pageX) + 6+"px")     
+                    .style("top", (d3.event.pageY - 10) + "px");    
+                })
+          .on("mouseout", function(d) {       
+              toolTip.transition()        
+                  .duration(250)      
+                  .style("opacity", 0);   
+          })
+    };
     
 
 	};

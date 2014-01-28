@@ -1,3 +1,5 @@
+
+
 .bar {
   fill: #666;
   stroke-width:1px;
@@ -24,7 +26,7 @@
 path {
   fill: white;
   stroke: #666;
-  stroke-width: 0.1px;
+  stroke-width: 0.05px;
   
 }
 
