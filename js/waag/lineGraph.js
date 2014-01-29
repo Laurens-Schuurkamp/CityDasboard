@@ -1,12 +1,12 @@
-WAAG.BarGraph = function BarGraph(data, _subDomain) {
+WAAG.LineGraph = function LineGraph(data, _subDomain) {
 
-  //console.log("bargraph contructor");
+  //console.log("linegraph contructor");
   
   var margin = {top: 20, right: 40, bottom: 30, left: 20},
       width = 350 - margin.left - margin.right,
       height = 90 - margin.top - margin.bottom;
       
-  var x,y,xaxis,yaxis;
+  var x,y,xaxis,yaxis, visLine;
 
 	function init(){
 
@@ -42,12 +42,16 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
               .scale(y)
               .orient("right")
               .tickValues([0, 50, 100]);
-              //.ticks(10, "%");  
+              //.ticks(10, "%"); 
+              
+     visLine = d3.svg.line()
+      .x(function(d) { return x(d.hour); })
+      .y(function(d) { return y(d.value); });         
   
       x.domain(data.map(function(d) { return d.hour; }));
       y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
-
+      
         svgDomain.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
@@ -62,7 +66,9 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
             .attr("y", 6)
             .attr("dy", "-38em")
             .style("text-anchor", "end")
-            .text("pressure (%)");      
+            .text("pressure (%)"); 
+            
+                    
 
       updateGraph(data, svgDomain);
 
@@ -71,17 +77,20 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
 	function updateGraph(data, _svgDomain){
 
 	  var svgDomain=_svgDomain;
-    var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
+    //var vis=svgDomain.selectAll("path").data(data, function(d, i){return i});
     
-    vis.enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", function(d) { return x(d.hour); })
-        .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(0); })
-        .attr("height", function(d) { return height - y(0); })
-        .style("fill", function(d) { if(d.hour>hNow) return "none" })
-        .style("shape-rendering", function(d) { if(d.hour>hNow) return "crispEdges" })
-        .style("stroke", function(d) { if(d.hour>hNow) return "#666" })
+    svgDomain.append("path")
+      .datum(data)
+          .attr("class", "line")
+          .attr("d", visLine);
+          
+	  svgDomain.selectAll('.dot')
+		  .data(data)
+	      .enter().append("circle")
+	      .attr("class", "dot")
+	      .attr("r", function(d) { if(d.hour<hNow) return 1 })
+	      .attr("cx", function(d) { return x(d.hour); })
+	      .attr("cy", function(d) { return y(d.value); })
         .on("mouseover", function(d) {
               toolTip.transition()        
                   .duration(100)      
@@ -97,19 +106,22 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
         })
         .on("click", function(d){
             updateDummySet(data, _svgDomain);
-			      
-			    });
+               
+             });      
 
-    var time=250+(Math.random()*750);    
-    vis.transition()
-        .duration(time)
-        .attr("y", function(d) { return y(d.value); })
-        .attr("height", function(d) { return height - y(d.value); });
-        
-    vis.exit().transition()
-        .duration(time)
-        .style("opacity", 0 )
-        .remove();        
+    
+
+
+    // var time=250+(Math.random()*750);    
+    // vis.transition()
+    //     .duration(time)
+    //     .attr("y", function(d) { return y(d.value); })
+    //     .attr("height", function(d) { return height - y(d.value); });
+    //     
+    // vis.exit().transition()
+    //     .duration(time)
+    //     .style("opacity", 0 )
+    //     .remove();        
 
 	};
 	

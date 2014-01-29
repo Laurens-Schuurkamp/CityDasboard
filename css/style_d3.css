@@ -13,6 +13,7 @@
   font-family: 'Gudea', sans-serif;
   color:#fff;
   font-size: 0.5em;
+  
   /*font: 10px sans-serif;*/
 }
 
@@ -20,16 +21,32 @@
 .axis line {
   fill: none;
   stroke: #666;
+  stroke-width: 1px;
   shape-rendering: crispEdges;
 }
 
 path {
   fill: white;
-  stroke: #666;
-  stroke-width: 0.05px;
+  stroke: #999;
+  stroke-width: 0.1px;
   
 }
 
+.line {
+  fill: none;
+  stroke: #666;
+  stroke-width: 0.5px;
+  
+  
+  
+}
+
+.dot {
+  fill: #666;
+  stroke: #666;
+  stroke-width: 2px;
+  
+}
 
 
 

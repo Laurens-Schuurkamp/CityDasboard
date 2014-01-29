@@ -6,15 +6,10 @@ var mapHeight=36; // em
 var mapWidth=48; //em
 
 var toolTip;
-var map; 
+var map;
 
-var dNow = new Date();
-var hNow = dNow.getHours();
-var mNow = dNow.getMinutes();
 
-var apiUrlSDK="http://api.citysdk.waag.org/";
-var apiGeom="&geom&per_page=1000";
-var apiUrlDB="http://loosecontrol.tv:4567/";
+
 
 function initDashboard(){
 
@@ -26,7 +21,7 @@ function initDashboard(){
 	
 	window.addEventListener('resize', onWindowResize, false);
 	onWindowResize(null);
-	
+		
 	domainList=createDomains();
 	map = new WAAG.Map(domainList);
 	

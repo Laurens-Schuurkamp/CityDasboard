@@ -85,8 +85,8 @@ WAAG.Domain = function Domain(_properties) {
     
     // create ticker table
     var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainA);
-
-    var barGraph = new WAAG.BarGraph(_properties.graphData, subDomainA);
+    drawGraph(_properties, subDomainA);
+    
     
     if(_properties.id=="smartcitizen"){
       subDomainA.append("object")
@@ -95,7 +95,7 @@ WAAG.Domain = function Domain(_properties) {
           .attr("type", "image/svg+xml")
           .style("position", "relative")
           .style("left", 20.5+"em")
-          .style("top", -0.75+"em")
+          .style("top", -0.5+"em")
           .on("mouseover", function(d) {
                 toolTip.transition()        
                     .duration(100)      
@@ -132,9 +132,23 @@ WAAG.Domain = function Domain(_properties) {
         .attr("type", "image/svg+xml")
         
     var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainB);        
-    var barGraph = new WAAG.BarGraph(_properties.graphData, subDomainB);
+    drawGraph(_properties, subDomainB);
 
 	};
+	
+	function drawGraph(_properties, subDomain){
+	  
+	  if(_properties.type=="bar"){
+	    var barGraph = new WAAG.BarGraph(_properties.graphData, subDomain);
+	  }else if (_properties.type=="line"){
+	    var lineGraph = new WAAG.LineGraph(_properties.graphData, subDomain);
+	  }
+	  
+	  
+    
+    
+	  
+	}
 
   function createTickerTable(data, columns, _domain) {
     
