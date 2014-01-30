@@ -176,8 +176,8 @@ function getDummyData(subDomain){
   var data=[];
   for (var i=0; i<initialData.length; i++){
     var tick={ timestamp:initialData[i].timestamp, hour:initialData[i].hour, value:10+(Math.random()*90) }
-    if(subDomain=="traffic") tick.value=initialData[i].value;
     
+    if(subDomain=="traffic") tick.value=initialData[i].value;
     
     data.push(tick);
   };
