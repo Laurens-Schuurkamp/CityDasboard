@@ -1,4 +1,4 @@
-WAAG.BarGraph = function BarGraph(data, _subDomain) {
+WAAG.BarGraph = function BarGraph(properties, _subDomain) {
 
   //console.log("bargraph contructor");
   
@@ -6,9 +6,57 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
       width = 350 - margin.left - margin.right,
       height = 90 - margin.top - margin.bottom;
       
-  var x,y,xaxis,yaxis;
+  var x,y,xaxis,yaxis, svgDomain;
+    
+  var data=[];
+  
+  function init(){
+    for(var i=0; i<properties.tickerData.length; i++){
+  	  properties.tickerData[i].kciData=[];
+  	};	
 
-	function init(){
+    if(properties.tickerData[0].kci=="dummy"){
+      data=getDummyData();
+      setGraph(); 
+    }else{
+      getGraphData(properties.tickerData[0].kci, 0, false);
+    };
+    
+  };
+  
+  function getGraphData(kci, index, initted){
+    console.log(properties.tickerData[index].kciData.length);
+    
+    if(properties.tickerData[index].kciData.length>0){
+      //update data set
+      return;
+    }
+
+    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
+      properties.tickerData[index].kciData=[];
+     for(var i=0; i<results.length; i++){
+         var d=new Date();
+         d.setTime(results[i].timestamp*1000);
+         var h=d.getHours();
+         var object={hour:h, timestamp:d, value:results[i][kci+":admr.nl.amsterdam"]}
+         properties.tickerData[index].kciData.push(object);
+
+     };
+
+     properties.tickerData[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+     data=properties.tickerData[index].kciData
+     if(initted){
+       //update the grap here
+     }else{
+       setGraph();
+     }
+     
+    });
+
+  };
+
+
+	function setGraph(){
 
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
@@ -64,13 +112,12 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
             .style("text-anchor", "end")
             .text("pressure (%)");      
 
-      updateGraph(data, svgDomain);
+      updateGraph(data);
 
   };
 
-	function updateGraph(data, _svgDomain){
+	function updateGraph(data){
 
-	  var svgDomain=_svgDomain;
     var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
     
     vis.enter().append("rect")
@@ -83,6 +130,7 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
         .style("shape-rendering", function(d) { if(d.hour>hNow) return "crispEdges" })
         .style("stroke", function(d) { if(d.hour>hNow) return "#666" })
         .on("mouseover", function(d) {
+          
               toolTip.transition()        
                   .duration(100)      
                   .style("opacity", .9);      
@@ -96,7 +144,7 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
                 .style("opacity", 0);   
         })
         .on("click", function(d){
-            updateDummySet(data, _svgDomain);
+            updateDummySet(data);
 			      
 			    });
 
@@ -112,13 +160,21 @@ WAAG.BarGraph = function BarGraph(data, _subDomain) {
         .remove();        
 
 	};
-	
-	function updateDummySet(data, _svgDomain){
+
+	function updateDummySet(data){
+    
 	  data=getDummyData();
-	  updateGraph(data, _svgDomain);
+	  updateGraph(data);
 	  
 	};
-
+	
+	
+  
+  updateDataSet = function(){
+    console.log("updating data set");
+  }
+  
+  this.updateDataSet=updateDataSet;
   init();
   return this;   
 

@@ -1,4 +1,4 @@
-WAAG.LineGraph = function LineGraph(data, _subDomain) {
+WAAG.LineGraph = function LineGraph(kci, _subDomain) {
 
   //console.log("linegraph contructor");
   
@@ -6,10 +6,16 @@ WAAG.LineGraph = function LineGraph(data, _subDomain) {
       width = 350 - margin.left - margin.right,
       height = 90 - margin.top - margin.bottom;
       
-  var x,y,xaxis,yaxis, line;
+  var x,y,xaxis,yaxis, line, svgDomain;
+
+  var data=getDummyData("dummy");
 
 	function init(){
-
+    
+    //console.log(this);
+    
+    //createTickerTable(tickerData, ["bullet", "discription", "value"], _subDomain, data);
+    
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -70,13 +76,12 @@ WAAG.LineGraph = function LineGraph(data, _subDomain) {
             
                     
 
-      updateGraph(data, svgDomain);
+      updateGraph(data);
 
   };
 
-	function updateGraph(data, _svgDomain){
+	function updateGraph(data){
 
-	  var svgDomain=_svgDomain;
 	  var time=250+(Math.random()*750);
 	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
@@ -99,7 +104,13 @@ WAAG.LineGraph = function LineGraph(data, _subDomain) {
 
        visDot.enter().append("circle")
         .attr("class", "dot")
-        .attr("r", function(d) { if(d.hour<hNow) return 1 })
+        .attr("r", function(d) { if(d.hour==hNow){
+            return 2;
+          }else if(d.hour<hNow){
+            return 1;
+          }else{
+            return 0;
+          } })
         .attr("cx", function(d) { return x(d.hour); })
         .attr("cy", function(d) { return y(d.value); })
             .on("mouseover", function(d) {
@@ -116,7 +127,7 @@ WAAG.LineGraph = function LineGraph(data, _subDomain) {
                     .style("opacity", 0);   
             })
             .on("click", function(d){
-                updateDummySet(data, _svgDomain);
+                updateDummySet(data);
                    
              });      
 
@@ -133,10 +144,10 @@ WAAG.LineGraph = function LineGraph(data, _subDomain) {
 
 	};
 	
-	function updateDummySet(data, _svgDomain){
+	function updateDummySet(data){
 	  console.log("update data set");
 	  data=getDummyData();
-	  updateGraph(data, _svgDomain);
+	  updateGraph(data);
 	  
 	};
 

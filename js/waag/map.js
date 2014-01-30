@@ -25,13 +25,13 @@ WAAG.Map = function Map(domains) {
             .style("height", 2+"em")
             .style("margin-bottom", 0.5+"em");
         
-      container.append("div")
-          .attr("class", "hLine")
-          .style("position", "relative")
-          
-          .style("top", 0+"em")
-          .style("margin-top", 0.5+"em")
-          .style("margin-bottom", 0.5+"em");
+      // container.append("div")
+      //     .attr("class", "hLine")
+      //     .style("position", "relative")
+      //     
+      //     .style("top", 0+"em")
+      //     .style("margin-top", 0.5+"em")
+      //     .style("margin-bottom", 0.5+"em");
  
         
   		projection = d3.geo.mercator()

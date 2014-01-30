@@ -12,8 +12,27 @@ var mNow = dNow.getMinutes();
 
 var initialData=[];
 
-function getTimeStamps(){
+//http://loosecontrol.tv:4567/dashboard
+
+function getInitialData(){
   var apiCall="transport.car.pressure";
+  
+  d3.json("http://loosecontrol.tv:4567/dashboard", function(results){
+      
+    console.log(results);
+    for (var key in results) {
+        console.log(key+"="+results[key]);
+    };   
+   
+   getHistoryData();
+   
+  });
+  
+}
+
+function getHistoryData(){
+  var apiCall="transport.car.pressure";
+  
   d3.json("http://loosecontrol.tv:4567/"+apiCall+"/admr.nl.amsterdam/history", function(results){
       
    for(var i=0; i<results.length; i++){
@@ -32,7 +51,9 @@ function getTimeStamps(){
    initDashboard();
    
   });
+  
 }
+
 
 
 function createDomains(){
@@ -50,19 +71,21 @@ function createDomains(){
   
   var dummyData=getDummyData("traffic");
   var tickerData = [
-      {bullet:">", discription: "Road pressure", value: "41.8 %"},
-      {bullet:"+", discription: "Avg. speed", value: "32 km/u"},
-      {bullet:"+", discription: "Parking", value: "29%"},
+      {bullet:">", discription: "Road pressure", value: "41.8 %", kci:"transport.car.pressure"},
+      {bullet:"+", discription: "Avg. speed", value: "32 km/u", kci:"transport.car.speed"},
+      {bullet:"+", discription: "Parking", value: "29%", kci:"dummy"},
   ];
-  var subDomainA={id:"traffic", label:"Transport & Infrastructure", icon:"images/svg/icon_divv.svg", graphData:dummyData, tickerData:tickerData, type:"bar"};
+  
+  console.log("ticker data ="+tickerData[0].graphData)
+  var subDomainA={id:"traffic", label:"Transport & Infrastructure", icon:"images/svg/icon_divv.svg", tickerData:tickerData, type:"bar"};
   
   dummyData=getDummyData();
   tickerData = [
-      {bullet:">", discription: "Ontime", value: "30 %"},
-      {bullet:"+", discription: "Avg. delay time", value: "156 sec"},
-      {bullet:"+", discription: "Total trips", value: "308 (410)"},
+      {bullet:">", discription: "Ontime", value: "30 %", kci:"dummy"},
+      {bullet:"+", discription: "Avg. delay time", value: "156 sec", kci:"dummy"},
+      {bullet:"+", discription: "Total trips", value: "308 (410)", kci:"dummy"},
   ];  
-  var subDomainB={id:"pt", label:"Public transport", icon:"images/svg/icon_pt.svg", graphData:dummyData, tickerData:tickerData, type:"line"};
+  var subDomainB={id:"pt", label:"Public transport", icon:"images/svg/icon_pt.svg", tickerData:tickerData, type:"line"};
 	var properties={
 	  index:0,
 	  color:"#FFCC99",
@@ -77,18 +100,18 @@ function createDomains(){
   mainDomain={id:"environment", label:"Environment", icon:"images/svg/icon_environment.svg"};
   dummyData=getDummyData();
   tickerData = [
-      {bullet:">", discription: "NO2", value: "20.27 "},
-      {bullet:"+", discription: "CO", value: "117.49 "},
-      {bullet:"+", discription: "Noise level", value: "63.24 dB"},
+      {bullet:">", discription: "NO2", value: "20.27 ", kci:"dummy"},
+      {bullet:"+", discription: "CO", value: "117.49 ", kci:"dummy"},
+      {bullet:"+", discription: "Noise level", value: "63.24 dB", kci:"dummy"},
   ];
-  subDomainA={id:"smartcitizen", label:"Smartcitizen", icon:"images/svg/icon_smartcitizen.svg", graphData:dummyData, tickerData:tickerData, type:"line"};
+  subDomainA={id:"smartcitizen", label:"Smartcitizen", icon:"images/svg/icon_smartcitizen.svg", tickerData:tickerData, type:"line"};
   dummyData=getDummyData();
   tickerData = [
-      {bullet:">", discription: "NO2", value: "20.27"},
-      {bullet:"+", discription: "CO", value: "117.49"},
-      {bullet:"+", discription: "PM10", value: "63.24"},
+      {bullet:">", discription: "NO2", value: "20.27", kci:"dummy"},
+      {bullet:"+", discription: "CO", value: "117.49", kci:"dummy"},
+      {bullet:"+", discription: "PM10", value: "63.24", kci:"dummy"},
   ];
-  subDomainB={id:"airqualities", label:"Air qualities", icon:"images/svg/icon_airquality.svg", graphData:dummyData, tickerData:tickerData, type:"bar"};
+  subDomainB={id:"airqualities", label:"Air qualities", icon:"images/svg/icon_airquality.svg", tickerData:tickerData, type:"bar"};
   var properties={
 	  index:1,
 	  color:"#FFB27D",
@@ -103,20 +126,20 @@ function createDomains(){
   mainDomain={id:"economy", label:"Economy", icon:"images/svg/icon_economy.svg"};
   dummyData=getDummyData();
   tickerData = [
-      {bullet:">", discription: "value A_1", value: "20.27 "},
-      {bullet:"+", discription: "value A_2", value: "117.49 "},
-      {bullet:"+", discription: "value A_3", value: "63.24"},
+      {bullet:">", discription: "value A_1", value: "20.27 ", kci:"dummy"},
+      {bullet:"+", discription: "value A_2", value: "117.49 ", kci:"dummy"},
+      {bullet:"+", discription: "value A_3", value: "63.24", kci:"dummy"},
   ];
   
   
-  subDomainA={id:"companies", label:"Companies", icon:"images/svg/icon_company.svg", graphData:dummyData, tickerData:tickerData, type:"bar"};
+  subDomainA={id:"companies", label:"Companies", icon:"images/svg/icon_company.svg", tickerData:tickerData, type:"bar"};
   dummyData=getDummyData();
   tickerData = [
-      {bullet:">", discription: "value B_1", value: "20.27"},
-      {bullet:"+", discription: "value B_1", value: "117.49"},
-      {bullet:"+", discription: "value B_1", value: "63.24"},
+      {bullet:">", discription: "value B_1", value: "20.27", kci:"dummy"},
+      {bullet:"+", discription: "value B_1", value: "117.49", kci:"dummy"},
+      {bullet:"+", discription: "value B_1", value: "63.24", kci:"dummy"},
   ];
-  subDomainB={id:"airqualities", label:"Air qualities", icon:"images/svg/icon_airquality.svg", graphData:dummyData, tickerData:tickerData, type:"bar"};
+  subDomainB={id:"airqualities", label:"Air qualities", icon:"images/svg/icon_airquality.svg", tickerData:tickerData, type:"bar"};
   var properties={
 	  index:2,
 	  color:"#FF9966",

@@ -83,8 +83,7 @@ WAAG.Domain = function Domain(_properties) {
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml");
     
-    // create ticker table
-    var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainA);
+
     drawGraph(_properties, subDomainA);
     
     
@@ -130,34 +129,30 @@ WAAG.Domain = function Domain(_properties) {
         .attr("class", "subDomainIcon")
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml")
-        
-    var tickerTable = createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomainB);        
+              
     drawGraph(_properties, subDomainB);
 
 	};
 	
 	function drawGraph(_properties, subDomain){
-	  
+	  var graph;
 	  if(_properties.type=="bar"){
-	    var barGraph = new WAAG.BarGraph(_properties.graphData, subDomain);
+	    graph = new WAAG.BarGraph(_properties, subDomain);
 	  }else if (_properties.type=="line"){
-	    var lineGraph = new WAAG.LineGraph(_properties.graphData, subDomain);
+	    graph = new WAAG.LineGraph(_properties, subDomain);
 	  }
-	  
-	  
     
-    
-	  
+    createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomain, _properties.kci, graph);
 	}
-
-  function createTickerTable(data, columns, _domain) {
-    
+	
+	function createTickerTable(data, columns, _domain, kci, _class) {
+      
       var domain=_domain;
-    
+
       var table = domain.append("table")
         .attr("class", "tickerTable")
 
-        
+
       var thead = table.append("thead");
       var tbody = table.append("tbody");
 
@@ -203,11 +198,21 @@ WAAG.Domain = function Domain(_properties) {
                 }
 
                 })  
-              .text(function(d) { return d.value; });
+              .text(function(d) { return d.value; })
+              .on("mouseover", function(d) {
+                  d3.select("body").style("cursor", "pointer");
+              })                  
+               .on("mouseout", function(d) {       
+                  d3.select("body").style("cursor", "default");
+              })
+              
+              .on("click", function(d){
+                    
+                    _class.updateDataSet();
+               });
 
       return table;
   }
-  
 
   init();
   
