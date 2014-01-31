@@ -84,7 +84,7 @@ WAAG.Domain = function Domain(_properties) {
         .attr("type", "image/svg+xml");
     
 
-    drawGraph(_properties, subDomainA);
+    setGraph(_properties, subDomainA);
     
     
     if(_properties.id=="smartcitizen"){
@@ -130,23 +130,101 @@ WAAG.Domain = function Domain(_properties) {
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml")
               
-    drawGraph(_properties, subDomainB);
+    setGraph(_properties, subDomainB);
 
 	};
 	
-	function drawGraph(_properties, subDomain){
-	  var graph;
-	  if(_properties.type=="bar"){
-	    graph = new WAAG.BarGraph(_properties, subDomain);
-	  }else if (_properties.type=="line"){
-	    graph = new WAAG.LineGraph(_properties, subDomain);
-	  }
+	function setGraph(_properties, subDomain){
+	  
+	  var kci=_properties.tickerData[0].kci;
+    var dummyData=false;
+    if(kci=="dummy"){
+      dummyData=true;
+      kci="transport.car.pressure";
+    }
     
-    createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomain, graph);
-	}
+    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
+      var i=0;
+      for( i=0; i<_properties.tickerData.length; i++){
+          _properties.tickerData[i].kciData=[];
+      };
+     
+     
+     for(var i=0; i<results.length; i++){
+         var d=new Date();
+         d.setTime(results[i].timestamp*1000);
+         var h=d.getHours();
+         var value=results[i][kci+":admr.nl.amsterdam"]
+         if(dummyData) {
+            value=10+(Math.random()*90);
+            kci="dummy"; 
+          }
+         var object={hour:h, timestamp:d, value:value}
+         _properties.tickerData[0].kciData.push(object);
+
+     };
+
+     _properties.tickerData[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+      var graph;
+   	  if(_properties.type=="bar"){
+   	    graph = new WAAG.BarGraph(_properties, subDomain);
+   	  }else if (_properties.type=="line"){
+   	    graph = new WAAG.LineGraph(_properties, subDomain);
+   	  }
+
+     createTickerTable(_properties, ["bullet", "discription", "value"], subDomain, graph);
+
+     
+    });
+
+	};
 	
-	function createTickerTable(data, columns, _domain, _class) {
+	function updateGraph(_properties, kci, _class){
+	  
+	  
+    var dummyData=false;
+    if(kci=="dummy"){
+      dummyData=true;
+      kci="transport.car.pressure";
+    }
+    
+    var index=0;
+    for(var i=0; i<_properties.tickerData.length; i++){
+      if(kci==_properties.tickerData[i].kci){
+        index=i;
+      }
+    }
+    
+    
+    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
+
+     _properties.tickerData[index].kciData=[];
+     for(var i=0; i<results.length; i++){
+         var d=new Date();
+         d.setTime(results[i].timestamp*1000);
+         var h=d.getHours();
+         var value=results[i][kci+":admr.nl.amsterdam"]
+         if(dummyData) {
+           value=10+(Math.random()*90);
+           kci="dummy"; 
+         }
+         var object={hour:h, timestamp:d, value:value}
+         _properties.tickerData[index].kciData.push(object);
+
+     };
+
+     _properties.tickerData[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+     _class.updateDataSet(_properties, kci, index);
+
+     
+    });
+	  
+	  
+	};
+	
+	function createTickerTable(_properties, columns, _domain, _class) {
       
+      var data=_properties.tickerData;
       var domain=_domain;
 
       var table = domain.append("table")
@@ -207,7 +285,8 @@ WAAG.Domain = function Domain(_properties) {
                 })
               .on("click", function(d){
                     //console.log(d.kci);
-                    _class.updateDataSet(d.kci);
+                    //_class.updateDataSet(d.kci);
+                    updateGraph(_properties, d.kci, _class);
                });
 
       return table;

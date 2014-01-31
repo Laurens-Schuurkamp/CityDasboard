@@ -7,58 +7,12 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
       height = 90 - margin.top - margin.bottom;
       
   var x,y,xaxis,yaxis, svgDomain;
-    
-  var data=[];
-  
-  function init(){
-    for(var i=0; i<properties.tickerData.length; i++){
-  	  properties.tickerData[i].kciData=[];
-  	};	
+  var initted = false;  
 
-    if(properties.tickerData[0].kci=="dummy"){
-      data=getDummyData();
-      setGraph(); 
-    }else{
-      getGraphData(properties.tickerData[0].kci, 0, false);
-    };
-    
-  };
-  
-  function getGraphData(kci, index, initted){
-    //console.log(properties.tickerData[index].kciData.length);
-    
-    // check if dataset is loaded
-    if(properties.tickerData[index].kciData.length>0){
-      //update data set
-      return;
-    }
+	function init(){
 
-    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
-      properties.tickerData[index].kciData=[];
-     for(var i=0; i<results.length; i++){
-         var d=new Date();
-         d.setTime(results[i].timestamp*1000);
-         var h=d.getHours();
-         var object={hour:h, timestamp:d, value:results[i][kci+":admr.nl.amsterdam"]}
-         properties.tickerData[index].kciData.push(object);
-
-     };
-
-     properties.tickerData[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
-     data=properties.tickerData[index].kciData
-     if(initted){
-       //update the grap here
-     }else{
-       setGraph();
-     }
-     
-    });
-
-  };
-
-
-	function setGraph(){
-
+    var data = properties.tickerData[0].kciData;
+	  
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -73,8 +27,8 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
      x = d3.scale.ordinal()
         .rangeRoundBands([0, width], 0.1);
         
-        // x = d3.time.scale()
-        //      .rangeRoundBands([0, width], 0.1);
+    // x = d3.time.scale()
+    //      .rangeRoundBands([0, width], 0.1);
 
      y = d3.scale.linear()
         .range([height, 0]);
@@ -112,7 +66,8 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
             .attr("dy", "-38em")
             .style("text-anchor", "end")
             .text("pressure (%)");      
-
+      
+      initted=true;      
       updateGraph(data);
 
   };
@@ -145,7 +100,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
                 .style("opacity", 0);   
         })
         .on("click", function(d){
-            updateDummySet(data);
+            //updateDummySet(data);
 			      
 			    });
 
@@ -161,18 +116,12 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
         .remove();        
 
 	};
-
-	function updateDummySet(data){
-    
-	  data=getDummyData();
-	  updateGraph(data);
-	  
-	};
-	
 	
   
-  updateDataSet = function(kci){
+  updateDataSet = function(_properties, kci, index){
+    
     console.log("updating data set "+kci);
+    updateGraph(_properties.tickerData[index].kciData);
   }
   
   this.updateDataSet=updateDataSet;

@@ -69,7 +69,6 @@ function createDomains(){
   // domain DIVV
   var mainDomain={id:"transport", label:"Transport", icon:"images/svg/icon_transport.svg"};
   
-  var dummyData=getDummyData("traffic");
   var tickerData = [
       {bullet:">", discription: "Road pressure", value: "41.8 %", kci:"transport.car.pressure"},
       {bullet:"+", discription: "Avg. speed", value: "32 km/u", kci:"transport.car.speed"},
@@ -79,7 +78,7 @@ function createDomains(){
   console.log("ticker data ="+tickerData[0].graphData)
   var subDomainA={id:"traffic", label:"Transport & Infrastructure", icon:"images/svg/icon_divv.svg", tickerData:tickerData, type:"bar"};
   
-  dummyData=getDummyData();
+
   tickerData = [
       {bullet:">", discription: "Ontime", value: "30 %", kci:"dummy"},
       {bullet:"+", discription: "Avg. delay time", value: "156 sec", kci:"dummy"},
@@ -98,14 +97,13 @@ function createDomains(){
   
   // domain environment  
   mainDomain={id:"environment", label:"Environment", icon:"images/svg/icon_environment.svg"};
-  dummyData=getDummyData();
+
   tickerData = [
       {bullet:">", discription: "NO2", value: "20.27 ", kci:"dummy"},
       {bullet:"+", discription: "CO", value: "117.49 ", kci:"dummy"},
       {bullet:"+", discription: "Noise level", value: "63.24 dB", kci:"dummy"},
   ];
   subDomainA={id:"smartcitizen", label:"Smartcitizen", icon:"images/svg/icon_smartcitizen.svg", tickerData:tickerData, type:"line"};
-  dummyData=getDummyData();
   tickerData = [
       {bullet:">", discription: "NO2", value: "20.27", kci:"dummy"},
       {bullet:"+", discription: "CO", value: "117.49", kci:"dummy"},
@@ -124,7 +122,6 @@ function createDomains(){
 
   // domain economy 
   mainDomain={id:"economy", label:"Economy", icon:"images/svg/icon_economy.svg"};
-  dummyData=getDummyData();
   tickerData = [
       {bullet:">", discription: "value A_1", value: "20.27 ", kci:"dummy"},
       {bullet:"+", discription: "value A_2", value: "117.49 ", kci:"dummy"},
@@ -133,7 +130,6 @@ function createDomains(){
   
   
   subDomainA={id:"companies", label:"Companies", icon:"images/svg/icon_company.svg", tickerData:tickerData, type:"bar"};
-  dummyData=getDummyData();
   tickerData = [
       {bullet:">", discription: "value B_1", value: "20.27", kci:"dummy"},
       {bullet:"+", discription: "value B_1", value: "117.49", kci:"dummy"},
@@ -195,19 +191,16 @@ function getTickerGraphData(url){
 
 
 
-function getDummyData(subDomain){
-  var data=[];
-  for (var i=0; i<initialData.length; i++){
-    var tick={ timestamp:initialData[i].timestamp, hour:initialData[i].hour, value:10+(Math.random()*90) }
-    
-    if(subDomain=="traffic") tick.value=initialData[i].value;
-    
-    data.push(tick);
-  };
-  
-  //var d = new Date();
-  //d.setTime(data[10].timestamp);
-  //console.log(d);
-  return data;
-    
-};
+// function getDummyData(subDomain){
+//   var data=[];
+//   for (var i=0; i<initialData.length; i++){
+//     var tick={ timestamp:initialData[i].timestamp, hour:initialData[i].hour, value:10+(Math.random()*90) }
+//     
+//     if(subDomain=="traffic") tick.value=initialData[i].value;
+//     
+//     data.push(tick);
+//   };
+// 
+//   return data;
+//     
+// };
