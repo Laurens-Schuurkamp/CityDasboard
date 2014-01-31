@@ -1,4 +1,4 @@
-WAAG.LineGraph = function LineGraph(kci, _subDomain) {
+WAAG.LineGraph = function LineGraph(properties, _subDomain) {
 
   //console.log("linegraph contructor");
   
@@ -8,9 +8,55 @@ WAAG.LineGraph = function LineGraph(kci, _subDomain) {
       
   var x,y,xaxis,yaxis, line, svgDomain;
 
-  var data=getDummyData("dummy");
+  var data=[];
+  
+  function init(){
+    for(var i=0; i<properties.tickerData.length; i++){
+  	  properties.tickerData[i].kciData=[];
+  	};	
 
-	function init(){
+    if(properties.tickerData[0].kci=="dummy"){
+      data=getDummyData();
+      setGraph(); 
+    }else{
+      getGraphData(properties.tickerData[0].kci, 0, false);
+    };
+    
+  };
+  
+  function getGraphData(kci, index, initted){
+    console.log(properties.tickerData[index].kciData.length);
+    
+    if(properties.tickerData[index].kciData.length>0){
+      //update data set
+      return;
+    }
+
+    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
+      properties.tickerData[index].kciData=[];
+     for(var i=0; i<results.length; i++){
+         var d=new Date();
+         d.setTime(results[i].timestamp*1000);
+         var h=d.getHours();
+         var object={hour:h, timestamp:d, value:results[i][kci+":admr.nl.amsterdam"]}
+         properties.tickerData[index].kciData.push(object);
+
+     };
+
+     properties.tickerData[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+     data=properties.tickerData[index].kciData
+     if(initted){
+       //update the grap here
+     }else{
+       setGraph();
+     }
+     
+    });
+
+  };
+
+
+	function setGraph(){
     
     //console.log(this);
     
@@ -151,6 +197,11 @@ WAAG.LineGraph = function LineGraph(kci, _subDomain) {
 	  
 	};
 
+  updateDataSet = function(kci){
+    console.log("updating data set "+kci);
+  }
+  
+  this.updateDataSet=updateDataSet;
   init();
   return this;   
 

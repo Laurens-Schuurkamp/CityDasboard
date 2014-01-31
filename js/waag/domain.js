@@ -142,18 +142,17 @@ WAAG.Domain = function Domain(_properties) {
 	    graph = new WAAG.LineGraph(_properties, subDomain);
 	  }
     
-    createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomain, _properties.kci, graph);
+    createTickerTable(_properties.tickerData, ["bullet", "discription", "value"], subDomain, graph);
 	}
 	
-	function createTickerTable(data, columns, _domain, kci, _class) {
+	function createTickerTable(data, columns, _domain, _class) {
       
       var domain=_domain;
 
       var table = domain.append("table")
         .attr("class", "tickerTable")
 
-
-      var thead = table.append("thead");
+      //var thead = table.append("thead");
       var tbody = table.append("tbody");
 
       // create & append the header row
@@ -168,19 +167,20 @@ WAAG.Domain = function Domain(_properties) {
       var rows = tbody.selectAll("tr")
           .data(data)
           .enter()
-          .append("tr");
+          .append("tr")
+          .attr("id", function(d){return d.kci})
 
       // create a cell in each row for each column
       var cells = rows.selectAll("td")
           .data(function(row) {
-              return columns.map(function(column) {
-                  //console.log(column);
-                  return {column: column, value: row[column]};
+              return columns.map(function(column) {     
+                  return {column: column, value: row[column], kci:row["kci"]};
               });
           })
           .enter()
           .append("td")
-              .style("width", function(d){ 
+              .style("width", function(d, i){ 
+                
                 if(d.column=="discription"){
                   return "60%";
                 }else if(d.column=="value"){
@@ -201,14 +201,13 @@ WAAG.Domain = function Domain(_properties) {
               .text(function(d) { return d.value; })
               .on("mouseover", function(d) {
                   d3.select("body").style("cursor", "pointer");
-              })                  
+                })                  
                .on("mouseout", function(d) {       
                   d3.select("body").style("cursor", "default");
-              })
-              
+                })
               .on("click", function(d){
-                    
-                    _class.updateDataSet();
+                    //console.log(d.kci);
+                    _class.updateDataSet(d.kci);
                });
 
       return table;

@@ -25,8 +25,9 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
   };
   
   function getGraphData(kci, index, initted){
-    console.log(properties.tickerData[index].kciData.length);
+    //console.log(properties.tickerData[index].kciData.length);
     
+    // check if dataset is loaded
     if(properties.tickerData[index].kciData.length>0){
       //update data set
       return;
@@ -170,8 +171,8 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
 	
 	
   
-  updateDataSet = function(){
-    console.log("updating data set");
+  updateDataSet = function(kci){
+    console.log("updating data set "+kci);
   }
   
   this.updateDataSet=updateDataSet;
