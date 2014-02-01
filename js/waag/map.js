@@ -8,6 +8,9 @@ WAAG.Map = function Map(domains) {
 	var defs, filter, feMerge;
 	var rangeCB=9; //range colorbrewer
 
+  var mapMenu;
+  var llActive=false;
+  var dropDownLayers;
 
 	function init(){
       
@@ -17,23 +20,116 @@ WAAG.Map = function Map(domains) {
         .attr("id", "map_container")
         .style("top", menuHeight+(domains.length*widgetHeight)+"em");
       
-        container.append("div")
-            .attr("class", "mapMenu")
-            .style("position", "relative")
-            .style("background-color", "#e3ddd7")
-            .style("top", 0+"em")
-            .style("height", 2+"em")
-            .style("margin-bottom", 0.5+"em");
+    mapMenu = container.append("div")
+          .attr("id", "mapMenu")
+          .attr("class", "mapMenu")
+          .style("position", "relative")
+          .style("background-color", "#e3ddd7")
+          .style("top", 0+"em")
+          .style("height", 3+"em")
+          .style("opacity", 0.90)
+    
+    mapMenu.append("div")
+      .attr("class", "vLine")
+      .style("position", "absolute")
+      .style("margin-top", 0.5+"em")
+      .style("margin-bottom", 0.5+"em")
+      .style("left", 768/2+"px")
+      .style("height", 2+"em");
+          
         
-      // container.append("div")
-      //     .attr("class", "hLine")
+     var layerList = mapMenu.append('div')
+        .attr("class", "layerList")
+        .attr("id", "layerList")
+        .style("position", "absolute")
+        .style("top", 0.25+"em")
+        .style("left", 0.25+"em,")
+        .style("padding", 0.5+"em")
+        .style("width", 768/2-16+"px")
+        .on("mouseover", function(d) {
+            d3.select("body").style("cursor", "pointer");
+          })                  
+         .on("mouseout", function(d) {       
+            d3.select("body").style("cursor", "default");
+          })
+        .on("click", function(d){
+            if(llActive){
+              llActive=false;
+              deActivateLayerMenu("data");
+              
+            }else{
+              llActive=true;
+              activateLayerMenu("data");
+             
+            }
+
+
+         });
+        
+        
+    layerList.append("object")
+      .attr("class", "mapIcon")
+      .attr("data", "images/svg/icon_layers.svg")
+      .attr("type", "image/svg+xml") 
+      .style("position", "relative")
+      .style("left", 0.5+"em")
+      
+    
+      
+    layerList.append("div")
+      .attr("class", "vLine")
+      .style("position", "absolute")
+      .style("margin-top", 0.5+"em")
+      .style("margin-bottom", 0.5+"em")
+      .style("left", 3+"em")
+      .style("top", 0+"em")
+      .style("height", 1.5+"em"); 
+      
+      layerList.append("h3")
+        .style("position", "absolute")
+        .style("margin-top", 0.5+"em")
+        .style("margin-bottom", 0.5+"em")
+        .style("left", 3+"em")
+        .style("top", 0+"em")
+        .style("height", 1.5+"em")
+        .text("Layers")
+        
+     dropDownLayers=mapMenu.append('div')  
+        .style("background-color", "#e3ddd7")
+        .style("position", "absolute")
+        .style("top", 48+"px")
+        .style("left", 0+"em")
+        .style("width", 768/2+"px")
+        .style("height", 0+"px")
+        .style("opacity", 0.90)    
+        
+        
+
+      // d3.select("#layerList").selectAll("input")
+      //   .data([11])
+      //   .enter().append("label")
+      //   .attr("for", function(d,i) { return "check_"+i; })
+      //   .text(function(d) { return d; })
+      //   .append("input")
+      //   .attr("checked", true)
+      //   .attr("type", "checkbox")
+      //   .attr("id", function(d,i) { return "check_"+i; })
+      //   .attr("name", function(d,i) { return "check_"+i; })
+      //   .attr("value", function(d,i) { return "check_"+i; })    
+        
+
+      // d3.select("#mapMenu").selectAll("ul")
+      //   .attr("class", "layerList")
+      //   .attr("id", "layerList")
+      //     .data(["label 1", "label 2"])
+      //     .enter()
+      //     .append('div')
       //     .style("position", "relative")
-      //     
-      //     .style("top", 0+"em")
-      //     .style("margin-top", 0.5+"em")
-      //     .style("margin-bottom", 0.5+"em");
- 
-        
+      //     .style("top", 2.5+"em")
+      //     .attr('class', 'checkbox')
+      //     .html(function(d,i){ return "<input id='check_"+i+"' type='checkbox' name='check' value='check_"+i+"'>"+"<label for='check_"+i+"'>checkbox_"+i+"</label><br>"})
+          
+
   		projection = d3.geo.mercator()
   			     .translate([ (mapWidth*16)/2 , (mapHeight*16)/2 ])
   			     .scale([mapScale]);
@@ -90,6 +186,24 @@ WAAG.Map = function Map(domains) {
       //getGeoData("http://api.citysdk.waag.org/admr.nl.amsterdam/nodes?admr::admn_level=5&geom&per_page=1000", "main_map");     		   
 
   };
+  
+  function activateLayerMenu(data){
+
+      dropDownLayers.transition()
+          .duration(500)
+          .style("height", 576-48+"px");  
+        
+    
+  }
+  
+  function deActivateLayerMenu(data){
+          
+      dropDownLayers.transition()
+          .duration(500)
+          .style("height", 0+"px");  
+        
+    
+  }
   
   function getGeoData(url, layerId){
   	  
