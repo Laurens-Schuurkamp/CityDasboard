@@ -7,7 +7,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
       height = 90 - margin.top - margin.bottom;
       
   var x,y,xaxis,yaxis, svgDomain;
-  var initted = false;  
+  var activeIndex=0;  
 
 	function init(){
 
@@ -47,8 +47,8 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
               .tickValues([0, 50, 100]);
               //.ticks(10, "%");  
   
-      x.domain(data.map(function(d) { return d.hour; }));
-      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+       x.domain(data.map(function(d) { return d.hour; }));
+       y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
 
         svgDomain.append("g")
@@ -73,6 +73,14 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
   };
 
 	function updateGraph(data){
+	  
+	  x.domain(data.map(function(d) { return d.hour; }));
+    y.domain([0, d3.max(data, function(d) { return d.value; })]);
+	  
+    svgDomain.selectAll("y axis")
+        .call(yAxis)
+        .append("text")
+        .text("kci");
 
     var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
     
@@ -121,6 +129,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
   updateDataSet = function(_properties, kci, index){
     
     console.log("updating data set "+kci);
+    activeIndex=index;
     updateGraph(_properties.tickerData[index].kciData);
   }
   

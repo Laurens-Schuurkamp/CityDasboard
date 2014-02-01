@@ -7,12 +7,11 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
       height = 90 - margin.top - margin.bottom;
       
   var x,y,xaxis,yaxis, line, svgDomain;
-
+  var activeIndex=0;
   
   function init(){
     
     var data = properties.tickerData[0].kciData;
-    
     
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
@@ -145,11 +144,10 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
   updateDataSet = function(_properties, kci, index){
     
     console.log("updating data set "+kci);
+    activeIndex=index;
     updateGraph(_properties.tickerData[index].kciData);
   }
-  
-  this.updateDataSet=updateDataSet;
-  
+    
   this.updateDataSet=updateDataSet;
   init();
   return this;   

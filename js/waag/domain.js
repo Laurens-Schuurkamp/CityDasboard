@@ -1,5 +1,5 @@
-WAAG.Domain = function Domain(_properties) {
-  var properties=_properties;
+WAAG.Domain = function Domain(_propertiesAll) {
+  var properties=_propertiesAll;
   var container;
   var subDomianA, subDomianB;
   
@@ -7,7 +7,8 @@ WAAG.Domain = function Domain(_properties) {
       width = 350 - margin.left - margin.right,
       height = 90 - margin.top - margin.bottom;
       
-  var x,y,xaxis,yaxis;  
+  var x,y,xaxis,yaxis;
+    
 
 	function init(){
 	  
@@ -50,14 +51,14 @@ WAAG.Domain = function Domain(_properties) {
       .style("height", 8+"em");
       
       header.append("object")
-        .attr("class", "plusIcon")
+        .attr("class", "mapIcon")
         .attr("data", "images/svg/icon_map-small.svg")
         .attr("type", "image/svg+xml")    
     
     var hit=header.append("div")
-      .attr("class", "plusIcon")
+      .attr("class", "mapIcon")
       .on("click", function(){
-         repositionDomains(properties.index);
+         activateMap(properties);
         
         });
 
@@ -295,5 +296,46 @@ WAAG.Domain = function Domain(_properties) {
   init();
   
   return this;   
+
+};
+// end domain class
+
+function activateMap(_properties){
+  
+  var index=parseInt(_properties.index);
+  
+  console.log("index :"+index);
+  var map_container=d3.select("#map_container");
+  map_container.transition()
+      .duration(750)      
+      .style("top", (menuHeight+widgetHeight+(index*widgetHeight))*16+"px");
+  
+  for(var i=0; i<domainList.length; i++){
+
+      //console.log("domain index :"+parseInt(domainList[i].index)+" --> id :"+domainList[i].mainDomain.id);
+      
+      if(parseInt(domainList[i].index)<index){
+        d3.select("#"+domainList[i].mainDomain.id)
+          .transition()
+            .duration(750)      
+            .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
+      }else if(parseInt(domainList[i].index)==index){
+        d3.select("#"+domainList[i].mainDomain.id)
+          .transition()
+            .duration(750)      
+            .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
+      
+            map.addDomainLayer(_properties);
+      
+          
+      }else if( parseInt(domainList[i].index)>index) {
+        d3.select("#"+domainList[i].mainDomain.id)
+          .transition()
+            .duration(750)      
+            .style("top", (menuHeight+mapHeight+(domainList[i].index*widgetHeight))*16+"px");
+      }
+  	  
+    
+  };
 
 };

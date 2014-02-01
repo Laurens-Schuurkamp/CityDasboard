@@ -9,8 +9,6 @@ var toolTip;
 var map;
 
 
-
-
 function initDashboard(){
 
 	console.log("kick off dashboard");
@@ -46,50 +44,7 @@ function initDashboard(){
 	
 };
 
-function repositionDomains(_index){
-  
-  var index=parseInt(_index);
-  
-  console.log("index :"+index);
-  var map_container=d3.select("#map_container");
-  map_container.transition()
-      .duration(750)      
-      .style("top", (menuHeight+widgetHeight+(index*widgetHeight))*16+"px");
-  
-  for(var i=0; i<domainList.length; i++){
 
-      console.log("domain index :"+parseInt(domainList[i].index)+" --> id :"+domainList[i].mainDomain.id);
-      
-      if(parseInt(domainList[i].index)<index){
-        console.log("smaller");
-        d3.select("#"+domainList[i].mainDomain.id)
-          .transition()
-            .duration(750)      
-            .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
-      }else if(parseInt(domainList[i].index)==index){
-        console.log("smaller");
-        d3.select("#"+domainList[i].mainDomain.id)
-          .transition()
-            .duration(750)      
-            .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
-      
-            map.addDomainLayer(domainList[i].mainDomain.id);
-      
-          
-      }else if( parseInt(domainList[i].index)>index) {
-        d3.select("#"+domainList[i].mainDomain.id)
-          .transition()
-            .duration(750)      
-            .style("top", (menuHeight+mapHeight+(domainList[i].index*widgetHeight))*16+"px");
-      }
-  	  
-    
-  };
-  
-  
-  
-  
-};
 
 
 
