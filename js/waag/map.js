@@ -404,7 +404,7 @@ WAAG.Map = function Map(domains) {
   
   addDomainLayer = function(_properties){
     
-    var layers=[_properties.subDomainA, _properties.subDomainB];
+    var layers=_properties.subDomains;
     
     for (var i=0; i<layers.length; i++){
       if(layers[i]!=false && layers[i].mapUrl!="dummy"){

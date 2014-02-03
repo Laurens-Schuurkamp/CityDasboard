@@ -16,7 +16,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	  var stage = d3.select("#stage");
     container = stage.append("div")
       .attr("class", "domain_container")
-      .attr("id", properties.mainDomain.id)
+      .attr("id", properties.id)
       .style("background-color", properties.color)
       .style("top", menuHeight+(properties.index*widgetHeight)+"em")
       
@@ -30,11 +30,11 @@ WAAG.Domain = function Domain(_propertiesAll) {
        
     header.append("object")
         .attr("class", "domainIcon")
-        .attr("data", properties.mainDomain.icon)
+        .attr("data", properties.icon)
         .attr("type", "image/svg+xml");
       
     header.append("h2")
-      .text(properties.mainDomain.label);
+      .text(properties.label);
           
     header.append("div")
       .attr("class", "hLine")
@@ -59,11 +59,16 @@ WAAG.Domain = function Domain(_propertiesAll) {
       .attr("class", "mapIcon")
       .on("click", function(){
          activateMap(properties);
-        
+        })
+      .on("mouseover", function(d) {
+          d3.select("body").style("cursor", "pointer");
+        })                  
+       .on("mouseout", function(d) {       
+          d3.select("body").style("cursor", "default");
         });
 
-	  setDomainA(properties.subDomainA);
-    setDomainB(properties.subDomainB);
+	  setDomainA(properties.subDomains[0]);
+    setDomainB(properties.subDomains[1]);
    
  
 	};
@@ -167,9 +172,9 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
      _properties.tickerData[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
       var graph;
-   	  if(_properties.type=="bar"){
+   	  if(_properties.graphType=="bar"){
    	    graph = new WAAG.BarGraph(_properties, subDomain);
-   	  }else if (_properties.type=="line"){
+   	  }else if (_properties.graphType=="line"){
    	    graph = new WAAG.LineGraph(_properties, subDomain);
    	  }
 
@@ -203,6 +208,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
      for(var i=0; i<results.length; i++){
          var d=new Date();
          d.setTime(results[i].timestamp*1000);
+         console.log(d);
          var h=d.getHours();
          var value=results[i][kci+":admr.nl.amsterdam"]
          if(dummyData) {
@@ -315,12 +321,12 @@ function activateMap(_properties){
       //console.log("domain index :"+parseInt(domainList[i].index)+" --> id :"+domainList[i].mainDomain.id);
       
       if(parseInt(domainList[i].index)<index){
-        d3.select("#"+domainList[i].mainDomain.id)
+        d3.select("#"+domainList[i].id)
           .transition()
             .duration(750)      
             .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
       }else if(parseInt(domainList[i].index)==index){
-        d3.select("#"+domainList[i].mainDomain.id)
+        d3.select("#"+domainList[i].id)
           .transition()
             .duration(750)      
             .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
@@ -329,7 +335,7 @@ function activateMap(_properties){
       
           
       }else if( parseInt(domainList[i].index)>index) {
-        d3.select("#"+domainList[i].mainDomain.id)
+        d3.select("#"+domainList[i].id)
           .transition()
             .duration(750)      
             .style("top", (menuHeight+mapHeight+(domainList[i].index*widgetHeight))*16+"px");

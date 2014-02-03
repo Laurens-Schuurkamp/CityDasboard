@@ -4,6 +4,8 @@ var apiUrlSDK="http://api.citysdk.waag.org/";
 var apiGeom="&geom&per_page=1000";
 var apiUrlDB="http://loosecontrol.tv:4567/";
 var admr="admr.nl.amsterdam";
+var assetsImages="images/images/";
+var assetsSvg="images/svg/";
 
 var dNow = new Date();
 var timeNow=dNow.getTime();
@@ -17,18 +19,48 @@ var initialData=[];
 function getInitialData(){
   var apiCall="transport.car.pressure";
   
+  var dashBoardData=[];
+
   d3.json("http://loosecontrol.tv:4567/dashboard", function(results){
-      
-    console.log(results);
-    for (var key in results) {
-        console.log(key+"="+results[key]);
-    };   
-   
+
+    var domains=d3.entries(results);
+
+    for(var i=0; i<domains.length; i++){
+        var subdomains=[];  
+        var subs=d3.entries(domains[i].value);  
+        
+        for(var j=0; j<subs.length; j++){
+          var subDomain={};
+          subDomain.id=subs[j].key;
+          subDomain.label=subs[j].key;
+          subDomain.icon="/images/svg/icon_"+domains[i].key+"."+subs[j].key+".svg";
+          subDomain.tickerData=d3.entries(subs[j].value);
+          subdomains[j]=subDomain;
+          
+        }
+        
+        var domain={
+          color:"#ccc",
+          id:domains[i].key,
+          label:domains[i].key,
+          icon:"/images/svg/icon_"+domains[i].key+".svg",
+          graphType:"bar",
+          subdomains:subdomains
+        }
+        
+        dashBoardData.push(domain);
+           
+    }
+
    getHistoryData();
    
   });
   
 }
+
+function getAssets(){
+  
+};
 
 function getHistoryData(){
   var apiCall="transport.car.pressure";
@@ -39,11 +71,11 @@ function getHistoryData(){
      var d=new Date();
      d.setTime(results[i].timestamp*1000);
      var h=d.getHours();
-
+  
      var object={hour:h, timestamp:d, value:results[i][apiCall+":admr.nl.amsterdam"]}
           
      initialData.push(object);
-
+  
    };
   
    initialData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
@@ -51,6 +83,7 @@ function getHistoryData(){
    initDashboard();
    
   });
+
   
 }
 
@@ -58,18 +91,13 @@ function getHistoryData(){
 
 function createDomains(){
   
-  var indicators=getTickerIndicators("http://loosecontrol.tv:4567/indicator");
-  //var testData=getTickerGraphData("http://loosecontrol.tv:4567/transport.car.pressure/admr.nl.amsterdam/history");
   // http://loosecontrol.tv:4567/transport.car.pressure/admr.nl.amsterdam/info
   // http://loosecontrol.tv:4567/transport.car.pressure/admr.nl.amsterdam/live
   // http://loosecontrol.tv:4567/transport.car.pressure/admr.nl.amsterdam/history
   // http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?admr::admn_level=5&geom&per_page=1000
   
   var list=[];
-  // domain DIVV
-  var mainDomain={id:"transport", label:"Transport", icon:"images/svg/icon_transport.svg"
-  };
-  
+  // domain Traffic
   var tickerData = [
       {bullet:">", discription: "Road pressure", value: "41.8 %", kci:"transport.car.pressure"},
       {bullet:"+", discription: "Avg. speed", value: "32 km/u", kci:"transport.car.speed"},
@@ -80,9 +108,9 @@ function createDomains(){
   console.log("ticker data ="+tickerData[0].graphData)
   var subDomainA={id:"traffic", 
     label:"Transport & Infrastructure", 
-    icon:"images/svg/icon_divv.svg", 
+    icon:"images/svg/icon_transport.car.svg", 
     tickerData:tickerData, 
-    type:"bar",
+    graphType:"bar",
     mapUrl:"http://api.citysdk.waag.org/nodes?layer=divv.traffic&geom&per_page=1000"
     };
   
@@ -93,24 +121,21 @@ function createDomains(){
   ];  
   var subDomainB={id:"pt", 
     label:"Public transport", 
-    icon:"images/svg/icon_pt.svg", 
+    icon:"images/svg/icon_transport.pt.svg", 
     tickerData:tickerData, 
-    type:"line",
+    graphType:"bar",
     mapUrl:"http://api.citysdk.waag.org/admr.nl.amsterdam/ptstops?geom&per_page=1000"
     };
 	var properties={
-	  index:0,
+	  id:"transport",
+	  label:"Transport",
 	  color:"#FFCC99",
-	  mainDomain:mainDomain,
-	  subDomainA:subDomainA,
-	  subDomainB:subDomainB,
-
+	  icon:"images/svg/icon_transport.svg", 
+	  subDomains:[subDomainA, subDomainB]
 	};
 	list.push(properties);
   
   // domain environment  
-  mainDomain={id:"environment", label:"Environment", icon:"images/svg/icon_environment.svg"};
-
   tickerData = [
       {bullet:">", discription: "NO2", value: "20.27 ", kci:"dummy"},
       {bullet:"+", discription: "CO", value: "117.49 ", kci:"dummy"},
@@ -118,9 +143,9 @@ function createDomains(){
   ];
   subDomainA={id:"smartcitizen",
     label:"Smartcitizen", 
-    icon:"images/svg/icon_smartcitizen.svg", 
+    icon:"images/svg/icon_environment.sck.svg", 
     tickerData:tickerData, 
-    type:"line",
+    graphType:"line",
     mapUrl:"dummy"
   };
   tickerData = [
@@ -130,35 +155,33 @@ function createDomains(){
   ];
   subDomainB={id:"airqualities", 
     label:"Air qualities", 
-    icon:"images/svg/icon_airquality.svg", 
+    icon:"images/svg/icon_environment.airquality.svg", 
     tickerData:tickerData, 
-    type:"bar",
+    graphType:"line",
     mapUrl:"dummy"
     };
   var properties={
-	  index:1,
+    id:"environment",
+    label:"Environment",
+	  icon:"images/svg/icon_environment.svg", 
 	  color:"#FFB27D",
-	  mainDomain:mainDomain,
-	  subDomainA:subDomainA,
-	  subDomainB:subDomainB,
+    subDomains:[subDomainA, subDomainB]
 
 	};
 	list.push(properties);
 
   // domain economy 
-  mainDomain={id:"economy", label:"Economy", icon:"images/svg/icon_economy.svg"};
   tickerData = [
       {bullet:">", discription: "value A_1", value: "20.27 ", kci:"dummy"},
       {bullet:"+", discription: "value A_2", value: "117.49 ", kci:"dummy"},
       {bullet:"+", discription: "value A_3", value: "63.24", kci:"dummy"},
   ];
-  
-  
+    
   subDomainA={id:"companies", 
     label:"Companies", 
-    icon:"images/svg/icon_company.svg", 
+    icon:"images/svg/icon_economy.company.svg", 
     tickerData:tickerData, 
-    type:"bar",
+    graphType:"bar",
     mapUrl:"dummy"
     };
   tickerData = [
@@ -168,54 +191,15 @@ function createDomains(){
   ];
 
   var properties={
-	  index:2,
+    id:"economy",
+    label:"Economy",
+	  icon:"images/svg/icon_economy.svg", 
 	  color:"#FF9966",
-	  mainDomain:mainDomain,
-	  subDomainA:subDomainA,
-	  subDomainB:false,
+    subDomains:[subDomainA, false]
 
 	};
 	list.push(properties);
 
-
-  //domainList.reverse();
   return list;
 }
 
-function getTickerIndicators(url){
-  d3.json(url, function(results){
-		var data=results;
-		console.log("tickerInfo ="+results);
-
-		});
-  
-};
-
-function getTickerInfo(url){
-  d3.json(url, function(results){
-		var data=results;
-		console.log("tickerInfo ="+results);
-
-		});
-  
-};
-
-function getTickerValue(url){
-  d3.json(url, function(results){
-		
-		console.log("tickerData ="+results["transport.car.pressure:admr.nl.amsterdam"]);
-    var data=results["transport.car.pressure:admr.nl.amsterdam"];
-    return data;
-		});
-  
-};
-
-function getTickerGraphData(url){
-  d3.json(url, function(results){
-		
-		console.log(results);
-    
-    
-		});
-  
-}
