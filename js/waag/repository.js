@@ -99,9 +99,9 @@ function createDomains(){
   var list=[];
   // domain Traffic
   var tickerData = [
-      {bullet:">", discription: "Road pressure", value: "41.8 %", kci:"transport.car.pressure"},
-      {bullet:"+", discription: "Avg. speed", value: "32 km/u", kci:"transport.car.speed"},
-      {bullet:"+", discription: "Parking", value: "29%", kci:"dummy"},
+      {bullet:">", description: "Road pressure", value: "41.8 %", kci:"transport.car.pressure"},
+      {bullet:"+", description: "Avg. speed", value: "32 km/u", kci:"transport.car.speed"},
+      {bullet:"+", description: "Parking", value: "29%", kci:"dummy"},
   ];
   
   // domain Transport
@@ -115,9 +115,9 @@ function createDomains(){
     };
   
   tickerData = [
-      {bullet:">", discription: "Ontime", value: "30 %", kci:"dummy"},
-      {bullet:"+", discription: "Avg. delay time", value: "156 sec", kci:"dummy"},
-      {bullet:"+", discription: "Total trips", value: "308 (410)", kci:"dummy"},
+      {bullet:">", description: "Ontime", value: "30 %", kci:"dummy"},
+      {bullet:"+", description: "Avg. delay time", value: "156 sec", kci:"dummy"},
+      {bullet:"+", description: "Total trips", value: "308 (410)", kci:"dummy"},
   ];  
   var subDomainB={id:"pt", 
     label:"Public transport", 
@@ -137,9 +137,9 @@ function createDomains(){
   
   // domain environment  
   tickerData = [
-      {bullet:">", discription: "NO2", value: "20.27 ", kci:"dummy"},
-      {bullet:"+", discription: "CO", value: "117.49 ", kci:"dummy"},
-      {bullet:"+", discription: "Noise level", value: "63.24 dB", kci:"dummy"},
+      {bullet:">", description: "NO2", value: "20.27 ", kci:"dummy"},
+      {bullet:"+", description: "CO", value: "117.49 ", kci:"dummy"},
+      {bullet:"+", description: "Noise level", value: "63.24 dB", kci:"dummy"},
   ];
   subDomainA={id:"smartcitizen",
     label:"Smartcitizen", 
@@ -149,9 +149,9 @@ function createDomains(){
     mapUrl:"dummy"
   };
   tickerData = [
-      {bullet:">", discription: "NO2", value: "20.27", kci:"dummy"},
-      {bullet:"+", discription: "CO", value: "117.49", kci:"dummy"},
-      {bullet:"+", discription: "PM10", value: "63.24", kci:"dummy"},
+      {bullet:">", description: "NO2", value: "20.27", kci:"dummy"},
+      {bullet:"+", description: "CO", value: "117.49", kci:"dummy"},
+      {bullet:"+", description: "PM10", value: "63.24", kci:"dummy"},
   ];
   subDomainB={id:"airqualities", 
     label:"Air qualities", 
@@ -172,9 +172,9 @@ function createDomains(){
 
   // domain economy 
   tickerData = [
-      {bullet:">", discription: "value A_1", value: "20.27 ", kci:"dummy"},
-      {bullet:"+", discription: "value A_2", value: "117.49 ", kci:"dummy"},
-      {bullet:"+", discription: "value A_3", value: "63.24", kci:"dummy"},
+      {bullet:">", description: "value A_1", value: "20.27 ", kci:"dummy"},
+      {bullet:"+", description: "value A_2", value: "117.49 ", kci:"dummy"},
+      {bullet:"+", description: "value A_3", value: "63.24", kci:"dummy"},
   ];
     
   subDomainA={id:"companies", 
@@ -185,9 +185,9 @@ function createDomains(){
     mapUrl:"dummy"
     };
   tickerData = [
-      {bullet:">", discription: "value B_1", value: "20.27", kci:"dummy"},
-      {bullet:"+", discription: "value B_1", value: "117.49", kci:"dummy"},
-      {bullet:"+", discription: "value B_1", value: "63.24", kci:"dummy"},
+      {bullet:">", description: "value B_1", value: "20.27", kci:"dummy"},
+      {bullet:"+", description: "value B_1", value: "117.49", kci:"dummy"},
+      {bullet:"+", description: "value B_1", value: "63.24", kci:"dummy"},
   ];
 
   var properties={

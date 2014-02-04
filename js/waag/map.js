@@ -14,122 +14,12 @@ WAAG.Map = function Map(domains) {
 
 	function init(){
       
-      var stage = d3.select("#stage");
-      container = stage.append("div")
-        .attr("class", "map_container")
-        .attr("id", "map_container")
-        .style("top", menuHeight+(domains.length*widgetHeight)+"em");
+    var stage = d3.select("#stage");
+    container = stage.append("div")
+      .attr("class", "map_container")
+      .attr("id", "map_container")
+      .style("top", menuHeight+(domains.length*widgetHeight)+"em");
       
-    mapMenu = container.append("div")
-          .attr("id", "mapMenu")
-          .attr("class", "mapMenu")
-          .style("position", "relative")
-          .style("background-color", "#e3ddd7")
-          .style("top", 0+"em")
-          .style("height", 3+"em")
-          .style("opacity", 0.90)
-    
-    mapMenu.append("div")
-      .attr("class", "vLine")
-      .style("position", "absolute")
-      .style("margin-top", 0.5+"em")
-      .style("margin-bottom", 0.5+"em")
-      .style("left", 768/2+"px")
-      .style("height", 2+"em");
-          
-        
-     var layerList = mapMenu.append('div')
-        .attr("class", "layerList")
-        .attr("id", "layerList")
-        .style("position", "absolute")
-        .style("top", 0.25+"em")
-        .style("left", 0.25+"em,")
-        .style("padding", 0.5+"em")
-        .style("width", 768/2-16+"px")
-        .on("mouseover", function(d) {
-            d3.select("body").style("cursor", "pointer");
-          })                  
-         .on("mouseout", function(d) {       
-            d3.select("body").style("cursor", "default");
-          })
-        .on("click", function(d){
-            if(llActive){
-              llActive=false;
-              deActivateLayerMenu("data");
-              
-            }else{
-              llActive=true;
-              activateLayerMenu("data");
-             
-            }
-
-
-         });
-        
-        
-    layerList.append("object")
-      .attr("class", "mapIcon")
-      .attr("data", "images/svg/icon_layers.svg")
-      .attr("type", "image/svg+xml") 
-      .style("position", "relative")
-      .style("left", 0.5+"em")
-      
-    
-      
-    layerList.append("div")
-      .attr("class", "vLine")
-      .style("position", "absolute")
-      .style("margin-top", 0.5+"em")
-      .style("margin-bottom", 0.5+"em")
-      .style("left", 3+"em")
-      .style("top", 0+"em")
-      .style("height", 1.5+"em"); 
-      
-      layerList.append("h3")
-        .style("position", "absolute")
-        .style("margin-top", 0.5+"em")
-        .style("margin-bottom", 0.5+"em")
-        .style("left", 3+"em")
-        .style("top", 0+"em")
-        .style("height", 1.5+"em")
-        .text("Layers")
-        
-     dropDownLayers=mapMenu.append('div')  
-        .style("background-color", "#e3ddd7")
-        .style("position", "absolute")
-        .style("top", 48+"px")
-        .style("left", 0+"em")
-        .style("width", 768/2+"px")
-        .style("height", 0+"px")
-        .style("opacity", 0.90)    
-        
-        
-
-      // d3.select("#layerList").selectAll("input")
-      //   .data([11])
-      //   .enter().append("label")
-      //   .attr("for", function(d,i) { return "check_"+i; })
-      //   .text(function(d) { return d; })
-      //   .append("input")
-      //   .attr("checked", true)
-      //   .attr("type", "checkbox")
-      //   .attr("id", function(d,i) { return "check_"+i; })
-      //   .attr("name", function(d,i) { return "check_"+i; })
-      //   .attr("value", function(d,i) { return "check_"+i; })    
-        
-
-      // d3.select("#mapMenu").selectAll("ul")
-      //   .attr("class", "layerList")
-      //   .attr("id", "layerList")
-      //     .data(["label 1", "label 2"])
-      //     .enter()
-      //     .append('div')
-      //     .style("position", "relative")
-      //     .style("top", 2.5+"em")
-      //     .attr('class', 'checkbox')
-      //     .html(function(d,i){ return "<input id='check_"+i+"' type='checkbox' name='check' value='check_"+i+"'>"+"<label for='check_"+i+"'>checkbox_"+i+"</label><br>"})
-          
-
   		projection = d3.geo.mercator()
   			     .translate([ (mapWidth*16)/2 , (mapHeight*16)/2 ])
   			     .scale([mapScale]);
@@ -150,6 +40,7 @@ WAAG.Map = function Map(domains) {
   		svg = d3.select("#map_container").append("svg")
   		    .attr("width", 768+"px")
   		    .attr("height", 576+"px")
+  		    .style("z-index", 0)
   		    .call(zoom);   
 
   		map = svg.append("g")
@@ -166,7 +57,7 @@ WAAG.Map = function Map(domains) {
      filter = defs.append("filter")
            .attr("id", "dropshadow")
 
-       filter.append("feGaussianBlur")
+       filter.append("GaussianBlur")
            .attr("in", "SourceAlpha")
            .attr("stdDeviation", 1)
            .attr("result", "blur");
@@ -182,26 +73,189 @@ WAAG.Map = function Map(domains) {
            .attr("in", "offsetBlur")
        feMerge.append("feMergeNode")
            .attr("in", "SourceGraphic");
-           
-      //getGeoData("http://api.citysdk.waag.org/admr.nl.amsterdam/nodes?admr::admn_level=5&geom&per_page=1000", "main_map");     		   
+
+       createMapMenu();    
+     		   
 
   };
   
-  function activateLayerMenu(data){
+  function createMapMenu(){
+    mapMenu = container.append("div")
+          .attr("id", "mapMenu")
+          .attr("class", "mapMenu")
+          .style("position", "absolute")
+          .style("background-color", "#e3ddd7")
+          .style("top", 0+"px")
+          .style("height", 3+"em")
+          .style("width", 100+"%")
+          .style("opacity", 0.95)
+          .style("z-index", 5)
 
+    mapMenu.append("div")
+      .attr("class", "vLine")
+      .style("position", "absolute")
+      .style("margin-top", 0.5+"em")
+      .style("margin-bottom", 0.5+"em")
+      .style("left", 768/2+"px")
+      .style("height", 2+"em");
+
+
+     var layerList = mapMenu.append('div')
+        .attr("class", "layerList")
+        .attr("id", "layerList")
+        .style("position", "absolute")
+        .style("top", 4+"px")
+        .style("left", 0.25+"em,")
+        .style("padding", 8+"px")
+        .style("width", 768/2-16+"px")
+        .style("z-index", 10)
+        .on("mouseover", function(d) {
+            d3.select("body").style("cursor", "pointer");
+          })                  
+         .on("mouseout", function(d) {       
+            d3.select("body").style("cursor", "default");
+          })
+        .on("click", function(d){
+            if(llActive){
+              llActive=false;
+              deActivateLayerMenu(domains.length);
+
+            }else{
+              llActive=true;
+              activateLayerMenu(domains.length);
+
+            }
+
+
+         });
+
+
+    layerList.append("object")
+      .attr("class", "mapIcon")
+      .attr("data", "images/svg/icon_layers.svg")
+      .attr("type", "image/svg+xml") 
+      .style("position", "relative")
+      .style("left", 0.5+"em")
+
+    layerList.append("vLine")
+      .attr("class", "vLine")
+      .style("position", "absolute")
+      .style("margin-top", 0.5+"em")
+      .style("margin-bottom", 0.5+"em")
+      .style("left", 3+"em")
+      .style("top", 0+"em")
+      .style("height", 1.5+"em"); 
+
+     layerList.append("h3")
+        .style("position", "absolute")
+        .style("margin-top", 0.5+"em")
+        .style("margin-bottom", 0.5+"em")
+        .style("left", 3+"em")
+        .style("top", 0+"em")
+        .style("height", 1.5+"em")
+        .text("Layers")
+
+     dropDownLayers=mapMenu.append('div')
+        .attr("id", "dropDownLayers")  
+        .style("background-color", "#e3ddd7")
+        .style("position", "absolute")
+        .style("top", -576+"px")
+        .style("left", 0+"px")
+        .style("width", 768/2+"px")
+        .style("height", domains.length*100+"px") 
+        //.style("height", 0+"px")
+        .style("z-index", 5)
+        .style("opacity", 0)
+    
+        dropDownLayers.append("hLine")
+          .attr("class", "hLine")
+          .style("position", "relative")
+          .style("margin-top", 0+"em")
+          .style("left", 1+"em")
+          .style("width", 90+"%")    
+        
+
+    var data=domains;
+    
+    var div = dropDownLayers.selectAll("div")
+      .data(data)
+      .enter().append("div")
+        .style("position", "absolute")
+        .style("top", function(d,i){ return i*100+"px" })
+        .style("height", 100+"px")
+        .style("width", 100+"%")
+        
+    div.append("object")
+          .attr("class", "mapIcon")
+          .attr("id", function(d) { return "icon_"+d.id} )
+          .attr("data", function(d) { return d.icon})
+          .attr("type", "image/svg+xml")
+          .style("position", "relative")
+          // .style("width", 24+"px")
+          // .style("height", "auto")
+          .style("top", 0.5+"em")
+          .style("left", 0.5+"em");
+     
+    div.append("h3")
+          .style("position", "absolute")
+          .style("top", 0.5+"em")
+          .style("left", 3+"em")
+          .text(function(d) { return d.id}) 
+          
+    div.append("hLine")
+      .attr("class", "hLine")
+      .style("position", "relative")
+      .style("margin-top", 0+"em")
+      .style("left", 3.5+"em")
+      .style("width", 80+"%") 
+      
+    div.append("vLine")
+        .attr("class", "vLine")
+        .style("position", "absolute")
+        .style("margin-top", 0+"em")
+        .style("left", 3+"em")
+        .style("top", 0.5+"em")
+        .style("height", 80+"%")
+        
+    div.selectAll("ul")
+      .data(function(d) { return d.subDomains; })
+      .enter()
+        .append("li")
+        .attr("class", function(d) {return d.id})
+        .style("position", "relative")
+        .style("left", 4+"em")
+        .style("top", -0.5+"em")
+        .style("list-style-type", "none")
+        .append("h4")
+        .text(function(d) {return d.id}) 
+        
+    div.append("hLine")
+      .attr("class", "hLine")
+      .style("position", "relative")
+      .style("margin-top", 0+"em")
+      .style("left", 1+"em")
+      .style("width", 90+"%")             
+      
+    
+        
+  }
+  
+  function activateLayerMenu(index){
+      console.log(index);
       dropDownLayers.transition()
           .duration(500)
-          .style("height", 576-48+"px");  
+          .style("top", 48+"px")
+          .style("opacity", 0.95)  
         
     
   }
   
-  function deActivateLayerMenu(data){
+  function deActivateLayerMenu(index){
           
       dropDownLayers.transition()
           .duration(500)
-          .style("height", 0+"px");  
-        
+          .style("top", -576+"px")  
+          .style("opacity", 0)  
     
   }
   

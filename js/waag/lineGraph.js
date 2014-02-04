@@ -69,7 +69,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
             .attr("y", 6)
             .attr("dy", "-38em")
             .style("text-anchor", "end")
-            .text("pressure (%)"); 
+            .text(properties.tickerData[0].description); 
             
                     
 

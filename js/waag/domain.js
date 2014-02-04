@@ -178,7 +178,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
    	    graph = new WAAG.LineGraph(_properties, subDomain);
    	  }
 
-     createTickerTable(_properties, ["bullet", "discription", "value"], subDomain, graph);
+     createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
 
      
     });
@@ -208,7 +208,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
      for(var i=0; i<results.length; i++){
          var d=new Date();
          d.setTime(results[i].timestamp*1000);
-         console.log(d);
+         //console.log(d);
          var h=d.getHours();
          var value=results[i][kci+":admr.nl.amsterdam"]
          if(dummyData) {
@@ -266,7 +266,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
           .append("td")
               .style("width", function(d, i){ 
                 
-                if(d.column=="discription"){
+                if(d.column=="description"){
                   return "60%";
                 }else if(d.column=="value"){
                   return "30%";
@@ -276,7 +276,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
                 })
               .style("text-align", function(d){ 
-                if(d.column=="discription"){
+                if(d.column=="description"){
                   return "left";
                 }else{
                   return "right";

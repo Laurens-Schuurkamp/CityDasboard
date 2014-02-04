@@ -65,8 +65,9 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
             .attr("y", 6)
             .attr("dy", "-38em")
             .style("text-anchor", "end")
-            .text("pressure (%)");      
-      
+            .style("text-align", "center")
+            .text(properties.tickerData[0].description);      
+            
       initted=true;      
       updateGraph(data);
 
