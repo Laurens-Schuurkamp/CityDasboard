@@ -18,10 +18,10 @@ WAAG.Map = function Map(domains) {
     container = stage.append("div")
       .attr("class", "map_container")
       .attr("id", "map_container")
-      .style("top", menuHeight+(domains.length*widgetHeight)+"em");
+      .style("top", menuHeight+(domains.length*widgetHeight)+"px");
       
   		projection = d3.geo.mercator()
-  			     .translate([ (mapWidth*16)/2 , (mapHeight*16)/2 ])
+  			     .translate([ (mapWidth)/2 , (mapHeight)/2 ])
   			     .scale([mapScale]);
 
   		projection.center([4.9000,52.3725])
@@ -38,8 +38,8 @@ WAAG.Map = function Map(domains) {
 
   		//create svg element            
   		svg = d3.select("#map_container").append("svg")
-  		    .attr("width", 768+"px")
-  		    .attr("height", 576+"px")
+  		    .attr("width", mapWidth+"px")
+  		    .attr("height", mapHeight+"px")
   		    .style("z-index", 0)
   		    .call(zoom);   
 
@@ -86,7 +86,7 @@ WAAG.Map = function Map(domains) {
           .style("position", "absolute")
           .style("background-color", "#e3ddd7")
           .style("top", 0+"px")
-          .style("height", 3+"em")
+          .style("height", 48+"px")
           .style("width", 100+"%")
           .style("opacity", 0.95)
           .style("z-index", 5)
@@ -96,7 +96,7 @@ WAAG.Map = function Map(domains) {
       .style("position", "absolute")
       .style("margin-top", 0.5+"em")
       .style("margin-bottom", 0.5+"em")
-      .style("left", 768/2+"px")
+      .style("left", mapWidth/2+"px")
       .style("height", 2+"em");
 
 
@@ -107,7 +107,7 @@ WAAG.Map = function Map(domains) {
         .style("top", 4+"px")
         .style("left", 0.25+"em,")
         .style("padding", 8+"px")
-        .style("width", 768/2-16+"px")
+        .style("width", mapWidth/2-16+"px")
         .style("z-index", 10)
         .on("mouseover", function(d) {
             d3.select("body").style("cursor", "pointer");
@@ -159,9 +159,9 @@ WAAG.Map = function Map(domains) {
         .attr("id", "dropDownLayers")  
         .style("background-color", "#e3ddd7")
         .style("position", "absolute")
-        .style("top", -576+"px")
+        .style("top", -mapWidth+"px")
         .style("left", 0+"px")
-        .style("width", 768/2+"px")
+        .style("width", mapHeight/2+"px")
         .style("height", domains.length*100+"px") 
         //.style("height", 0+"px")
         .style("z-index", 5)
@@ -227,7 +227,7 @@ WAAG.Map = function Map(domains) {
         .style("top", -0.5+"em")
         .style("list-style-type", "none")
         .append("h4")
-        .text(function(d) {return d.id}) 
+        .text(function(d) {return d.label}) 
         
     div.append("hLine")
       .attr("class", "hLine")
@@ -254,7 +254,7 @@ WAAG.Map = function Map(domains) {
           
       dropDownLayers.transition()
           .duration(500)
-          .style("top", -576+"px")  
+          .style("top", -mapHeight+"px")  
           .style("opacity", 0)  
     
   }

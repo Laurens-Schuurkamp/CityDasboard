@@ -107,7 +107,7 @@ function createDomains(){
   // domain Transport
   console.log("ticker data ="+tickerData[0].graphData)
   var subDomainA={id:"traffic", 
-    label:"Transport & Infrastructure", 
+    label:"Transport", 
     icon:"images/svg/icon_transport.car.svg", 
     tickerData:tickerData, 
     graphType:"bar",

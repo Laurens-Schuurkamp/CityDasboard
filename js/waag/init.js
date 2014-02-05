@@ -1,9 +1,9 @@
 var WAAG = WAAG || {};
 
-var widgetHeight=14;
-var menuHeight=8;
-var mapHeight=36; // em
-var mapWidth=48; //em
+var widgetHeight=224;
+var menuHeight=128;
+var mapWidth=768;
+var mapHeight=576;
 
 var toolTip;
 var map;
@@ -33,7 +33,7 @@ function initDashboard(){
 	
 	var footer = d3.select("#stage").append("div")   
       .attr("class", "footer")
-      .style("top", yf+"em")
+      .style("top", yf+"px")
   
   footer.append("object")
       .attr("class", "plusIcon")
@@ -45,14 +45,11 @@ function initDashboard(){
 };
 
 
-
-
-
 function onWindowResize( event ) {
   console.log('resize');
   
 	w = window.innerWidth;
   h = window.innerHeight;
-  var stage=d3.select("#stage").style("left", (window.innerWidth/2)-(768/2)+"px");
+  var stage=d3.select("#stage").style("left", (window.innerWidth/2)-(mapWidth/2)+"px");
 
 };

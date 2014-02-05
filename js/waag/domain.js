@@ -18,7 +18,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
       .attr("class", "domain_container")
       .attr("id", properties.id)
       .style("background-color", properties.color)
-      .style("top", menuHeight+(properties.index*widgetHeight)+"em")
+      .style("top", menuHeight+(properties.index*widgetHeight)+"px")
       
     
     // header setup  
@@ -47,8 +47,8 @@ WAAG.Domain = function Domain(_propertiesAll) {
       .style("position", "absolute")
       .style("margin-top", 0.5+"em")
       .style("margin-bottom", 0.5+"em")
-      .style("left", 768/2+"px")
-      .style("height", 8+"em");
+      .style("left", mapWidth/2+"px")
+      .style("height", widgetHeight-96+"px");
       
       header.append("object")
         .attr("class", "mapIcon")
@@ -314,7 +314,7 @@ function activateMap(_properties){
   var map_container=d3.select("#map_container");
   map_container.transition()
       .duration(750)      
-      .style("top", (menuHeight+widgetHeight+(index*widgetHeight))*16+"px");
+      .style("top", (menuHeight+widgetHeight+(index*widgetHeight))+"px");
   
   for(var i=0; i<domainList.length; i++){
 
@@ -324,12 +324,12 @@ function activateMap(_properties){
         d3.select("#"+domainList[i].id)
           .transition()
             .duration(750)      
-            .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
+            .style("top", (menuHeight+(domainList[i].index*widgetHeight))+"px");
       }else if(parseInt(domainList[i].index)==index){
         d3.select("#"+domainList[i].id)
           .transition()
             .duration(750)      
-            .style("top", (menuHeight+(domainList[i].index*widgetHeight))*16+"px");
+            .style("top", (menuHeight+(domainList[i].index*widgetHeight))+"px");
       
             map.addDomainLayer(_properties);
       
@@ -338,7 +338,7 @@ function activateMap(_properties){
         d3.select("#"+domainList[i].id)
           .transition()
             .duration(750)      
-            .style("top", (menuHeight+mapHeight+(domainList[i].index*widgetHeight))*16+"px");
+            .style("top", (menuHeight+mapHeight+(domainList[i].index*widgetHeight))+"px");
       }
   	  
     
