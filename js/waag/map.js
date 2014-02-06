@@ -11,6 +11,8 @@ WAAG.Map = function Map(domains) {
   var mapMenu;
   var llActive=false;
   var dropDownLayers;
+  
+  
 
 	function init(){
       
@@ -73,6 +75,8 @@ WAAG.Map = function Map(domains) {
            .attr("in", "offsetBlur")
        feMerge.append("feMergeNode")
            .attr("in", "SourceGraphic");
+           
+   
 
        createMapMenu();    
      		   
@@ -259,15 +263,27 @@ WAAG.Map = function Map(domains) {
     
   }
   
-  function getGeoData(url, layerId){
-  	  
+  function getGeoData(url, _data, layerId, page){
+  	
+  	var data=_data;  
   	//d3.json(apiUrlSDK+url+apiGeom, function(results){
-    d3.json(url, function(results){
-  		var data=results.results;
+    d3.json(url+"&page="+page, function(results){
+  		console.log("results :"+results.results.length);
+  		data=data.concat(results.results);
+  		
+  		if(results.results.length>=1000){
+
+  		  var newPage=parseInt(page+1);
+  		  console.log("getting data page :"+newPage);
+  		  getGeoData(url, data, layerId, newPage);
+  		  return;
+  		}
+
       var geomType="type";
       // rewrite results to geojson
       data.forEach(function(d){
         // redefine data structure for d3.geom
+        
         
         
         if(d.geom){
@@ -281,6 +297,12 @@ WAAG.Map = function Map(domains) {
         }
 
     	  });
+    	  
+        // max =  d3.max(dataLayer.data, function(d) { return d.subData[activeLayer]; });
+        //         min =  d3.min(dataLayer.data, function(d) { return d.subData[activeLayer]; });
+        // colorScale = d3.scale.linear().domain([min,max]).range(['white', 'orange']);
+        //         quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(rangeCB));
+        //         scalingGeo = d3.scale.linear().domain([min, max]).range(d3.range(max));
 
         if(geomType=="MultiPolygon" || geomType=="Polygon"){
           updatePolygonMap(data, layerId);
@@ -297,15 +319,27 @@ WAAG.Map = function Map(domains) {
   
    updatePolygonMap = function (data, layerId){
      
+     
+     if(layerId=="map_cbs"){
+       data.forEach(function(d){
+            d.value=10+(Math.random()*90);
+        });
+     }
+     
+     var max =  d3.max(data, function(d) { return d.value; });
+     var min =  d3.min(data, function(d) { return d.value; }); 
+     var quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(rangeCB));
+
      var visMap=d3.select("#"+layerId);
      var vis=visMap.selectAll("path").data(data, function(d, i){return d.cdk_id});
 
      vis.enter().append("path")
    			  .attr("id", function(d, i){return d.cdk_id;})
    			  .attr("d", path)
-   			  .style("fill", "white")
+   			  .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
+   			  .style("opacity", 0)
    			  .on("mouseover", function(d){
-   			    d3.select(this).style("stroke-width", 0.1+"px" );
+   			    d3.select(this).style("stroke-width", 0.25+"px" );
    			    d3.select(this).style("fill", "#f3ece5" );
   			    toolTip.transition()        
                 .duration(100)      
@@ -316,7 +350,7 @@ WAAG.Map = function Map(domains) {
             })
       			.on("mouseout", function(d){
       			  d3.select(this).style("stroke-width", 0.05+"px" );
-      			  d3.select(this).style("fill", "white" );
+      			  d3.select(this).style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
               toolTip.transition()        
                   .duration(250)      
                   .style("opacity", 0);			  
@@ -325,11 +359,24 @@ WAAG.Map = function Map(domains) {
     			  .on("click", function(d){
     			        			    
       			})
+      			
+        vis.transition()
+            .duration(1000)
+            .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
+            .style("opacity", 0.75)
+
+         vis.exit().transition()
+             .duration(500)
+            .style("opacity", 0 )
+            .remove();			
+      			
+      			
 
   };
   
   updateLinestringMap = function(data, layerId){
     
+
   	console.log("setting traffic map "+layerId);
   	
   	data.forEach(function(d){
@@ -346,7 +393,9 @@ WAAG.Map = function Map(domains) {
         d.visLabel=g.data.velocity;
     });
     
-    var max =  d3.max(data, function(d) {return d.value; });
+    var max =  d3.max(data, function(d) { return d.value; });
+    var min =  d3.min(data, function(d) { return d.value; }); 
+    var quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(rangeCB));
 	  
 	  var color = d3.scale.linear()
             .domain([1, max])
@@ -361,7 +410,7 @@ WAAG.Map = function Map(domains) {
   			  .attr("d", path)
   			  .style("fill", "none")
   			  .style("stroke-width", function(d){return 0})
-  			  .style("stroke", function(d) { return color(d.value)})
+  			  .style("stroke", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
   			  .on("mouseover", function(d){
   			    toolTip.transition()        
                 .duration(100)      
@@ -382,6 +431,7 @@ WAAG.Map = function Map(domains) {
   			
   	    vis.transition()
             .duration(500)
+            .style("stroke", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
             .style("stroke-width", function(d){return (d.value/2)})
 
          vis.exit().transition()
@@ -396,21 +446,21 @@ WAAG.Map = function Map(domains) {
     console.log("setting traffic map "+layerId);
 	  
 	  data.forEach(function(d){
-	    d.value=Math.random()*3;
+	    d.value = 0.1 + Math.random();
 	     
     });
-
+    var min =  d3.min(data, function(d) { return d.value; });
     var max =  d3.max(data, function(d) { return d.value; });
     
-    var colorScale = d3.scale.linear().domain([0,max]).range(['white', 'blue']);
-    var quantizeBrewer = d3.scale.quantile().domain([0, max]).range(d3.range(9));
-    var scalingGeo = d3.scale.linear().domain([0, max]).range(d3.range(100));
+    var colorScale = d3.scale.linear().domain([min,max]).range(['white', 'blue']);
+    var quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(9));
+    var scalingGeo = d3.scale.linear().domain([min, max]).range(d3.range(100));
 
-  	var visTraffic=d3.select("#"+layerId);
-    var vis=visTraffic.selectAll("path").data(data, function(d, i){return d.cdk_id});
+  	var visPointMap=d3.select("#"+layerId);
+    var vis = visPointMap.selectAll("path").data(data, function(d, i){return d.cdk_id});
 
-  	
 		vis.enter().append("path")
+		     //.filter(function(d){ return d.value > 2; })
   			  .attr("id", function(d, i){return d.cdk_id})
   			  .attr("d", function(d){
                         path.pointRadius(d.value);
@@ -419,7 +469,7 @@ WAAG.Map = function Map(domains) {
   			  .style("fill-opacity", 1)
   			  .style("stroke-width", 0.1+"px")
   			  .style("opacity", 0)
-  			  .attr("class", function(d) { return "q" + quantizeBrewer([d.value]) + "-9"; }) //colorBrewer
+  			  .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
           .on("mouseover", function(d){
   			    toolTip.transition()        
                 .duration(100)      
@@ -437,12 +487,11 @@ WAAG.Map = function Map(domains) {
   			  .on("click", function(d){
   			        			    
     			})
-  			
-  			vis.attr("class", function(d) { return "q" + quantizeBrewer([d.value]) + "-9"; }) //colorBrewer
   	    
   	    vis.transition()
             .duration(1000)
             .style("opacity", 1)
+            .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
             .attr("d", function(d){
               path.pointRadius(d.value);
               return path(d);
@@ -463,15 +512,15 @@ WAAG.Map = function Map(domains) {
     for (var i=0; i<layers.length; i++){
       if(layers[i]!=false && layers[i].mapUrl!="dummy"){
         
-        
         console.log("adding map layer :"+layers[i].id);
           var layerId="map_"+layers[i].id;
           
           map.append("g")
             .attr("id", layerId)
             .attr("class", "Oranges");
-            
-          getGeoData(layers[i].mapUrl, layerId);  
+          var data=[];
+          var page=1;  
+          getGeoData(layers[i].mapUrl, data, layerId, page);  
       }
       
     }

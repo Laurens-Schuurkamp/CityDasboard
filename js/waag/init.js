@@ -7,6 +7,9 @@ var mapHeight=576;
 
 var toolTip;
 var map;
+var colorScheme="Oranges";
+
+var rangeCB=9; //range colorbrewer
 
 
 function initDashboard(){

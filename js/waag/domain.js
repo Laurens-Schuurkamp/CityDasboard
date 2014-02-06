@@ -11,15 +11,19 @@ WAAG.Domain = function Domain(_propertiesAll) {
     
 
 	function init(){
-	  
-
-	  var stage = d3.select("#stage");
+	      
+	  var stage = d3.select("#stage")
+	      
     container = stage.append("div")
       .attr("class", "domain_container")
       .attr("id", properties.id)
-      .style("background-color", properties.color)
+      .style("background-color", function() {return colorbrewer[colorScheme]['9'][properties.index]})
       .style("top", menuHeight+(properties.index*widgetHeight)+"px")
       
+      
+      //.attr("class", "q" + quantizeBrewer(d.value) + "-9"; }) //colorBrewer
+      //.Oranges .q0-3{fill:rgb(254,230,206)}
+    
     
     // header setup  
     var header=container.append("div")
@@ -70,7 +74,6 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	  setDomainA(properties.subDomains[0]);
     setDomainB(properties.subDomains[1]);
    
- 
 	};
 
 	
@@ -150,12 +153,14 @@ WAAG.Domain = function Domain(_propertiesAll) {
     }
     
     d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
+      //console.log("loosecontrol results ="+results.length);
+      
       var i=0;
       for( i=0; i<_properties.tickerData.length; i++){
-          _properties.tickerData[i].kciData=[];
+          _properties.tickerData[i].kciData=initialTickerData;
       };
      
-     
+     // check for server down time
      for(var i=0; i<results.length; i++){
          var d=new Date();
          d.setTime(results[i].timestamp*1000);
@@ -166,17 +171,30 @@ WAAG.Domain = function Domain(_propertiesAll) {
             kci="dummy"; 
           }
          var object={hour:h, timestamp:d, value:value}
-         _properties.tickerData[0].kciData.push(object);
+          
+          for(j=0; j<_properties.tickerData[0].kciData.length; j++){
+              if(_properties.tickerData[0].kciData[j].hour==h){
+                _properties.tickerData[0].kciData[j]=object;
+              }
+
+          };
 
      };
-
+     
      _properties.tickerData[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+
+    
+
       var graph;
    	  if(_properties.graphType=="bar"){
    	    graph = new WAAG.BarGraph(_properties, subDomain);
    	  }else if (_properties.graphType=="line"){
    	    graph = new WAAG.LineGraph(_properties, subDomain);
-   	  }
+   	  }else if (_properties.graphType=="area"){
+   	    graph = new WAAG.AreaGraph(_properties, subDomain);
+   	  }  else if (_properties.graphType=="circlepack"){
+     	    graph = new WAAG.CirclePack(_properties, subDomain);
+     	  }
 
      createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
 
@@ -204,21 +222,27 @@ WAAG.Domain = function Domain(_propertiesAll) {
     
     d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
 
-     _properties.tickerData[index].kciData=[];
-     for(var i=0; i<results.length; i++){
-         var d=new Date();
-         d.setTime(results[i].timestamp*1000);
-         //console.log(d);
-         var h=d.getHours();
-         var value=results[i][kci+":admr.nl.amsterdam"]
-         if(dummyData) {
-           value=10+(Math.random()*90);
-           kci="dummy"; 
-         }
-         var object={hour:h, timestamp:d, value:value}
-         _properties.tickerData[index].kciData.push(object);
+     //_properties.tickerData[index].kciData=[];
+     // check for server down time
+      for(var i=0; i<results.length; i++){
+          var d=new Date();
+          d.setTime(results[i].timestamp*1000);
+          var h=d.getHours();
+          var value=results[i][kci+":admr.nl.amsterdam"]
+          if(dummyData) {
+             value=10+(Math.random()*90);
+             kci="dummy"; 
+           }
+          var object={hour:h, timestamp:d, value:value}
 
-     };
+           for(j=0; j<_properties.tickerData[index].kciData.length; j++){
+               if(_properties.tickerData[index].kciData[j].hour==h){
+                 _properties.tickerData[index].kciData[j]=object;
+               }
+
+           };
+
+      };
 
      _properties.tickerData[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
      _class.updateDataSet(_properties, kci, index);
@@ -228,7 +252,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	  
 	  
 	};
-	
+  //createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
 	function createTickerTable(_properties, columns, _domain, _class) {
       
       var data=_properties.tickerData;
@@ -236,7 +260,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
       var table = domain.append("table")
         .attr("class", "tickerTable")
-
+        .style("width", function(){ if(_properties.graphType=="circlepack") return 140+"px" })
       //var thead = table.append("thead");
       var tbody = table.append("tbody");
 

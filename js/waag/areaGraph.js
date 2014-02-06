@@ -1,4 +1,4 @@
-WAAG.LineGraph = function LineGraph(properties, _subDomain) {
+WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
 
   //console.log("linegraph contructor");
   
@@ -26,9 +26,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
     
      x = d3.scale.ordinal()
         .rangeRoundBands([0, width], 0.1);
-        
-        // x = d3.time.scale()
-        //      .rangeRoundBands([0, width], 0.1);
+
 
      y = d3.scale.linear()
         .range([height, 0]);
@@ -46,27 +44,21 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
               //.ticks(10, "%"); 
               
      line = d3.svg.line()
-     .interpolate("basis")
+     .interpolate("none")
       .x(function(d) { return x(d.hour); })
       .y(function(d) { return y(d.value); }); 
       
-      // interpolation  
-      // linear - piecewise linear segments, as in a polyline.
-      // linear-closed - close the linear segments to form a polygon.
-      // step-before - alternate between vertical and horizontal segments, as in a step function.
-      // step-after - alternate between horizontal and vertical segments, as in a step function.
-      // basis - a B-spline, with control point duplication on the ends.
-      // basis-open - an open B-spline; may not intersect the start or end.
-      // basis-closed - a closed B-spline, as in a loop.
-      // bundle - equivalent to basis, except the tension parameter is used to straighten the spline.
-      // cardinal - a Cardinal spline, with control point duplication on the ends.
-      // cardinal-open - an open Cardinal spline; may not intersect the start or end, but will intersect other control points.
-      // cardinal-closed - a closed Cardinal spline, as in a loop.
-      // monotone - cubic interpolation that preserves monotonicity in y.  
-                      
+      
+    area = d3.svg.area()
+    .interpolate("none")
+      .x(function(d) { return x(d.hour); })
+      .y0(height)
+      .y1(function(d) { return y(d.value); });              
+  
       x.domain(data.map(function(d) { return d.hour; }));
       y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
+      
         svgDomain.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
@@ -93,12 +85,20 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
 
 	  var time=250+(Math.random()*750);
 	  
+	  var dataArea=[];
+    data.forEach(function(d){
+	    if(d.hour<hNow){
+	      dataArea.push(d);
+	    }
+
+    });
+	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
     
+    //line
     visLine.enter().append("path")
         .attr("class", "line")
         .attr("d" , line);
-        
     
     visLine.transition()
         .duration(time)
@@ -108,49 +108,32 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
         .duration(time)
         .style("opacity", 0 )
         .remove();
+        
+    var dataArea=[];
+    data.forEach(function(d){
+	    if(d.hour<hNow){
+	      dataArea.push(d);
+	    }
+
+    });
+   
+    var visArea = svgDomain.selectAll(".area").data([dataArea], function(d, i) { return i; });    
+        
+    //area
+    visArea.enter().append("path")        
+        .attr("class", "area")
+        .attr("d", area); 
     
-    var visDot=svgDomain.selectAll(".dot").data(data, function(d, i){return i});     
-
-       visDot.enter().append("circle")
-        .attr("class", "dot")
-        .attr("r", function(d) {
-          if(d.hour==hNow ){
-            return 2;
-          }else if(d.hour<hNow && d.value!=null){
-            return 0.5;
-          }else{
-            return 0;
-          } })
-        .attr("cx", function(d) { return x(d.hour); })
-        .attr("cy", function(d) { return y(d.value); })
-            .on("mouseover", function(d) {
-                  toolTip.transition()        
-                      .duration(100)      
-                      .style("opacity", .9);      
-                  toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
-                      .style("left", (d3.event.pageX) + 10+"px")     
-                      .style("top", (d3.event.pageY - 28 - 10) + "px");    
-                  })                  
-             .on("mouseout", function(d) {       
-                toolTip.transition()        
-                    .duration(250)      
-                    .style("opacity", 0);   
-            })
-            .on("click", function(d){
-                //updateDummySet(data);
-                   
-             });      
-
-        
-    visDot.transition()
+    visArea.transition()
         .duration(time)
-        .attr("cx", function(d) { return x(d.hour); })
-        .attr("cy", function(d) { return y(d.value); });
-        
-    visDot.exit().transition()
+        .attr("d", area);
+
+    visArea.exit().transition()
         .duration(time)
         .style("opacity", 0 )
-        .remove();        
+        .remove();       
+    
+       
 
 	};
 	

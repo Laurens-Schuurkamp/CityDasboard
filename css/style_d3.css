@@ -36,9 +36,10 @@ path {
   fill: none;
   stroke: #666;
   stroke-width: 0.5px;
-  
-  
-  
+}
+
+.area {
+  fill: #666;
 }
 
 .dot {

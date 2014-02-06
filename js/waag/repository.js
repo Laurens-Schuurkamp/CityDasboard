@@ -12,8 +12,8 @@ var timeNow=dNow.getTime();
 var hNow = dNow.getHours();
 var mNow = dNow.getMinutes();
 
-var initialData=[];
 
+var initialTickerData=[];
 //http://loosecontrol.tv:4567/dashboard
 
 function getInitialData(){
@@ -52,41 +52,22 @@ function getInitialData(){
            
     }
 
-   getHistoryData();
+    var dTemp=new Date();
+    //console.log("dTemp :"+dTemp);
+
+    for(var i=0; i<24; i++){
+      var timeStamp=dTemp.setHours(i);
+      var h=dTemp.getHours();
+      var object={hour:h, timestamp:timeStamp, value:null}
+      initialTickerData.push(object);
+    }
+
+    //console.log(initialTickerData);
+    initDashboard();
    
   });
   
 }
-
-function getAssets(){
-  
-};
-
-function getHistoryData(){
-  var apiCall="transport.car.pressure";
-  
-  d3.json("http://loosecontrol.tv:4567/"+apiCall+"/admr.nl.amsterdam/history", function(results){
-      
-   for(var i=0; i<results.length; i++){
-     var d=new Date();
-     d.setTime(results[i].timestamp*1000);
-     var h=d.getHours();
-  
-     var object={hour:h, timestamp:d, value:results[i][apiCall+":admr.nl.amsterdam"]}
-          
-     initialData.push(object);
-  
-   };
-  
-   initialData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
-   
-   initDashboard();
-   
-  });
-
-  
-}
-
 
 
 function createDomains(){
@@ -181,7 +162,7 @@ function createDomains(){
     label:"Companies", 
     icon:"images/svg/icon_economy.company.svg", 
     tickerData:tickerData, 
-    graphType:"bar",
+    graphType:"area",
     mapUrl:"dummy"
     };
   tickerData = [
@@ -194,7 +175,39 @@ function createDomains(){
     id:"economy",
     label:"Economy",
 	  icon:"images/svg/icon_economy.svg", 
-	  color:"#FF9966",
+	  color:"#FF9966",//F16912
+    subDomains:[subDomainA, false]
+
+	};
+	list.push(properties);
+
+  // domain cbs 
+  tickerData = [
+      {bullet:">", description: "value A_1", value: "20.27 ", kci:"dummy"},
+      {bullet:"+", description: "value A_2", value: "117.49 ", kci:"dummy"},
+      {bullet:"+", description: "value A_3", value: "63.24", kci:"dummy"},
+  ];
+    
+  subDomainA={id:"cbs", 
+    label:"CBS Statistics", 
+    icon:"images/svg/icon_statistics.cbs.svg", 
+    tickerData:tickerData, 
+    graphType:"circlepack",
+    mapUrl:"http://api.citysdk.waag.org/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"
+    
+    
+    };
+  tickerData = [
+      {bullet:">", description: "value B_1", value: "20.27", kci:"dummy"},
+      {bullet:"+", description: "value B_1", value: "117.49", kci:"dummy"},
+      {bullet:"+", description: "value B_1", value: "63.24", kci:"dummy"},
+  ];
+
+  var properties={
+    id:"statistics",
+    label:"Statistics",
+	  icon:"images/svg/icon_statistics.svg", 
+	  color:"#EF7714",//F16912
     subDomains:[subDomainA, false]
 
 	};
