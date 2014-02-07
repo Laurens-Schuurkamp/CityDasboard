@@ -11,7 +11,7 @@ WAAG.Map = function Map(domains) {
   var mapMenu;
   var llActive=false;
   var dropDownLayers;
-  
+  var activeLayers=[];
   
 
 	function init(){
@@ -263,10 +263,13 @@ WAAG.Map = function Map(domains) {
     
   }
   
-  function getGeoData(url, _data, layerId, page){
+  function getGeoData(layer){
   	
-  	var data=_data;  
-  	//d3.json(apiUrlSDK+url+apiGeom, function(results){
+  	var url= layer.url;
+  	var data=layer.data;
+  	var layerId=layer.layerId;
+  	var page=layer.page;
+    
     d3.json(url+"&page="+page, function(results){
   		console.log("results :"+results.results.length);
   		data=data.concat(results.results);
@@ -275,51 +278,52 @@ WAAG.Map = function Map(domains) {
 
   		  var newPage=parseInt(page+1);
   		  console.log("getting data page :"+newPage);
-  		  getGeoData(url, data, layerId, newPage);
+  		  layer.page=newPage;
+  		  layer.data=data;
+  		  getGeoData(layer);
   		  return;
   		}
-
-      var geomType="type";
       // rewrite results to geojson
       data.forEach(function(d){
         // redefine data structure for d3.geom
-        
-        
-        
-        if(d.geom){
 
-        	d.type="Feature";
-    			d.geometry=d.geom;
-    			delete d.geom;
-    			d.centroid = path.centroid(d);
-    			d.bounds= path.bounds(d);
-          geomType=d.geometry.type;
-        }
+          if(d.geom){
+
+          	d.type="Feature";
+      			d.geometry=d.geom;
+      			delete d.geom;
+      			d.centroid = path.centroid(d);
+      			d.bounds= path.bounds(d);
+            layer.geomType=d.geometry.type;
+          
+          }
 
     	  });
-    	  
-        // max =  d3.max(dataLayer.data, function(d) { return d.subData[activeLayer]; });
-        //         min =  d3.min(dataLayer.data, function(d) { return d.subData[activeLayer]; });
-        // colorScale = d3.scale.linear().domain([min,max]).range(['white', 'orange']);
-        //         quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(rangeCB));
-        //         scalingGeo = d3.scale.linear().domain([min, max]).range(d3.range(max));
+        
+        layer.data=data;
+    	  activeLayers.push(layer);
+        setMap(layer.data, layer.layerId, layer.geomType);
 
-        if(geomType=="MultiPolygon" || geomType=="Polygon"){
-          updatePolygonMap(data, layerId);
-        }else if(geomType=="MultiLineString" || geomType=="LineString"){
-          updateLinestringMap(data, layerId);
-        }else if(geomType=="MultiPoint" || geomType=="Point"){
-          updatePointMap(data, layerId);
-        }
-  			
   		});
 
   };
   
-  
+  function setMap(data, layerId, geomType){
+
+    if(geomType=="MultiPolygon" || geomType=="Polygon"){
+      updatePolygonMap(data, layerId);
+    }else if(geomType=="MultiLineString" || geomType=="LineString"){
+      updateLinestringMap(data, layerId);
+    }else if(geomType=="MultiPoint" || geomType=="Point"){
+      updatePointMap(data, layerId);
+    }
+    
+    
+  }
+
    updatePolygonMap = function (data, layerId){
      
-     
+     console.log("adding map ="+layerId)
      if(layerId=="map_cbs"){
        data.forEach(function(d){
             d.value=10+(Math.random()*90);
@@ -436,7 +440,7 @@ WAAG.Map = function Map(domains) {
 
          vis.exit().transition()
             .duration(250)
-            .style("stroke-width", function(d){return 0})
+            .style("opacity", 0)
             .remove();		  
 
 	}
@@ -498,29 +502,65 @@ WAAG.Map = function Map(domains) {
             })
 
          vis.exit().transition()
-            .duration(250)
-            .attr("d", 0)
+            .duration(500)
+            .style("opacity", 0 )
             .remove();		
   			
 
-	}
+	};
   
   addDomainLayer = function(_properties){
     
     var layers=_properties.subDomains;
     
-    for (var i=0; i<layers.length; i++){
-      if(layers[i]!=false && layers[i].mapUrl!="dummy"){
+    for(var i=0; i<activeLayers.length; i++){
+      for (var j=0; j<layers.length; j++){
+        if(activeLayers[i].layerId==layers[i].id){
+          layer.data=[];
+          setMap(layer.data, layer.layerId, layer.geomType);
+        }
+      }
+    };
+    
+    activeLayers=[];
         
+
+    for (var i=0; i<layers.length; i++){
+
+      if(layers[i]!=false && layers[i].mapUrl!="dummy"){
+        var layerId="map_"+layers[i].id;
+        
+        // for (var j=0; j<activeLayers.length; j++){
+        //   if(layerId==activeLayers[j].layerId){
+        //     setMap(activeLayers[j].data, activeLayers[j].layerId, activeLayers[j].geomType);
+        //     break;
+        //   }else{
+        //     var _data=[];
+        //     setMap(_data, activeLayers[j].layerId, activeLayers[j].geomType);
+        //     
+        //   }
+        // 
+        // }
+
         console.log("adding map layer :"+layers[i].id);
           var layerId="map_"+layers[i].id;
-          
           map.append("g")
             .attr("id", layerId)
             .attr("class", "Oranges");
           var data=[];
-          var page=1;  
-          getGeoData(layers[i].mapUrl, data, layerId, page);  
+          var page=1; 
+          
+          var layer={
+            url:layers[i].mapUrl,
+      	    layerId:layerId,
+      	    data:data,
+      	    geomType:"none",
+      	    page:1
+      	  };
+      	  
+      	  activeLayers.push(layer);
+           
+          getGeoData(layer); 
       }
       
     }

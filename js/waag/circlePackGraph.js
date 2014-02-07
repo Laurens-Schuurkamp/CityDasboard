@@ -56,12 +56,30 @@ WAAG.CirclePack = function CirclePack(properties, _subDomain) {
             .style("fill-opacity", 0.5)
             .style("stroke", "#666")
             .style("stroke-width", 0.5+"px")
-            
+            .on("mouseover", function(d) {
+
+                  toolTip.transition()        
+                      .duration(100)      
+                      .style("opacity", .9);      
+                  toolTip.html("Stadsdeel :......<br/>value: "  + parseInt(d.value))  
+                      .style("left", (d3.event.pageX) + 10+"px")     
+                      .style("top", (d3.event.pageY - 28 - 10) + "px");    
+                  })                  
+             .on("mouseout", function(d) {       
+                toolTip.transition()        
+                    .duration(250)      
+                    .style("opacity", 0);   
+            })
+            .on("click", function(d){
+                //updateDummySet(data);
+
+    			    })
             .transition()
             .duration(1000)
             .attr("r", function(d) { return d.r; })
+
         
-        node.append("title").text(function(d) { return d.value})    
+        //node.append("title").text(function(d) { return parseInt(d.value)})    
 
         node.transition()
             .duration(1000)
@@ -69,9 +87,9 @@ WAAG.CirclePack = function CirclePack(properties, _subDomain) {
         
         
         node.select("circle")
-          .attr("class", function(d) { return "q" + quantizeBrewer(d.value) + "-9"; }) //colorBrewer
             .transition()
             .duration(1000)
+            .attr("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer(d.value)]})
             .attr("r", function(d) { return d.r; })
              
         node.exit().transition()

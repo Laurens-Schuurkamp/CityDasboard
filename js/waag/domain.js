@@ -166,10 +166,13 @@ WAAG.Domain = function Domain(_propertiesAll) {
          d.setTime(results[i].timestamp*1000);
          var h=d.getHours();
          var value=results[i][kci+":admr.nl.amsterdam"]
+         
          if(dummyData) {
             value=10+(Math.random()*90);
             kci="dummy"; 
           }
+          
+          
          var object={hour:h, timestamp:d, value:value}
           
           for(j=0; j<_properties.tickerData[0].kciData.length; j++){
@@ -182,7 +185,15 @@ WAAG.Domain = function Domain(_propertiesAll) {
      };
      
      _properties.tickerData[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
-
+      
+    //   if(kci=="social.twitter.sentiment"){
+    //     for(var i=0; i<_properties.tickerData[0].kciData.length; i++){
+    //      var h=_properties.tickerData[0].kciData[i].hour;
+    //      var v=_properties.tickerData[0].kciData[i].value;
+    //    
+    //      console.log("hour :"+h+" --> value ="+v.pvda) 
+    //     }
+    // }
     
 
       var graph;
@@ -190,7 +201,9 @@ WAAG.Domain = function Domain(_propertiesAll) {
    	    graph = new WAAG.BarGraph(_properties, subDomain);
    	  }else if (_properties.graphType=="line"){
    	    graph = new WAAG.LineGraph(_properties, subDomain);
-   	  }else if (_properties.graphType=="area"){
+   	  }else if (_properties.graphType=="multiline"){
+     	  graph = new WAAG.MultiLineGraph(_properties, subDomain);
+     	}else if (_properties.graphType=="area"){
    	    graph = new WAAG.AreaGraph(_properties, subDomain);
    	  }  else if (_properties.graphType=="circlepack"){
      	    graph = new WAAG.CirclePack(_properties, subDomain);
