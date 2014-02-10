@@ -11,7 +11,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
 
 	function init(){
 
-    var data = properties.tickerData[0].kciData;
+    var data = properties.tickerData.data[0].kciData;
 	  
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
@@ -66,7 +66,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
             .attr("dy", "-38em")
             .style("text-anchor", "end")
             .style("text-align", "center")
-            .text(properties.tickerData[0].description);      
+            .text(properties.tickerData.data[0].description);      
             
       initted=true;      
       updateGraph(data);
@@ -132,7 +132,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
     
     console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData[index].kciData);
+    updateGraph(_properties.tickerData.data[index].kciData);
   }
   
   this.updateDataSet=updateDataSet;

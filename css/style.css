@@ -95,14 +95,6 @@ input[type=checkbox]:checked + label:before {
     padding: 0;
 }
 
-td, th {
-    position:relative;
-    top:-1em;
-    left:3em;
-    padding: 1px 1px;
-}
-
-
 .menu_container {
   position:absolute;
   top:0em;
@@ -207,14 +199,18 @@ td, th {
   height:2em;*/
 
 }
-.tickerTable{
+.tickerTable {
   position:absolute;
-  width:18em;
-  left:1.5em;
+  width:270px;
+  left:4.5em;
   font-size: 0.8em;
-  width:21em;
-  top:0em;
+  top:-1em;
   
+}
+
+.tickerTable, td, th{
+  /*position:static;*/
+
 }
 
 .map_container{

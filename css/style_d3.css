@@ -11,7 +11,7 @@
 
 .axis {
   font-family: 'Gudea', sans-serif;
-  color:#fff;
+  color:#333;
   font-size: 0.5em;
   
   /*font: 10px sans-serif;*/
@@ -38,6 +38,18 @@ path {
   stroke-width: 0.5px;
 }
 
+.lineNow {
+  fill: none;
+  stroke: #666;
+  stroke-width: 0.5px;
+}
+
+.lineHistory {
+  fill: none;
+  stroke: #666;
+  stroke-width: 0.5px;
+}
+
 .area {
   fill: #666;
 }
@@ -48,6 +60,17 @@ path {
   stroke-width: 2px;
   
 }
+.arc path {
+  stroke: #fff;
+}
+
+.legend {
+    padding: 5px;
+    font-family: 'Gudea', sans-serif;
+    color:#333;
+    font-size: 0.5em
+    box-shadow: 2px 2px 1px #888;
+  }
 
 
 

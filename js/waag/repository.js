@@ -15,12 +15,11 @@ var mNow = dNow.getMinutes();
 
 var initialTickerData=[];
 var admrData=[];
+var dashBoardData=[];
 //http://loosecontrol.tv:4567/dashboard
 
 function getInitialData(){
   var apiCall="transport.car.pressure";
-  
-  var dashBoardData=[];
 
   d3.json("http://loosecontrol.tv:4567/dashboard", function(results){
 
@@ -73,7 +72,9 @@ function getInitialData(){
 
 function getAdmrData(){
   
-  var url="http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"
+  //var url="http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"
+  
+  var url="http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&geom&per_page=1000";
   d3.json(url, function(results){
       admrData=results.results;
       initDashboard();  
@@ -91,14 +92,24 @@ function createDomains(){
   
   var list=[];
   // domain Traffic
-  var tickerData = [
-      {bullet:">", description: "Road pressure", value: "41.8 %", kci:"transport.car.pressure"},
-      {bullet:"+", description: "Avg. speed", value: "32 km/u", kci:"transport.car.speed"},
-      {bullet:"+", description: "Parking", value: "29%", kci:"dummy"},
-  ];
+  
+  var tickerData = {
+      type:"live",
+      data:[
+      {bullet:">", description: "Road pressure", value: "", kci:"transport.car.pressure"},
+      {bullet:"+", description: "Avg. speed", value: "", kci:"transport.car.speed"},
+      {bullet:"+", description: "Parking", value: "29%", kci:"dummy"}
+      ]
+  };
+  
+  // for(var i=0; i<dashBoardData.length; i++){
+  //   if(dashBoardData[i].id=="transport"){
+  //     var tickerData=dashBoardData[i].subdomains[0].tickerData.value;
+  //   }
+  //   
+  // }
   
   // domain Transport
-  console.log("ticker data ="+tickerData[0].graphData)
   var subDomainA={id:"traffic", 
     label:"Transport", 
     icon:"images/svg/icon_transport.car.svg", 
@@ -107,11 +118,14 @@ function createDomains(){
     mapUrl:"http://loosecontrol.tv:4567/cache/3600/nodes?layer=divv.traffic&geom&per_page=1000"
     };
   
-  tickerData = [
-      {bullet:">", description: "Ontime", value: "30 %", kci:"dummy"},
-      {bullet:"+", description: "Avg. delay time", value: "156 sec", kci:"dummy"},
-      {bullet:"+", description: "Total trips", value: "308 (410)", kci:"dummy"},
-  ];  
+  var tickerData = {
+      type:"live",
+      data:[
+        {bullet:">", description: "Ontime", value: "30 %", kci:"dummy"},
+        {bullet:"+", description: "Avg. delay time", value: "156 sec", kci:"dummy"},
+        {bullet:"+", description: "Total trips", value: "308 (410)", kci:"dummy"},
+      ]
+  };  
   var subDomainB={id:"pt", 
     label:"Public transport", 
     icon:"images/svg/icon_transport.pt.svg", 
@@ -128,41 +142,6 @@ function createDomains(){
 	};
 	list.push(properties);
   
-  // domain environment  
-  tickerData = [
-      {bullet:">", description: "NO2", value: "20.27 ", kci:"dummy"},
-      {bullet:"+", description: "CO", value: "117.49 ", kci:"dummy"},
-      {bullet:"+", description: "Noise level", value: "63.24 dB", kci:"dummy"},
-  ];
-  subDomainA={id:"smartcitizen",
-    label:"Smartcitizen", 
-    icon:"images/svg/icon_environment.sck.svg", 
-    tickerData:tickerData, 
-    graphType:"line",
-    mapUrl:"dummy"
-  };
-  tickerData = [
-      {bullet:">", description: "NO2", value: "20.27", kci:"dummy"},
-      {bullet:"+", description: "CO", value: "117.49", kci:"dummy"},
-      {bullet:"+", description: "PM10", value: "63.24", kci:"dummy"},
-  ];
-  subDomainB={id:"airqualities", 
-    label:"Air qualities", 
-    icon:"images/svg/icon_environment.airquality.svg", 
-    tickerData:tickerData, 
-    graphType:"line",
-    mapUrl:"dummy"
-    };
-  var properties={
-    id:"environment",
-    label:"Environment",
-	  icon:"images/svg/icon_environment.svg", 
-	  color:"#FFB27D",
-    subDomains:[subDomainA, subDomainB]
-
-	};
-	list.push(properties);
-
   // domain economy 
   //   tickerData = [
   //       {bullet:">", description: "value A_1", value: "20.27 ", kci:"dummy"},
@@ -194,43 +173,97 @@ function createDomains(){
   // list.push(properties);
 
   // domain cbs 
-  tickerData = [
-      {bullet:">", description: "value A_1", value: "20.27 ", kci:"dummy"},
-      {bullet:"+", description: "value A_2", value: "117.49 ", kci:"dummy"},
-      {bullet:"+", description: "value A_3", value: "63.24", kci:"dummy"},
-  ];
+  var tickerData = {
+      type:"live",
+      data:[
+      {bullet:">", description: "value A_1", value: "0.00 ", kci:"dummy"},
+      {bullet:"+", description: "value A_2", value: "0.00 ", kci:"dummy"},
+      {bullet:"+", description: "value A_3", value: "0.00", kci:"dummy"},
+  ]};
     
   subDomainA={id:"cbs", 
     label:"CBS Statistics", 
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"circlepack",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"  
+  };
+  var tickerData = {
+      type:"live",
+      data:[
+      {bullet:">", description: "value B_1", value: "0.00 ", kci:"dummy"},
+      {bullet:"+", description: "value B_2", value: "0.00 ", kci:"dummy"},
+      {bullet:"+", description: "value B_3", value: "0.00", kci:"dummy"},
+  ]};
+  
+  subDomainB={id:"cbs", 
+    label:"CBS Statistics", 
+    icon:"images/svg/icon_statistics.cbs.svg", 
+    tickerData:tickerData, 
+    graphType:"donut",
+    mapUrl:"dummy"
     
     
     };
-  tickerData = [
-      {bullet:">", description: "value B_1", value: "20.27", kci:"dummy"},
-      {bullet:"+", description: "value B_1", value: "117.49", kci:"dummy"},
-      {bullet:"+", description: "value B_1", value: "63.24", kci:"dummy"},
-  ];
 
   var properties={
     id:"statistics",
     label:"Statistics",
 	  icon:"images/svg/icon_statistics.svg", 
 	  color:"#EF7714",//F16912
-    subDomains:[subDomainA, false]
+    subDomains:[subDomainA, subDomainB]
 
 	};
 	list.push(properties);
+
+  // domain environment  
+  var tickerData = {
+      type:"live",
+      data:[
+      {bullet:">", description: "Temperature", value: "20.27 ", kci:"environment.sck.temperature"},
+      {bullet:"+", description: "Noise level", value: "63.24 dB", kci:"environment.sck.noise"}
+  ]};
+  subDomainA={id:"smartcitizen",
+    label:"Smartcitizen", 
+    icon:"images/svg/icon_environment.sck.svg", 
+    tickerData:tickerData, 
+    graphType:"line",
+    mapUrl:"dummy"
+  };
+  var tickerData = {
+      type:"live",
+      data:[
+      {bullet:">", description: "NO2", value: "20.27", kci:"dummy"},
+      {bullet:"+", description: "CO", value: "117.49", kci:"dummy"},
+      {bullet:"+", description: "PM10", value: "63.24", kci:"dummy"},
+      ]
+  };    
+  subDomainB={id:"airqualities", 
+    label:"Air qualities", 
+    icon:"images/svg/icon_environment.airquality.svg", 
+    tickerData:tickerData, 
+    graphType:"area",
+    mapUrl:"dummy"
+    };
+  var properties={
+    id:"environment",
+    label:"Environment",
+	  icon:"images/svg/icon_environment.svg", 
+	  color:"#FFB27D",
+    subDomains:[subDomainA, subDomainB]
+
+	};
+	list.push(properties);
+
 	
 	// domain social
-	// 
-	tickerData = [
-      {bullet:">", description: "Amsterdam political parties", value: "20.27", kci:"social.twitter.sentiment"}
+	var tickerData = {
+      type:"live",
+      data:[
+        {bullet:">", description: "Political parties", value: "20.27", kci:"social.twitter.sentiment"}
+      ]
+  };
 
-  ];
   
   subDomainA={id:"sentiment", 
     label:"Sentiment", 
@@ -241,12 +274,6 @@ function createDomains(){
     
     
     };
-    
-    tickerData = [
-        {bullet:">", description: "value A_1", value: "20.27 ", kci:"dummy"},
-        {bullet:"+", description: "value A_2", value: "117.49 ", kci:"dummy"},
-        {bullet:"+", description: "value A_3", value: "63.24", kci:"dummy"},
-    ];
 
   var properties={
     id:"social",
@@ -257,6 +284,44 @@ function createDomains(){
 
 	};
 	list.push(properties);
-
+	
   return list;
 }
+
+var cbsLayers={
+      layer:"C.B.S.",
+      data:[
+      {value:"bev_dichth", description:"Bev. dichtheid"},
+      {value:"aant_inw", description:"Aantal inwoners"},
+      {value:"aant_vrouw", description:"Aantal vrouwen"},
+      {value:"aant_man", description:"Aantal mannen"},
+      {value:"aantal_hh", description:"Aantal huishoudens"},
+      {value:"gem_hh_gr", description:"Gemm. hh grote"},
+      {value:"p_gehuwd", description:"Perc. gehuwd"},
+      {value:"p_hh_m_k", description:"Perc. hh met kinderen"},
+      {value:"p_hh_z_k", description:"Perc. hh zonder kinderen"},
+      {value:"p_eenp_hh", description:"Perc. 1pers. hh"},
+      {value:"p_gescheid", description:"Perc. gescheiden"},
+      {value:"p_ongehuwd", description:"Perc. ongehuwd"},
+      {value:"p_verweduw", description:"Perc. weduw"},
+      
+      {value:"p_surinam", description:"Perc. Surninaams"},
+      {value:"p_ant_aru", description:"Perc. Antiliaans"},
+      {value:"p_marokko", description:"Perc. Marokaans"},
+      {value:"p_turkije", description:"Perc. Turks"},
+      {value:"p_west_al", description:"Perc. west. allochtoon"},
+      {value:"p_n_w_al", description:"Perc. niet west. allochtoon"},
+      {value:"p_over_nw", description:"Perc. overig niet west."},
+
+      {value:"p_00_14_jr", description:"Perc. 0 - 14 jaar"},
+      {value:"p_15_24_jr", description:"Perc. 15 - 24 jaar"},
+      {value:"p_25_44_jr", description:"Perc. 25 - 44 jaar"},
+      {value:"p_45_64_jr", description:"Perc. 45 - 64 jaar"},
+      {value:"p_65_eo_jr", description:"Perc. 65+ jaar"},
+      
+      
+      {value:"opp_tot", description:"Opp. totaal"},
+      {value:"opp_land", description:"Opp. land"},
+      {value:"opp_water", description:"Opp. water"},
+      ]
+    };

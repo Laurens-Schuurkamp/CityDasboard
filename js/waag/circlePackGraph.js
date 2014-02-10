@@ -15,7 +15,7 @@ WAAG.CirclePack = function CirclePack(properties, _subDomain) {
   
   function init(){
     
-    var data = properties.tickerData[0].kciData;
+    var data = properties.tickerData.data[0].kciData;
     
 	  var subDomain = _subDomain;
 
@@ -52,10 +52,11 @@ WAAG.CirclePack = function CirclePack(properties, _subDomain) {
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
         .append("circle")
             .attr("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer(d.value)]})
-            .attr("r", 0)
+            .attr("r", function(d) { return d.r; })
             .style("fill-opacity", 0.5)
+            .style("stroke-width", 0.25+"px")
             .style("stroke", "#666")
-            .style("stroke-width", 0.5+"px")
+            .style("stroke-width", 0.25+"px")
             .on("mouseover", function(d) {
 
                   toolTip.transition()        
@@ -101,9 +102,9 @@ WAAG.CirclePack = function CirclePack(properties, _subDomain) {
 	
   updateDataSet = function(_properties, kci, index){
     
-    console.log("updating data set "+kci);
+    //console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData[index].kciData);
+    updateGraph(_properties.tickerData.data[index].kciData);
   }
     
   this.updateDataSet=updateDataSet;

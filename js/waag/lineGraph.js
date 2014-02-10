@@ -11,7 +11,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
   
   function init(){
     
-    var data = properties.tickerData[0].kciData;
+    var data = properties.tickerData.data[0].kciData;
     
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
@@ -81,7 +81,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
             .attr("y", 6)
             .attr("dy", "-38em")
             .style("text-anchor", "end")
-            .text(properties.tickerData[0].description); 
+            .text(properties.tickerData.data[0].description); 
             
                     
 
@@ -92,6 +92,9 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
 	function updateGraph(data){
 
 	  var time=250+(Math.random()*750);
+	  
+	  x.domain(data.map(function(d) { return d.hour; }));
+    y.domain([0, d3.max(data, function(d) { return d.value; })]);
 	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
     
@@ -127,7 +130,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
                   toolTip.transition()        
                       .duration(100)      
                       .style("opacity", .9);      
-                  toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
+                  toolTip.html("time :"+d.hour+ "<br/>value: "  + parseInt(d.value))  
                       .style("left", (d3.event.pageX) + 10+"px")     
                       .style("top", (d3.event.pageY - 28 - 10) + "px");    
                   })                  
@@ -140,7 +143,6 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
                 //updateDummySet(data);
                    
              });      
-
         
     visDot.transition()
         .duration(time)
@@ -156,9 +158,9 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
 	
   updateDataSet = function(_properties, kci, index){
     
-    console.log("updating data set "+kci);
+    //console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData[index].kciData);
+    updateGraph(_properties.tickerData.data[index].kciData);
   }
     
   this.updateDataSet=updateDataSet;

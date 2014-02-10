@@ -11,7 +11,7 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
   
   function init(){
     
-    var data = properties.tickerData[0].kciData;
+    var data = properties.tickerData.data[0].kciData;
     
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
@@ -73,7 +73,7 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
             .attr("y", 6)
             .attr("dy", "-38em")
             .style("text-anchor", "end")
-            .text(properties.tickerData[0].description); 
+            .text(properties.tickerData.data[0].description); 
             
                     
 
@@ -139,9 +139,9 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
 	
   updateDataSet = function(_properties, kci, index){
     
-    console.log("updating data set "+kci);
+    //console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData[index].kciData);
+    updateGraph(_properties.tickerData.data[index].kciData);
   }
     
   this.updateDataSet=updateDataSet;
