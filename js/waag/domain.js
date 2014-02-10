@@ -93,7 +93,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
         .attr("type", "image/svg+xml");
     
 
-    setGraph(_properties, subDomainA);
+    getGraphData(_properties, subDomainA);
     
     
     if(_properties.id=="smartcitizen"){
@@ -139,67 +139,78 @@ WAAG.Domain = function Domain(_propertiesAll) {
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml")
               
-    setGraph(_properties, subDomainB);
+    getGraphData(_properties, subDomainB);
 
 	};
 	
-	function setGraph(_properties, subDomain){
+	function getGraphData(_properties, subDomain){
 	  
-	  var kci=_properties.tickerData.data[0].kci;
-    var dummyData=false;
+	  // get the data and prepare it for visualisations
+	  
+	  if(_properties.tickerData.live ){
+  	  var kci=_properties.tickerData.data[0].kci;
+      var dummyData=false;
         
-    if(kci=="dummy"){
-      dummyData=true;
-      kci="transport.car.pressure";
-    }
+      if(kci=="dummy"){
+        dummyData=true;
+        kci="transport.car.pressure";
+      }
     
-    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
-      //console.log("loosecontrol results ="+results.length);
+      d3.json("http://loosecontrol.tv:4567/"+kci+"/"+admr+"/history", function(results){
+        //console.log("loosecontrol results ="+results.length);
       
-      var i=0;
-      for( i=0; i<_properties.tickerData.data.length; i++){
-          _properties.tickerData.data[i].kciData=initialTickerData;
-      };
+        var i=0;
+        for( i=0; i<_properties.tickerData.data.length; i++){
+            _properties.tickerData.data[i].kciData=initialTickerData;
+        };
      
-     // check for server down time
-     for(var i=0; i<results.length; i++){
-         var d=new Date();
-         d.setTime(results[i].timestamp*1000);
-         var h=d.getHours();
-         var value=results[i][kci+":admr.nl.amsterdam"]
+       // check for server down time
+       for(var i=0; i<results.length; i++){
+           var d=new Date();
+           d.setTime(results[i].timestamp*1000);
+           var h=d.getHours();
+           var value=results[i][kci+":"+admr]
          
-         if(dummyData) {
-            value=10+(Math.random()*90);
-            kci="dummy"; 
-         }
-          
-          
-         var object={hour:h, timestamp:d, value:value}
-          
-          for(j=0; j<_properties.tickerData.data[0].kciData.length; j++){
-              if(_properties.tickerData.data[0].kciData[j].hour==h){
-                _properties.tickerData.data[0].kciData[j]=object;
-              }
+           if(dummyData) {
+              value=10+(Math.random()*90);
+              kci="dummy"; 
+           }
 
-          };
+           var object={hour:h, timestamp:d, value:value}
+          
+            for(j=0; j<_properties.tickerData.data[0].kciData.length; j++){
+                if(_properties.tickerData.data[0].kciData[j].hour==h){
+                  _properties.tickerData.data[0].kciData[j]=object;
+                }
 
-     };
+            };
+
+       };
      
-     _properties.tickerData.data[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+       _properties.tickerData.data[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});      
+       setGraph(_properties, subDomain, dummyData); 
+       
+      });
+    }else{
+      console.log("get staticData --> CitySDK");
+      d3.json(_properties.tickerData.data[0].kci, function(results){
+        
+        console.log("loosecontrol results static="+results.results.length);      
+        //_properties.tickerData.data[0].kciData=initialTickerData;
+        _properties.tickerData.data[0].sdkResults=results.results;        
       
-    //   if(kci=="social.twitter.sentiment"){
-    //     for(var i=0; i<_properties.tickerData[0].kciData.length; i++){
-    //      var h=_properties.tickerData[0].kciData[i].hour;
-    //      var v=_properties.tickerData[0].kciData[i].value;
-    //    
-    //      console.log("hour :"+h+" --> value ="+v.pvda) 
-    //     }
-    // }
-    // 
-     
-    
-
-      var graph;
+        setGraph(_properties, subDomain, dummyData);
+      
+      });
+      
+    };
+	  
+  }
+	
+	function setGraph(_properties, subDomain, dummyData){
+	  var graph;
+ 	  
+ 	  
    	  if(_properties.graphType=="bar"){
    	    graph = new WAAG.BarGraph(_properties, subDomain);
    	  }else if (_properties.graphType=="line"){
@@ -215,24 +226,22 @@ WAAG.Domain = function Domain(_propertiesAll) {
    	  }else if (_properties.graphType=="pie"){
      	    graph = new WAAG.PieGraph (_properties, subDomain, false);
      	}
-     	
+
+    
+    if(_properties.tickerData.live){
      	if(!dummyData) {
- 	  
-     	  createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
-
+      	  createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
        }else{
-         createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
+          createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
+      };
 
-       };
-
-     
-    });
-
+    }else{
+        createSelectList(_properties, subDomain, graph);
+    }
+	  
 	};
 	
-	function updateGraph(_properties, kci, _class){
-	  
-	  
+	function updateGraph(_properties, kci, _class){	  
     var dummyData=false;
     if(kci=="dummy"){
       dummyData=true;
@@ -240,13 +249,12 @@ WAAG.Domain = function Domain(_propertiesAll) {
     }
     
     var index=0;
-    for(var i=0; i<_properties.tickerData.length; i++){
-      if(kci==_properties.tickerData[i].kci){
+    for(var i=0; i<_properties.tickerData.data.length; i++){
+      if(kci==_properties.tickerData.data[i].kci){
         index=i;
       }
     }
-    
-    
+
     d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
 
      //_properties.tickerData[index].kciData=[];
@@ -274,10 +282,8 @@ WAAG.Domain = function Domain(_propertiesAll) {
      _properties.tickerData.data[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
      _class.updateDataSet(_properties, kci, index);
 
-     
     });
-	  
-	  
+
 	};
   //createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
 	function createTickerTable(_properties, columns, _domain, _class) {
@@ -355,6 +361,31 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
       return table;
   }
+  
+  
+  function createSelectList(_properties, _domain, _class) {
+    console.log("adding select list");
+    var data=_properties.tickerData.layers;
+    var domain=_domain;
+      
+    var layerSelector = domain.append("div").attr("class", "layerSelector");
+    
+    var select = layerSelector.append("select").attr("class", "select")
+                      .on("change", function() { 
+                        console.log("change :"+this.value) 
+                        _class.updateDataSet(_properties, this.value, _class);
+                        });
+      
+     select.selectAll("option")
+        .data(data)
+        .enter()
+        .append("option")
+          .attr("value", function(d){return d.value})
+          .text(function(d) {return d.description})
+          
+    
+  };
+  
 
   init();
   

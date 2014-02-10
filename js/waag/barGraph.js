@@ -92,14 +92,14 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
         .attr("y", function(d) { return y(0); })
         .attr("height", function(d) { return height - y(0); })
         .style("fill", function(d) { if(d.hour>hNow) return "none" })
-        .style("stroke-width", function(d) { if(d.hour>hNow) return 0.1+"px" })
+        .style("stroke-width", function(d) { if(d.hour>hNow) return 0.25+"px" })
         //.style("shape-rendering", function(d) { if(d.hour>hNow) return "crispEdges" })
         .style("stroke", function(d) { if(d.hour>hNow) return "#666" })
         .on("mouseover", function(d) {
           
               toolTip.transition()        
                   .duration(100)      
-                  .style("opacity", .9);      
+                  .style("opacity", .9);
               toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
                   .style("left", (d3.event.pageX) + 10+"px")     
                   .style("top", (d3.event.pageY - 28 - 10) + "px");    

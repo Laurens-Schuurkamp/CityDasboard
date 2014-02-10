@@ -213,6 +213,47 @@ input[type=checkbox]:checked + label:before {
 
 }
 
+.layerSelector {
+    position:absolute;
+    width:140px;
+    left:4em;
+    top:-1em;
+    /*border: 1px solid #ccc;*/
+    width: 140px;
+    /*border-radius: 1px;*/
+    overflow: hidden;
+    background: transparent;
+    background: url("../images/icon_plus-12.png") no-repeat 0% 50%;
+}
+
+.layerSelector select {
+    
+    font-family:inherit;
+    font-size:0.8em;
+    color:#666;
+    left:2em;
+    width:140px;
+    padding: 0.5em 1.25em;
+
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    -webkit-appearance: none;
+}
+
+.layerSelector select:focus {
+    outline: none;
+    font-family:inherit;
+    font-size:0.8em;
+    border-radius: 0px;
+    
+}
+.layerSelector select, option {
+   /*background-color: #000;*/
+
+}
+
 .map_container{
   position:absolute;
   background-color: #f3ece5;

@@ -47,6 +47,12 @@ function initDashboard(){
 	
 };
 
+function change() {
+  console.log("value ="+this.value);
+    var value = this.value;
+    
+};
+
 
 function onWindowResize( event ) {
   console.log('resize');

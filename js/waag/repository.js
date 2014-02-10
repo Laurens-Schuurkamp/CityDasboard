@@ -94,7 +94,7 @@ function createDomains(){
   // domain Traffic
   
   var tickerData = {
-      type:"live",
+      live:true,
       data:[
       {bullet:">", description: "Road pressure", value: "", kci:"transport.car.pressure"},
       {bullet:"+", description: "Avg. speed", value: "", kci:"transport.car.speed"},
@@ -119,7 +119,7 @@ function createDomains(){
     };
   
   var tickerData = {
-      type:"live",
+      live:true,
       data:[
         {bullet:">", description: "Ontime", value: "30 %", kci:"dummy"},
         {bullet:"+", description: "Avg. delay time", value: "156 sec", kci:"dummy"},
@@ -174,37 +174,34 @@ function createDomains(){
 
   // domain cbs 
   var tickerData = {
-      type:"live",
-      data:[
-      {bullet:">", description: "value A_1", value: "0.00 ", kci:"dummy"},
-      {bullet:"+", description: "value A_2", value: "0.00 ", kci:"dummy"},
-      {bullet:"+", description: "value A_3", value: "0.00", kci:"dummy"},
-  ]};
-    
-  subDomainA={id:"cbs", 
-    label:"CBS Statistics", 
-    icon:"images/svg/icon_statistics.cbs.svg", 
-    tickerData:tickerData, 
-    graphType:"circlepack",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"  
+      live:false,
+      data:[{bullet:">", description: "value A_1", value: "0.00 ", kci:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&per_page=1000 "}],
+      layers:cbsLayers
   };
-  var tickerData = {
-      type:"live",
-      data:[
-      {bullet:">", description: "value B_1", value: "0.00 ", kci:"dummy"},
-      {bullet:"+", description: "value B_2", value: "0.00 ", kci:"dummy"},
-      {bullet:"+", description: "value B_3", value: "0.00", kci:"dummy"},
-  ]};
-  
-  subDomainB={id:"cbs", 
+    
+  subDomainA={id:"cbsA", 
     label:"CBS Statistics", 
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"donut",
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"  
+  };
+  
+  var tickerData = {
+      live:false,
+      data:[{bullet:">", description: "value A_1", value: "0.00 ", kci:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&per_page=1000 "}],
+      layers:cbsLayers
+  };
+  
+  subDomainB={id:"cbsB",
+    label:"CBS Statistics", 
+    icon:"images/svg/icon_statistics.cbs.svg", 
+    tickerData:tickerData, 
+    graphType:"circlepack",
     mapUrl:"dummy"
     
     
-    };
+  };
 
   var properties={
     id:"statistics",
@@ -218,7 +215,7 @@ function createDomains(){
 
   // domain environment  
   var tickerData = {
-      type:"live",
+      live:true,
       data:[
       {bullet:">", description: "Temperature", value: "20.27 ", kci:"environment.sck.temperature"},
       {bullet:"+", description: "Noise level", value: "63.24 dB", kci:"environment.sck.noise"}
@@ -231,7 +228,7 @@ function createDomains(){
     mapUrl:"dummy"
   };
   var tickerData = {
-      type:"live",
+      live:true,
       data:[
       {bullet:">", description: "NO2", value: "20.27", kci:"dummy"},
       {bullet:"+", description: "CO", value: "117.49", kci:"dummy"},
@@ -258,29 +255,44 @@ function createDomains(){
 	
 	// domain social
 	var tickerData = {
-      type:"live",
+      live:true,
       data:[
         {bullet:">", description: "Political parties", value: "20.27", kci:"social.twitter.sentiment"}
       ]
   };
 
-  
   subDomainA={id:"sentiment", 
     label:"Sentiment", 
     icon:"images/svg/icon_social.twitter.svg", 
     tickerData:tickerData, 
     graphType:"multiline",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"
+    mapUrl:"dummy"
     
     
     };
 
+  	// domain social
+  	var tickerData = {
+        live:true,
+        data:[
+          {bullet:">", description: "Soccer", value: "20.27", kci:"social.twitter.soccer"}
+        ]
+    };
+    subDomainB={id:"soccer", 
+      label:"Soccer", 
+      icon:"images/svg/icon_social.twitter.svg", 
+      tickerData:tickerData, 
+      graphType:"multiline",
+      mapUrl:"dummy"
+
+
+      };
   var properties={
     id:"social",
     label:"Social",
 	  icon:"images/svg/icon_social.svg", 
 	  color:"#EF7714",//F16912
-    subDomains:[subDomainA, false]
+    subDomains:[subDomainA, subDomainB]
 
 	};
 	list.push(properties);
@@ -288,9 +300,7 @@ function createDomains(){
   return list;
 }
 
-var cbsLayers={
-      layer:"C.B.S.",
-      data:[
+var cbsLayers=[
       {value:"bev_dichth", description:"Bev. dichtheid"},
       {value:"aant_inw", description:"Aantal inwoners"},
       {value:"aant_vrouw", description:"Aantal vrouwen"},
@@ -323,5 +333,5 @@ var cbsLayers={
       {value:"opp_tot", description:"Opp. totaal"},
       {value:"opp_land", description:"Opp. land"},
       {value:"opp_water", description:"Opp. water"},
-      ]
-    };
+];
+
