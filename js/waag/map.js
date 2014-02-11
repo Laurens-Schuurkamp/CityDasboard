@@ -324,7 +324,7 @@ WAAG.Map = function Map(domains) {
    updatePolygonMap = function (data, layerId){
      
      console.log("adding map ="+layerId)
-     if(layerId=="map_cbs"){
+     if(layerId=="map_cbsA"){
        data.forEach(function(d){
             d.value=10+(Math.random()*90);
         });

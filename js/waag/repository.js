@@ -75,10 +75,12 @@ function getAdmrData(){
   //var url="http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"
   
   var url="http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&geom&per_page=1000";
-  d3.json(url, function(results){
-      admrData=results.results;
-      initDashboard();  
-  });  
+  // d3.json(url, function(results){
+  //     admrData=results.results;
+  //     initDashboard();  
+  // }); 
+  
+  initDashboard();  
     
 }
 
@@ -96,9 +98,9 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:">", description: "Road pressure", value: "", kci:"transport.car.pressure"},
-      {bullet:"+", description: "Avg. speed", value: "", kci:"transport.car.speed"},
-      {bullet:"+", description: "Parking", value: "29%", kci:"dummy"}
+      {bullet:"", description: "Road pressure", value: "", kci:"transport.car.pressure"},
+      {bullet:"", description: "Avg. speed", value: "", kci:"transport.car.speed"},
+      {bullet:"", description: "Parking", value: "29%", kci:"dummy"}
       ]
   };
   
@@ -271,7 +273,6 @@ function createDomains(){
     
     };
 
-  	// domain social
   	var tickerData = {
         live:true,
         data:[
@@ -292,7 +293,7 @@ function createDomains(){
     label:"Social",
 	  icon:"images/svg/icon_social.svg", 
 	  color:"#EF7714",//F16912
-    subDomains:[subDomainA, subDomainB]
+    subDomains:[subDomainA, false]
 
 	};
 	list.push(properties);

@@ -20,7 +20,6 @@ WAAG.Domain = function Domain(_propertiesAll) {
       .style("background-color", function() {return colorbrewer[colorScheme]['9'][properties.index]})
       .style("top", menuHeight+(properties.index*widgetHeight)+"px")
       
-      
       //.attr("class", "q" + quantizeBrewer(d.value) + "-9"; }) //colorBrewer
       //.Oranges .q0-3{fill:rgb(254,230,206)}
     
@@ -92,8 +91,8 @@ WAAG.Domain = function Domain(_propertiesAll) {
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml");
     
-
-    getGraphData(_properties, subDomainA);
+    var kci=_properties.tickerData.data[0].kci;
+    getGraphData(_properties, subDomainA, kci, null);
     
     
     if(_properties.id=="smartcitizen"){
@@ -138,24 +137,31 @@ WAAG.Domain = function Domain(_propertiesAll) {
         .attr("class", "subDomainIcon")
         .attr("data", _properties.icon)
         .attr("type", "image/svg+xml")
-              
-    getGraphData(_properties, subDomainB);
+        
+    var kci=_properties.tickerData.data[0].kci;          
+    getGraphData(_properties, subDomainB, kci, null);
 
 	};
 	
-	function getGraphData(_properties, subDomain){
+	function getGraphData(_properties, subDomain, kci, _class){
 	  
+	  console.log("getting data :"+kci+" --> "+_properties.id);
 	  // get the data and prepare it for visualisations
+    var dummyData=false;
+    if(kci=="dummy"){
+      dummyData=true;
+      kci="transport.car.pressure";
+    }
+    
+    var index=0;
+    for(var i=0; i<_properties.tickerData.data.length; i++){
+      if(kci==_properties.tickerData.data[i].kci){
+        index=i;
+      }
+    }
 	  
 	  if(_properties.tickerData.live ){
-  	  var kci=_properties.tickerData.data[0].kci;
-      var dummyData=false;
-        
-      if(kci=="dummy"){
-        dummyData=true;
-        kci="transport.car.pressure";
-      }
-    
+
       d3.json("http://loosecontrol.tv:4567/"+kci+"/"+admr+"/history", function(results){
         //console.log("loosecontrol results ="+results.length);
       
@@ -187,8 +193,14 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
        };
      
-       _properties.tickerData.data[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});      
-       setGraph(_properties, subDomain, dummyData); 
+        if(_class==null){
+          _properties.tickerData.data[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});      
+          setGraph(_properties, subDomain, dummyData);
+        }else{
+          _properties.tickerData.data[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
+           _class.updateDataSet(_properties, kci, index);
+        }
+ 
        
       });
     }else{
@@ -196,10 +208,12 @@ WAAG.Domain = function Domain(_propertiesAll) {
       d3.json(_properties.tickerData.data[0].kci, function(results){
         
         console.log("loosecontrol results static="+results.results.length);      
-        //_properties.tickerData.data[0].kciData=initialTickerData;
         _properties.tickerData.data[0].sdkResults=results.results;        
-      
-        setGraph(_properties, subDomain, dummyData);
+        
+        if(_class==null){
+          setGraph(_properties, subDomain, dummyData);
+        }
+        
       
       });
       
@@ -208,9 +222,8 @@ WAAG.Domain = function Domain(_propertiesAll) {
   }
 	
 	function setGraph(_properties, subDomain, dummyData){
-	  var graph;
- 	  
- 	  
+	    var graph;
+ 	   	  
    	  if(_properties.graphType=="bar"){
    	    graph = new WAAG.BarGraph(_properties, subDomain);
    	  }else if (_properties.graphType=="line"){
@@ -241,50 +254,6 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	  
 	};
 	
-	function updateGraph(_properties, kci, _class){	  
-    var dummyData=false;
-    if(kci=="dummy"){
-      dummyData=true;
-      kci="transport.car.pressure";
-    }
-    
-    var index=0;
-    for(var i=0; i<_properties.tickerData.data.length; i++){
-      if(kci==_properties.tickerData.data[i].kci){
-        index=i;
-      }
-    }
-
-    d3.json("http://loosecontrol.tv:4567/"+kci+"/admr.nl.amsterdam/history", function(results){
-
-     //_properties.tickerData[index].kciData=[];
-     // check for server down time
-      for(var i=0; i<results.length; i++){
-          var d=new Date();
-          d.setTime(results[i].timestamp*1000);
-          var h=d.getHours();
-          var value=results[i][kci+":admr.nl.amsterdam"]
-          if(dummyData) {
-             value=10+(Math.random()*90);
-             kci="dummy"; 
-           }
-          var object={hour:h, timestamp:d, value:value}
-
-           for(j=0; j<_properties.tickerData.data[index].kciData.length; j++){
-               if(_properties.tickerData.data[index].kciData[j].hour==h){
-                 _properties.tickerData.data[index].kciData[j]=object;
-               }
-
-           };
-
-      };
-
-     _properties.tickerData.data[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
-     _class.updateDataSet(_properties, kci, index);
-
-    });
-
-	};
   //createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
 	function createTickerTable(_properties, columns, _domain, _class) {
       
@@ -322,6 +291,14 @@ WAAG.Domain = function Domain(_propertiesAll) {
           
           .enter()
           .append("td")
+              .attr("id", function(d){ 
+                if(d.column=="bullet"){
+                  return "inActive";
+                }else{
+                  return "none";
+                }
+
+                })
               .style("width", function(d, i){ 
                 
                 if(d.column=="description"){
@@ -329,7 +306,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
                 }else if(d.column=="value"){
                   return "30%";
                 }else{
-                  return 10+"%";
+                  return 5+"%";
                 }
 
                 })
@@ -342,9 +319,11 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
                 })  
               .text(function(d) { 
-                
+                //return d.value; 
                 //console.log(d.kci+" --> value"+d.value);
-                return d.value; 
+                if(d.column!="bullet"){
+                  return d.value; 
+                }
                 })
                             
               .on("mouseover", function(d) {
@@ -354,9 +333,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
                   d3.select("body").style("cursor", "default");
                 })
               .on("click", function(d){
-                    //console.log(d.kci);
-                    //_class.updateDataSet(d.kci);
-                    updateGraph(_properties, d.kci, _class);
+                  getGraphData(_properties, null, d.kci, _class);
                });
 
       return table;

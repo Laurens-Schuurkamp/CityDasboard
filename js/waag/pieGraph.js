@@ -61,7 +61,7 @@ WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
       
       if(data[i].value<=0){
         console.log("value "+data[i].value+" -->"+data[i].name);
-        data[i].value=0.1;
+        data[i].value=1;
         
       }
       

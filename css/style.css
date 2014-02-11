@@ -202,28 +202,40 @@ input[type=checkbox]:checked + label:before {
 .tickerTable {
   position:absolute;
   width:270px;
-  left:4.5em;
+  left:5em;
   font-size: 0.8em;
   top:-1em;
   
 }
 
-.tickerTable, td, th{
+.tickerTable td th{
+
   /*position:static;*/
 
 }
 
+.tickerTable #active{
+  /*position:static;*/
+  background: url("../images/icon_plus-10.png") no-repeat 0% 50%;
+  
+}
+
+.tickerTable #inActive{
+  /*position:static;*/
+  background: url("../images/icon_min-10.png") no-repeat 0% 50%;
+  
+}
+
 .layerSelector {
     position:absolute;
-    width:140px;
+    width:160px;
     left:4em;
     top:-1em;
     /*border: 1px solid #ccc;*/
-    width: 140px;
     /*border-radius: 1px;*/
     overflow: hidden;
     background: transparent;
-    background: url("../images/icon_plus-12.png") no-repeat 0% 50%;
+    background: url("../images/icon_plus-10.png") no-repeat 0% 50%;
 }
 
 .layerSelector select {
@@ -232,9 +244,9 @@ input[type=checkbox]:checked + label:before {
     font-size:0.8em;
     color:#666;
     left:2em;
-    width:140px;
+    
     padding: 0.5em 1.25em;
-
+    
     border: none;
     box-shadow: none;
     background: transparent;
@@ -249,10 +261,11 @@ input[type=checkbox]:checked + label:before {
     border-radius: 0px;
     
 }
-.layerSelector select, option {
+.layerSelector select option {
    /*background-color: #000;*/
-
 }
+
+
 
 .map_container{
   position:absolute;
