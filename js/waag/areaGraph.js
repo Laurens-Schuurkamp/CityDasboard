@@ -31,8 +31,8 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
      y = d3.scale.linear()
         .range([height, 0]);
 
-    xAxis = setXaxis();
-    yAxis = setYaxis();  
+    xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
+    yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false); 
               
      line = d3.svg.line()
      .interpolate("none")
@@ -49,67 +49,31 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
       x.domain(data.map(function(d) { return d.hour; }));
       y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
-      
-        svgDomain.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
 
-        svgDomain.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(" + width + ",0)")
-            .call(yAxis)
-          .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", "-38em")
-            .style("text-anchor", "end")
-            .text(properties.tickerData.data[0].description); 
-            
-                    
-
-      updateGraph(data);
+     updateDataSet(properties, properties.tickerData.data[0].kci, 0);
 
   };
 
-  function setXaxis(){
 
-    xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            //.ticks(4)
-            .tickValues([0, 6, 12, 18, 23])
-            //.tickFormat(d3.time.format("%H"));
+	function updateGraph(data, description, yUnits){
 
-    return xAxis;        
-
-  }
-
-  function setYaxis(){
-
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("right")
-            .ticks(2);
-
-    return yAxis;        
-
-  }
-
-	function updateGraph(data){
-
-	  yAxis=setYaxis();
-  
-    y.domain([0, d3.max(data, function(d) { return d.value; })]);
+	  var max=d3.max(data, function(d) { return d.value; }); 
+	  var maxRound=Math.round(max/10) * 10;
+	  y.domain([0, max]); 
+	  
+	  yAxis = setYaxis(data, svgDomain, width, height, 2, "units", true);
     
     var time=250+(Math.random()*750);
 	  
-    svgDomain.selectAll("#y_axis")
+    svgDomain.select("#y_axis")
         .transition().duration(time)  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
         .call(yAxis);  
 
-    svgDomain.selectAll("#y_axis_label")
-        .text("new value Axis");
+    svgDomain.select("#y_axis_label")
+        .text(description);
+        
+    svgDomain.select("#y_axis_units")
+        .text(maxRound+" "+yUnits);
 	  
 	  var dataArea=[];
     data.forEach(function(d){
@@ -159,6 +123,50 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
         .style("opacity", 0 )
         .remove();       
     
+    
+    // var visDot=svgDomain.selectAll(".dot").data(data, function(d, i){return i});     
+    // 
+    //    visDot.enter().append("circle")
+    //     .attr("class", "dot")
+    //     .attr("r", function(d) {
+    //       if(d.hour==hNow ){
+    //         return 2;
+    //       }else if(d.hour<hNow && d.value!=null){
+    //         return 0.5;
+    //       }else{
+    //         return 0;
+    //       } })
+    //     .attr("cx", function(d) { return x(d.hour); })
+    //     .attr("cy", function(d) { return y(d.value); })
+    //         .on("mouseover", function(d) {
+    // 
+    // 
+    //               toolTip.transition()        
+    //                   .duration(100)      
+    //                   .style("opacity", .9);      
+    //               toolTip.html("time :"+d.hour+ "<br/>value: "  + parseInt(d.value))  
+    //                   .style("left", (d3.event.pageX) + 10+"px")     
+    //                   .style("top", (d3.event.pageY - 28 - 10) + "px");    
+    //               })                  
+    //          .on("mouseout", function(d) {       
+    //             toolTip.transition()        
+    //                 .duration(250)      
+    //                 .style("opacity", 0);   
+    //         })
+    //         .on("click", function(d){
+    //             //updateDummySet(data);
+    // 
+    //          });      
+    // 
+    // visDot.transition()
+    //     .duration(time)
+    //     .attr("cx", function(d) { return x(d.hour); })
+    //     .attr("cy", function(d) { return y(d.value); });
+    // 
+    // visDot.exit().transition()
+    //     .duration(time)
+    //     .style("opacity", 0 )
+    //     .remove();
        
 
 	};
@@ -167,7 +175,7 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
     
     //console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData.data[index].kciData);
+    updateGraph(_properties.tickerData.data[index].kciData, properties.tickerData.data[index].description, properties.tickerData.data[index].units);
   }
     
   this.updateDataSet=updateDataSet;

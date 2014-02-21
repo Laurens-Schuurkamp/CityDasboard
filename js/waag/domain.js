@@ -270,6 +270,13 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	function createTickerTable(_properties, columns, _domain, _class) {
       
       var data=_properties.tickerData.data;
+      //data.active=
+      data.forEach(function(d){
+  	    d.active = false;
+
+      });
+      data[0].active=true;
+      
       var domain=_domain;
 
       var table = domain.append("table")
@@ -297,20 +304,32 @@ WAAG.Domain = function Domain(_propertiesAll) {
       var cells = rows.selectAll("td")
           .data(function(row) {
               return columns.map(function(column) {     
-                  return {column: column, value: row[column], kci:row["kci"]};
+                  return {column: column, value: row[column], kci:row["kci"], active:row["active"]};
               });
           })
-          
           .enter()
           .append("td")
               .attr("id", function(d){ 
                 if(d.column=="bullet"){
-                  return "inActive";
+                  if(d.active){
+                    return "inActive";
+                  }else{
+                    return "active";
+                  }
+                  
+                  
                 }else{
                   return "none";
                 }
 
                 })
+                .attr("class", function(d){ 
+                  if(d.column=="bullet"){
+                    return "bullet";
+                  }
+
+                  })  
+                
               .style("width", function(d, i){ 
                 
                 if(d.column=="description"){
@@ -318,7 +337,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
                 }else if(d.column=="value"){
                   return "30%";
                 }else{
-                  return 5+"%";
+                  return 6+"%";
                 }
 
                 })
@@ -345,7 +364,20 @@ WAAG.Domain = function Domain(_propertiesAll) {
                   d3.select("body").style("cursor", "default");
                 })
               .on("click", function(d){
+                  console.log("this ="+d.kci);
+                  var activeKci=d.kci;
                   getGraphData(_properties, null, d.kci, _class);
+                  
+                  domain.selectAll(".bullet").attr("id", 
+                    function(d){ 
+                    if(d.kci==activeKci){
+                      return "inActive"
+                    }else{
+                      return "active"
+                    }
+
+                  });
+                  
                });
 
       return table;
@@ -422,5 +454,8 @@ function activateMap(_properties){
   };
 
 };
+
+  
+
 
 

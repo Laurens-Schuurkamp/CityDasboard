@@ -591,7 +591,7 @@ WAAG.Map = function Map(domains) {
   
   function setToolTipLabel(_data, _path){
     var v = _data;
-    _path.split(".").forEach(function(d) { v = v[d]; });
+    _path.split(":").forEach(function(d) { v = v[d]; });
     
     var label=_data.name+"<br>";
 		for(var key in v) {

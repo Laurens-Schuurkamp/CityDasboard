@@ -31,73 +31,40 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
        .range([height, 0]);
     y.domain([0, d3.max(data, function(d) { return d.value; })]);    
     
-    
-    //setGraphScaling(data);
-     xAxis = setXaxis();
-     yAxis = setYaxis();
-  
-    svgDomain.append("g")
-        .attr("class", "x axis")
-        .attr("id", "x_axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
 
-    svgDomain.append("g")
-        .attr("class", "y axis")
-        .attr("id", "y_axis")
-        .attr("transform", "translate(" + width + ",0)")
-        .call(yAxis)
-      .append("text")
-        .attr("id", "y_axis_label")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "-38em")
-        .style("text-anchor", "end")
-        .style("text-align", "center") 
-            
-      initted=true;      
-      updateGraph(data, properties.tickerData.data[0].description);
+     xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
+     yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false);
+              
+    initted=true;
+    
+    
+    updateDataSet(properties, properties.tickerData.data[0].kci, 0);      
+    
 
   };
   
-  function setXaxis(){
 
-    xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            //.ticks(4)
-            .tickValues([0, 6, 12, 18, 23])
-            //.tickFormat(d3.time.format("%H"));
 
-    return xAxis;        
-
-  }
-
-  function setYaxis(){
-
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("right")
-            .ticks(2);
-
-    return yAxis;        
-
-  }
-
-	function updateGraph(data, description){
+	function updateGraph(data, description, yUnits){
 	  
-	  y.domain([0, d3.max(data, function(d) { return d.value; })]); 
-	  yAxis=setYaxis(data);
+	  var max=d3.max(data, function(d) { return d.value; }); 
+	  var maxRound=Math.round(max/10) * 10;
+	  y.domain([0, max]); 
+	  
+	  yAxis = setYaxis(data, svgDomain, width, height, 2, yUnits, true);
     
     var time=250+(Math.random()*750);
 	  
-    svgDomain.selectAll("#y_axis")
+    svgDomain.select("#y_axis")
         .transition().duration(time)  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
         .call(yAxis);  
 
-    svgDomain.selectAll("#y_axis_label")
-        .text(description);    
-
+    svgDomain.select("#y_axis_label")
+        .text(description);
+        
+    svgDomain.select("#y_axis_units")
+        .text(maxRound+" "+yUnits);
+   
     var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
     
     vis.enter().append("rect")
@@ -147,7 +114,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
     
     console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData.data[index].kciData, properties.tickerData.data[index].description);
+    updateGraph(_properties.tickerData.data[index].kciData, properties.tickerData.data[index].description, properties.tickerData.data[index].units);
   }
   
   this.updateDataSet=updateDataSet;

@@ -52,10 +52,8 @@ function getInitialData(){
            
     }
 
-    
     getAdmrData()
-    
-   
+       
   });
   
 }
@@ -88,9 +86,9 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:"", description: "Road pressure", value: "", kci:"transport.car.pressure"},
-      {bullet:"", description: "Avg. speed", value: "", kci:"transport.car.speed"},
-      {bullet:"", description: "Parking", value: "29%", kci:"transport.car.parking"}
+      {bullet:"", description: "Avg. speed", value: "", units:"km/h", kci:"transport.car.speed"},
+      {bullet:"", description: "Road pressure", value: "", units:"%", kci:"transport.car.pressure"},  
+      {bullet:"", description: "Parking", value: "", units:"%", kci:"transport.car.parking"}
       ]
   };
   
@@ -115,7 +113,7 @@ function createDomains(){
           {key:"dynamic", value:"cdk_id"},
           {key:"static", value:"/select/now"}
         ],
-        sdkPath:"layers.divv.traffic.data",
+        sdkPath:"layers:divv.traffic:data",
         label:[
           {key:"location", value:"location"},
           {key:"velocity", value:"velocity"},
@@ -129,9 +127,9 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-        {bullet:">", description: "Ontime", value: "30 %", kci:"dummy"},
-        {bullet:"+", description: "Avg. delay time", value: "156 sec", kci:"dummy"},
-        {bullet:"+", description: "Total trips", value: "308 (410)", kci:"dummy"},
+        {bullet:">", description: "Ontime", value: "30 %", units:"%", kci:"dummy"},
+        {bullet:"+", description: "Avg. delay time", value: "156", units:"sec", kci:"dummy"},
+        {bullet:"+", description: "Actual trips", value: "308 of (410)", units:"amount", kci:"dummy"},
       ]
   };  
   var subDomainB={id:"pt", 
@@ -143,7 +141,7 @@ function createDomains(){
     sdkProperties:{
         type:"realtime",
         userCallBacks:[],
-        sdkPath:"layers.divv.traffic.data",
+        sdkPath:"layers:divv.traffic:data",
         label:[
           {key:"location", value:"location"},
           {key:"velocity", value:"velocity"},
@@ -196,7 +194,7 @@ function createDomains(){
   // domain cbs 
   var tickerData = {
       live:false,
-      data:[{bullet:">", description: "value A_1", value: "0.00 ", kci:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&per_page=1000 "}],
+      data:[{bullet:">", description: "value A_1", value: "0.00 ", units:"%", kci:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&per_page=1000 "}],
       layers:cbsLayers
   };
     
@@ -209,7 +207,7 @@ function createDomains(){
     sdkProperties:{
         type:"static",
         userCallBacks:[],
-        sdkPath:"layers.cbs.data", //"layers.sck.data".split(".")
+        sdkPath:"layers:cbs:data", //"layers.sck.data".split(".")
         label:[          
         ]    
       }
@@ -230,7 +228,7 @@ function createDomains(){
     sdkProperties:{
         type:"static",
         userCallBacks:[],
-        sdkPath:"layers.cbs.data", //"layers.sck.data".split(".")
+        sdkPath:"layers:cbs:data", //"layers.sck.data".split(".")
         label:[          
         ]    
       }
@@ -253,8 +251,8 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:">", description: "Temperature", value: "20.27 ", kci:"environment.sck.temperature"},
-      {bullet:"+", description: "Noise level", value: "63.24 dB", kci:"environment.sck.noise"}
+      {bullet:">", description: "Temperature", value: "20.27 ", units:"&#176C", kci:"environment.sck.temperature"},
+      {bullet:"+", description: "Noise level", value: "63.24 dB", units:"dB", kci:"environment.sck.noise"}
   ]};
   subDomainA={id:"smartcitizen",
     label:"Smartcitizen", 
@@ -265,7 +263,7 @@ function createDomains(){
     sdkProperties:{
         type:"static",
         userCallBacks:[],
-        sdkPath:"layers.sck.data",
+        sdkPath:"layers:sck:data",
         label:[
           {key:"light", value:"light"},
           {key:"temperature", value:"temperature"},
@@ -324,7 +322,7 @@ function createDomains(){
     sdkProperties:{
         type:"static",
         userCallBacks:[],
-        sdkPath:"layers.artsholland.data", //"layers.sck.data".split(".")
+        sdkPath:"layers:artsholland:data", 
         label:[
         
         ] 

@@ -30,8 +30,8 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
      y = d3.scale.linear()
         .range([height, 0]);
 
-      xAxis = setXaxis();
-      yAxis = setYaxis(); 
+    xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
+    yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false);
               
      line = d3.svg.line()
      .interpolate("basis")
@@ -54,72 +54,32 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
                       
       x.domain(data.map(function(d) { return d.hour; }));
       y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
-        svgDomain.append("g")
-            .attr("class", "x axis")
-            .attr("id", "x_axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
-
-        svgDomain.append("g")
-            .attr("class", "y axis")
-            .attr("id", "y_axis")
-            .attr("transform", "translate(" + width + ",0)")
-            .call(yAxis)
-            .append("text")
-              .attr("id", "y_axis_label")
-              .attr("transform", "rotate(-90)")
-              .attr("y", 6)
-              .attr("dy", "-38em")
-              .style("text-anchor", "end")
-              .style("text-align", "center")
-            
-                    
-
-      updateGraph(data, properties.tickerData.data[0].description);
+      
+      
+      updateDataSet(properties, properties.tickerData.data[0].kci, 0);
 
   };
-  
-  function setXaxis(){
 
-    xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            //.ticks(4)
-            .tickValues([0, 6, 12, 18, 23])
-            //.tickFormat(d3.time.format("%H"));
 
-    return xAxis;        
-
-  }
-
-  function setYaxis(){
+	function updateGraph(data, description, yUnits){
     
-    
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("right")
-            .ticks(2);
-
-    return yAxis;        
-
-  }
-
-	function updateGraph(data, description){
-    
-    console.log("discriprion :"+description)
-    
-	  y.domain([0, d3.max(data, function(d) { return d.value; })]); 
-	  yAxis=setYaxis(data);
+	  var max=d3.max(data, function(d) { return d.value; }); 
+	  var maxRound=Math.round(max/10) * 10;
+	  y.domain([10, max]); 
+	  
+	  yAxis = setYaxis(data, svgDomain, width, height, 2, "units", true);
     
     var time=250+(Math.random()*750);
 	  
-    svgDomain.selectAll("#y_axis")
+    svgDomain.select("#y_axis")
         .transition().duration(time)  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
         .call(yAxis);  
 
-    svgDomain.selectAll("#y_axis_label")
+    svgDomain.select("#y_axis_label")
         .text(description);
+        
+    svgDomain.select("#y_axis_units")
+        .html(maxRound+" "+yUnits);
 	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
     
@@ -187,7 +147,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
     
     //console.log("updating data set "+kci);
     activeIndex=index;
-    updateGraph(_properties.tickerData.data[index].kciData, _properties.tickerData.data[index].description);
+    updateGraph(_properties.tickerData.data[index].kciData, _properties.tickerData.data[index].description, _properties.tickerData.data[index].units);
   }
     
   this.updateDataSet=updateDataSet;

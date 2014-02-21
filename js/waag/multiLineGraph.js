@@ -57,7 +57,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           d.value=data[0].value;
           console.log(d);
         }
-        
+        d.active=false;
         //dataNow.push(d);
         if(d.hour<=hNow){
           //console.log(d)
@@ -88,16 +88,6 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
                 })
               };
           });
-
-
-        
-        //x.domain(d3.extent(data, function(d) { return d.hour; }));
-        
-        
-        // y.domain([
-        //   d3.min(parties, function(c) { return d3.min(c.values, function(v) { return 0 }); }),
-        //   d3.max(parties, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-        // ])
         
         var max;
         var max1 = d3.max(subjectsNow, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
@@ -115,28 +105,17 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
         y = d3.scale.linear()
            .range([height, 0]);
 
-        xAxis = d3.svg.axis()
-               .scale(x)
-               .orient("bottom")
-               .tickValues([0, 6, 12, 18, 23])
-               //.tickFormat(d3.time.format("%H"));
-
-
-
-         yAxis = d3.svg.axis()
-                 .scale(y)
-                 .orient("right")
-                 .ticks(4)
-                 //.tickValues([0, 25, 50, 75, 100]);
-                 //.ticks(10, "%");
-        
-        x.domain(data.map(function(d) { return d.hour; }));
-        y.domain([0, max ]);
-
-        svgDomain.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
+       x.domain(data.map(function(d) { return d.hour; }));
+       y.domain([0, max ]);
+            
+       xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
+             
+       yAxis = d3.svg.axis()
+             .scale(y)
+             .orient("right")
+             .ticks(4)
+             //.tickValues([0, 25, 50, 75, 100]);
+             //.ticks(10, "%");
 
         svgDomain.append("g")
             .attr("class", "y axis")
@@ -169,6 +148,10 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
               .attr("height", 5)
               .style("fill", function(d) { return color(d.name); })
               .on("mouseover", function(d) {
+                
+                    d3.selectAll("#"+d.name+"-now").style("stroke-width", 3+"px" );
+                    d3.selectAll("#"+d.name+"-history").style("stroke-width", 1.5+"px" );
+                    d.active=true;
                     toolTip.transition()        
                         .duration(100)      
                         .style("opacity", .9);      
@@ -177,6 +160,9 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
                         .style("top", (d3.event.pageY - 24) + "px");    
                     })                  
                .on("mouseout", function(d) {       
+                 d3.selectAll("#"+d.name+"-now").style("stroke-width", 0.25+"px" );
+                 d3.selectAll("#"+d.name+"-history").style("stroke-width", 0.25+"px" );
+                  d.active=false;
                   toolTip.transition()        
                       .duration(250)      
                       .style("opacity", 0);   
@@ -208,6 +194,8 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
 
       visLineNow.enter().append("path")
           .attr("class", "lineNow")
+          .attr("id", function(d){ 
+            return d.name+"-now" })
           .attr("d", function(d) { 
             //console.log(d);
             return line(d.values); })
@@ -246,12 +234,16 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
 
       visLineHistory.enter().append("path")
           .attr("class", "lineHistory")
+          .attr("id", function(d){ 
+            return d.name+"-history" })
           .attr("d", function(d) { 
             //console.log(d);
             return line(d.values); })
           .style("stroke", function(d) { return color(d.name); })
           .style("stroke-width", 0.5+"px")
           .on("mouseover", function(d) {
+                
+                
                 toolTip.transition()        
                     .duration(100)      
                     .style("opacity", .9);      
@@ -279,48 +271,6 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           .style("opacity", 0 )
           .remove(); 
 
-    // var visDot=svgDomain.selectAll(".dot").data(data, function(d, i){return i});     
-    // 
-    //    visDot.enter().append("circle")
-    //     .attr("class", "dot")
-    //     .attr("r", function(d) {
-    //       if(d.hour==hNow ){
-    //         return 2;
-    //       }else if(d.hour<hNow && d.value!=null){
-    //         return 0.5;
-    //       }else{
-    //         return 0;
-    //       } })
-    //     .attr("cx", function(d) { return x(d.hour); })
-    //     .attr("cy", function(d) { return y(d.value); })
-    //         .on("mouseover", function(d) {
-    //               toolTip.transition()        
-    //                   .duration(100)      
-    //                   .style("opacity", .9);      
-    //               toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
-    //                   .style("left", (d3.event.pageX) + 10+"px")     
-    //                   .style("top", (d3.event.pageY - 28 - 10) + "px");    
-    //               })                  
-    //          .on("mouseout", function(d) {       
-    //             toolTip.transition()        
-    //                 .duration(250)      
-    //                 .style("opacity", 0);   
-    //         })
-    //         .on("click", function(d){
-    //             //updateDummySet(data);
-    //                
-    //          });      
-    // 
-    //     
-    // visDot.transition()
-    //     .duration(time)
-    //     .attr("cx", function(d) { return x(d.hour); })
-    //     .attr("cy", function(d) { return y(d.value); });
-    //     
-    // visDot.exit().transition()
-    //     .duration(time)
-    //     .style("opacity", 0 )
-    //     .remove();        
 
 	};
 	
