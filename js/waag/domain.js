@@ -52,11 +52,14 @@ WAAG.Domain = function Domain(_propertiesAll) {
       .style("margin-bottom", 0.5+"em")
       .style("left", mapWidth/2+"px")
       .style("height", widgetHeight-96+"px");
-      
+    
+    
+  if(properties.map){  
       header.append("object")
         .attr("class", "mapIcon")
         .attr("data", "images/svg/icon_map-small.svg")
         .attr("type", "image/svg+xml")    
+    
     
     var hit=header.append("div")
       .attr("class", "mapIcon")
@@ -69,6 +72,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
        .on("mouseout", function(d) {       
           d3.select("body").style("cursor", "default");
         });
+      }
 
 	  setDomainA(properties.subDomains[0]);
     setDomainB(properties.subDomains[1]);
@@ -166,6 +170,15 @@ WAAG.Domain = function Domain(_propertiesAll) {
         //console.log("loosecontrol results ="+results.length);
       
         var i=0;
+        var dTemp=new Date();
+        var initialTickerData=[];
+        for(var i=0; i<24; i++){
+          var timeStamp=dTemp.setHours(i);
+          var h=dTemp.getHours();
+          var object={hour:h, timestamp:timeStamp, value:null}
+          initialTickerData.push(object);
+        }
+                
         for( i=0; i<_properties.tickerData.data.length; i++){
             _properties.tickerData.data[i].kciData=initialTickerData;
         };
@@ -195,7 +208,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
      
         if(_class==null){
           _properties.tickerData.data[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});      
-          setGraph(_properties, subDomain, dummyData);
+          setGraph(_properties, subDomain);
         }else{
           _properties.tickerData.data[index].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});
            _class.updateDataSet(_properties, kci, index);
@@ -211,7 +224,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
         _properties.tickerData.data[0].sdkResults=results.results;        
         
         if(_class==null){
-          setGraph(_properties, subDomain, dummyData);
+          setGraph(_properties, subDomain);
         }
         
       
@@ -221,7 +234,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	  
   }
 	
-	function setGraph(_properties, subDomain, dummyData){
+	function setGraph(_properties, subDomain){
 	    var graph;
  	   	  
    	  if(_properties.graphType=="bar"){
@@ -238,16 +251,15 @@ WAAG.Domain = function Domain(_propertiesAll) {
    	    graph = new WAAG.PieGraph (_properties, subDomain, true);
    	  }else if (_properties.graphType=="pie"){
      	    graph = new WAAG.PieGraph (_properties, subDomain, false);
+     	}else if (_properties.graphType=="donutStacked"){
+     	    graph = new WAAG.PieGraphStacked (_properties, subDomain, true);
+     	}else if (_properties.graphType=="sunburst"){
+     	    graph = new WAAG.SunburstGraph (_properties, subDomain, true);
      	}
 
     
     if(_properties.tickerData.live){
-     	if(!dummyData) {
-      	  createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
-       }else{
-          createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
-      };
-
+    	  createTickerTable(_properties, ["bullet", "description", "value"], subDomain, graph);
     }else{
         createSelectList(_properties, subDomain, graph);
     }
@@ -262,7 +274,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
       var table = domain.append("table")
         .attr("class", "tickerTable")
-        .style("width", function(){ if(_properties.graphType=="circlepack" || _properties.graphType=="donut") return 140+"px" })
+        .style("width", function(){ if(_properties.graphType=="circlepack" || _properties.graphType=="donut" || _properties.graphType=="sunburst") return 140+"px" })
       //var thead = table.append("thead");
       var tbody = table.append("tbody");
 
@@ -410,3 +422,5 @@ function activateMap(_properties){
   };
 
 };
+
+

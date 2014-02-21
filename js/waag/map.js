@@ -264,30 +264,23 @@ WAAG.Map = function Map(domains) {
   }
   
   function getGeoData(layer){
-  	
-  	var url= layer.url;
-  	var data=layer.data;
-  	var layerId=layer.layerId;
-  	var page=layer.page;
     
-    d3.json(url+"&page="+page, function(results){
+    d3.json(layer.mapUrl+"&page="+layer.page, function(results){
   		console.log("results :"+results.results.length);
-  		data=data.concat(results.results);
+  		layer.sdkData=layer.sdkData.concat(results.results);
   		
   		if(results.results.length>=1000){
 
-  		  var newPage=parseInt(page+1);
+  		  var newPage=parseInt(layer.page+1);
   		  console.log("getting data page :"+newPage);
   		  layer.page=newPage;
-  		  layer.data=data;
   		  getGeoData(layer);
   		  return;
   		}
       // rewrite results to geojson
-      data.forEach(function(d){
+      layer.sdkData.forEach(function(d){
         // redefine data structure for d3.geom
-
-          if(d.geom){
+        if(d.geom){
 
           	d.type="Feature";
       			d.geometry=d.geom;
@@ -295,36 +288,38 @@ WAAG.Map = function Map(domains) {
       			d.centroid = path.centroid(d);
       			d.bounds= path.bounds(d);
             layer.geomType=d.geometry.type;
+            if(layer.sdkPath=="dummy"){
+              d.value=0.1+(Math.random()*0.9);
+              
+            }
           
           }
 
     	  });
-        
-        layer.data=data;
-    	  activeLayers.push(layer);
-        setMap(layer.data, layer.layerId, layer.geomType);
+
+        setMap(layer);
 
   		});
 
   };
   
-  function setMap(data, layerId, geomType){
+  function setMap(layer){
 
-    if(geomType=="MultiPolygon" || geomType=="Polygon"){
-      updatePolygonMap(data, layerId);
-    }else if(geomType=="MultiLineString" || geomType=="LineString"){
-      updateLinestringMap(data, layerId);
-    }else if(geomType=="MultiPoint" || geomType=="Point"){
-      updatePointMap(data, layerId);
+    if(layer.geomType=="MultiPolygon" || layer.geomType=="Polygon"){
+      updatePolygonMap(layer);
+    }else if(layer.geomType=="MultiLineString" || layer.geomType=="LineString"){
+      updateLinestringMap(layer);
+    }else if(layer.geomType=="MultiPoint" || layer.geomType=="Point"){
+      updatePointMap(layer);
     }
-    
-    
   }
 
-   updatePolygonMap = function (data, layerId){
+   updatePolygonMap = function (layer){
      
-     console.log("adding map ="+layerId)
-     if(layerId=="map_cbsA"){
+     var data = layer.sdkData;
+     var layerId=layer.layerId;
+     
+     if(layer.layerId=="map_cbsA"){
        data.forEach(function(d){
             d.value=10+(Math.random()*90);
         });
@@ -345,10 +340,13 @@ WAAG.Map = function Map(domains) {
    			  .on("mouseover", function(d){
    			    d3.select(this).style("stroke-width", 0.25+"px" );
    			    d3.select(this).style("fill", "#f3ece5" );
+  			    
+  			    label = setToolTipLabel(d, layer.sdkProperties.sdkPath);
+  			    
   			    toolTip.transition()        
                 .duration(100)      
                 .style("opacity", .9);      
-            toolTip.html(d.name)  
+            toolTip.html(label)  
                 .style("left", (d3.event.pageX) + 10+"px")     
                 .style("top", (d3.event.pageY - 28 - 10) + "px");    
             })
@@ -373,13 +371,13 @@ WAAG.Map = function Map(domains) {
              .duration(500)
             .style("opacity", 0 )
             .remove();			
-      			
-      			
 
   };
   
-  updateLinestringMap = function(data, layerId){
+  updateLinestringMap = function(layer){
     
+    var data=layer.sdkData;
+    var layerId=layer.layerId;
 
   	console.log("setting traffic map "+layerId);
   	
@@ -404,8 +402,7 @@ WAAG.Map = function Map(domains) {
 	  var color = d3.scale.linear()
             .domain([1, max])
             .range(['#333', '#F16912']);
-    
-  	
+
   	var visMap=d3.select("#"+layerId);
     var vis=visMap.selectAll("path").data(data, function(d, i){return d.cdk_id});
 
@@ -445,10 +442,13 @@ WAAG.Map = function Map(domains) {
 
 	}
 	
-	updatePointMap = function(data, layerId){
+	updatePointMap = function(layer){
+	  
+	  var data=layer.sdkData;
+    var layerId=layer.layerId;
     
     console.log("setting traffic map "+layerId);
-	  
+
 	  data.forEach(function(d){
 	    d.value = 0.1 + Math.random();
 	     
@@ -456,7 +456,6 @@ WAAG.Map = function Map(domains) {
     var min =  d3.min(data, function(d) { return d.value; });
     var max =  d3.max(data, function(d) { return d.value; });
     
-    var colorScale = d3.scale.linear().domain([min,max]).range(['white', 'blue']);
     var quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(9));
     var scalingGeo = d3.scale.linear().domain([min, max]).range(d3.range(100));
 
@@ -467,21 +466,33 @@ WAAG.Map = function Map(domains) {
 		     //.filter(function(d){ return d.value > 2; })
   			  .attr("id", function(d, i){return d.cdk_id})
   			  .attr("d", function(d){
-                        path.pointRadius(d.value);
-                        return path(d);
-                      })
+            path.pointRadius(d.value);
+            return path(d);
+          })
   			  .style("fill-opacity", 1)
   			  .style("stroke-width", 0.1+"px")
   			  .style("opacity", 0)
   			  .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
           .on("mouseover", function(d){
-  			    toolTip.transition()        
-                .duration(100)      
-                .style("opacity", .9);      
-            toolTip.html(d.name+"<br> delay: "+Math.round(d.value * 100) / 100+" min")  
-                .style("left", (d3.event.pageX) + 5+"px")     
-                .style("top", (d3.event.pageY - 28 - 5) + "px");    
-            })
+            
+            var label;
+            toolTip.transition()        
+              .duration(100)      
+              .style("opacity", .9); 
+                    
+              if(layer.sdkProperties.sdkPath=="dummy"){
+                  label+="value : (dummy) "+d.value.toFixed(2);  
+              }else if(layer.sdkProperties.type=="realtime"){
+                  label="Name :"+d.name+"<br>Click to load realtime schedule";
+              }else{
+                  label = setToolTipLabel(d, layer.sdkProperties.sdkPath);
+                
+              }
+     
+              toolTip.html(label)  
+                  .style("left", (d3.event.pageX) + 5+"px")     
+                  .style("top", (d3.event.pageY - 28 - 5) + "px");    
+              })
       		.on("mouseout", function(d){
             toolTip.transition()        
                 .duration(250)      
@@ -489,6 +500,33 @@ WAAG.Map = function Map(domains) {
     			  
     			})
   			  .on("click", function(d){
+  			    if(layer.sdkProperties.type=="realtime"){
+      			    toolTip.transition()        
+                  .duration(100)      
+                  .style("opacity", .9); 
+                  toolTip.html("name :"+d.name+"<br>Loading realtime schedules")  
+                      .style("left", (d3.event.pageX) + 5+"px")     
+                      .style("top", (d3.event.pageY - 28 - 5) + "px");
+                  var label;
+                    var url ="http://api.citysdk.waag.org/"+d.cdk_id+"/select/now";
+                    console.log(url);
+                
+                    d3.json(url, function(results){
+                      label="";
+                  
+                      results.results.forEach(function(d){
+
+                        label+=d.route_id+" - "+d.headsign+"<br>";
+                        d.times.forEach(function(k){
+                          label+=k+"<br>"
+                        });
+                    
+                    
+                      });
+
+                      toolTip.html("name :"+d.name+"<br>"+label)  
+                    });   
+                  }
   			        			    
     			})
   	    
@@ -505,7 +543,6 @@ WAAG.Map = function Map(domains) {
             .duration(500)
             .style("opacity", 0 )
             .remove();		
-  			
 
 	};
   
@@ -513,54 +550,34 @@ WAAG.Map = function Map(domains) {
     
     var layers=_properties.subDomains;
     
-    for(var i=0; i<activeLayers.length; i++){
-      for (var j=0; j<layers.length; j++){
-        if(activeLayers[i].layerId==layers[i].id){
-          layer.data=[];
-          setMap(layer.data, layer.layerId, layer.geomType);
-        }
-      }
-    };
-    
-    activeLayers=[];
+    // for(var i=0; i<activeLayers.length; i++){
+    //   for (var j=0; j<layers.length; j++){
+    //     if(activeLayers[i].layerId==layers[i].id){
+    //       layer.data=[];
+    //       setMap(layer.data, layer.layerId, layer.geomType);
+    //     }
+    //   }
+    // };
+    // 
+    // activeLayers=[];
         
 
     for (var i=0; i<layers.length; i++){
 
       if(layers[i]!=false && layers[i].mapUrl!="dummy"){
-        var layerId="map_"+layers[i].id;
-        
-        // for (var j=0; j<activeLayers.length; j++){
-        //   if(layerId==activeLayers[j].layerId){
-        //     setMap(activeLayers[j].data, activeLayers[j].layerId, activeLayers[j].geomType);
-        //     break;
-        //   }else{
-        //     var _data=[];
-        //     setMap(_data, activeLayers[j].layerId, activeLayers[j].geomType);
-        //     
-        //   }
-        // 
-        // }
+        //var layerId="map_"+layers[i].id;
+        layers[i].layerId="map_"+layers[i].id;
 
         console.log("adding map layer :"+layers[i].id);
-          var layerId="map_"+layers[i].id;
+          var layerId=layers[i].layerId;
           map.append("g")
             .attr("id", layerId)
             .attr("class", "Oranges");
-          var data=[];
-          var page=1; 
           
-          var layer={
-            url:layers[i].mapUrl,
-      	    layerId:layerId,
-      	    data:data,
-      	    geomType:"none",
-      	    page:1
-      	  };
-      	  
-      	  activeLayers.push(layer);
-           
-          getGeoData(layer); 
+          layers[i].sdkData=[];
+          layers[i].page=1;
+                       
+          getGeoData(layers[i]); 
       }
       
     }
@@ -571,7 +588,20 @@ WAAG.Map = function Map(domains) {
 	    //console.log(d3.event);
       map.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   };
+  
+  function setToolTipLabel(_data, _path){
+    var v = _data;
+    _path.split(".").forEach(function(d) { v = v[d]; });
+    
+    var label=_data.name+"<br>";
+		for(var key in v) {
+			label+=key+": "+v[key]+"<br>"
+			//console.log(key+" --> "+v[key])
+		};
+		
+		return label;
 
+  };
 
   init();
   this.addDomainLayer=addDomainLayer;

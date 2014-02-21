@@ -25,29 +25,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
         .style("top", 1.25+"em")
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
-    
-     x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], 0.1);   
-     x1 = d3.scale.ordinal(); 
-
-     y = d3.scale.linear()
-        .range([height, 0]);
-
-     xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            .tickValues([0, 6, 12, 18, 23])
-            //.tickFormat(d3.time.format("%H"));
-
-      yAxis = d3.svg.axis()
-              .scale(y)
-              .orient("right")
-              .tickValues([0, 25, 50, 75, 100]);
-              //.ticks(10, "%"); 
-              
-     //line = d3.svg.line()
-     
+       
      line = d3.svg.line()
          .interpolate("basis")
          .x(function(d) { return x(d.hour); })
@@ -75,6 +53,11 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
       var dataHistory=[];
       
       data.forEach(function(d) {
+        if(d.value==null){
+          d.value=data[0].value;
+          console.log(d);
+        }
+        
         //dataNow.push(d);
         if(d.hour<=hNow){
           //console.log(d)
@@ -83,6 +66,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           dataHistory.push(d);
         }
       });
+      
       
       
       color.domain(d3.keys(dataNow[0].value).filter(function(key) { return key }));
@@ -106,7 +90,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           });
 
 
-        x.domain(data.map(function(d) { return d.hour; }));
+        
         //x.domain(d3.extent(data, function(d) { return d.hour; }));
         
         
@@ -114,6 +98,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
         //   d3.min(parties, function(c) { return d3.min(c.values, function(v) { return 0 }); }),
         //   d3.max(parties, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
         // ])
+        
         var max;
         var max1 = d3.max(subjectsNow, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
         var max2 = d3.max(subjectsHistory, function(c) { return d3.max(c.values, function(v) { return v.value; }); });
@@ -122,6 +107,30 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
         }else{
           max=max2;
         }
+        
+        x = d3.scale.ordinal()
+           .rangeRoundBands([0, width], 0.1);   
+        x1 = d3.scale.ordinal(); 
+
+        y = d3.scale.linear()
+           .range([height, 0]);
+
+        xAxis = d3.svg.axis()
+               .scale(x)
+               .orient("bottom")
+               .tickValues([0, 6, 12, 18, 23])
+               //.tickFormat(d3.time.format("%H"));
+
+
+
+         yAxis = d3.svg.axis()
+                 .scale(y)
+                 .orient("right")
+                 .ticks(4)
+                 //.tickValues([0, 25, 50, 75, 100]);
+                 //.ticks(10, "%");
+        
+        x.domain(data.map(function(d) { return d.hour; }));
         y.domain([0, max ]);
 
         svgDomain.append("g")
@@ -154,8 +163,8 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           .each(function(d, i) {
             var g = d3.select(this);
             g.append("rect")
-              .attr("x",0)
-              .attr("y", i*6)
+              .attr("x",i*6)
+              .attr("y", 0)
               .attr("width", 5)
               .attr("height", 5)
               .style("fill", function(d) { return color(d.name); })
@@ -164,8 +173,8 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
                         .duration(100)      
                         .style("opacity", .9);      
                     toolTip.html("name "+d.name)  
-                        .style("left", (d3.event.pageX) + 10+"px")     
-                        .style("top", (d3.event.pageY - 10) + "px");    
+                        .style("left", (d3.event.pageX) + -12+"px")     
+                        .style("top", (d3.event.pageY - 24) + "px");    
                     })                  
                .on("mouseout", function(d) {       
                   toolTip.transition()        

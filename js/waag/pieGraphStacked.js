@@ -1,4 +1,4 @@
-WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
+WAAG.PieGraphStacked = function PieGraphStacked(properties, _subDomain, donutType) {
 
   var width=150;
   var height=150;    
@@ -12,8 +12,10 @@ WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
   
   function init(){
     
-    var defaultLayer=properties.tickerData.layers[0].value;    
-    var data = prepareDataSet(defaultLayer);
+    //var defaultLayer=properties.tickerData.layers[0].value;    
+    var data = prepareDataSet(properties.tickerData.data[0].kciData);
+	  
+	  //var data = properties.tickerData.data[0].kciData;
 	  var subDomain = _subDomain;
 
     svgDomain = subDomain.append("svg")
@@ -38,47 +40,34 @@ WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
 
     pie = d3.layout.pie()
       .sort(null)
-      .value(function(d) { return d.value; });  
+      .value(function(d) { return d.tick; });  
   
     updateGraph(data);
 
   };
   
-  function prepareDataSet(layer){
-    var data=[];
-    for(var i=0; i<properties.tickerData.data[0].sdkResults.length; i++){
-      
-      if(properties.tickerData.data[0].sdkResults[i].layers.cbs.data[layer]){
-        
-        var v=properties.tickerData.data[0].sdkResults[i].layers.cbs.data[layer]
-        var name=properties.tickerData.data[0].sdkResults[i].name
-        var object={name:name, value:parseInt(v)};
-        
-        data.push(object);
-      }
-    };
+  function prepareDataSet(data){
     
-    for(var i=0; i<data.length; i++){
-      
-      if(data[i].value<=0){
-        console.log("value "+data[i].value+" -->"+data[i].name);
-        data[i].value=1;
-        
-      }
-      
-    };
+    data.forEach(function(d){
+	    d.tick = 1;
+	    d.stackValue=d.value;
+	    //console.log("value ="+d.value);
+	    //d.value=parseInt(Math.random()*10)
+	     
+    });
     
     return data;
     
   }
 
   function updateGraph(data){
+    
     var time=250+(Math.random()*750);
     var max =  d3.max(data, function(d) { return d.value; });
     var min =  d3.min(data, function(d) { return d.value; }); 
     var quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(rangeCB));
     
-    data.sort(function(a, b) { return d3.ascending(a.value, b.value)});
+    //data.sort(function(a, b) { return d3.ascending(a.value, b.value)});
     
     donut = svgDomain.selectAll("path")
         .data(pie(data))
@@ -92,7 +81,7 @@ WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
                   .duration(100)      
                   .style("opacity", .9);
               //console.log(d);          
-              toolTip.html("name :"+d.data.name+"<br/>value: "  + parseInt(d.value))  
+              toolTip.html("value: "  + d.data.stackValue)  
                   .style("left", (d3.event.pageX) + 10+"px")     
                   .style("top", (d3.event.pageY - 28 - 10) + "px");    
               })                  
@@ -107,26 +96,33 @@ WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
 
       donut.transition()
           .duration(500)
-          .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer(d.value)]})
-          .attr("d", arc)
+          .style("fill", function(d){ 
+            return colorbrewer[colorScheme]['9'][quantizeBrewer(d.data.stackValue)]})
+          //.attr("d", arc) 
+          .attr("d",
+              d3.svg.arc()
+              .outerRadius(r - 10)
+              .innerRadius(r - 40)
+              ) 
           .each(function(d) { this._current = d; }); // store the initial angles
           
-          
-      // var ticks = svgDomain.selectAll("line").data(pie(data)).enter().append("line");
-      // ticks.attr("x1", 0)
-      // .attr("x2", 0)
-      // .attr("y1", -r+4)
-      // .attr("y2", -r-2)
-      // .attr("stroke", "gray")
-      // .attr("transform", function(d) {
-      //   return "rotate(" + (d.startAngle+d.endAngle)/2 * (180/Math.PI) + ")";
-      // });      
+      
+      //var     
+      var ticks = svgDomain.selectAll("line").data(pie(data)).enter().append("line");
+      ticks.attr("x1", 0)
+      .attr("x2", 0)
+      .attr("y1", -r+4)
+      .attr("y2", -r-2)
+      .attr("stroke", "gray")
+      .attr("transform", function(d) {
+        return "rotate(" + (d.startAngle+d.endAngle)/2 * (180/Math.PI) + ")";
+      });      
 
 	};
 	
 	function updatePie(data){
 	    
-	    data.sort(function(a, b) { return d3.ascending(a.value, b.value)});
+	    //data.sort(function(a, b) { return d3.ascending(a.value, b.value)});
 	    var max =  d3.max(data, function(d) { return d.value; });
       var min =  d3.min(data, function(d) { return d.value; }); 
       var quantizeBrewer = d3.scale.quantile().domain([min, max]).range(d3.range(rangeCB));
@@ -151,12 +147,16 @@ WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
   }
   
 	
-  updateDataSet = function(_properties, layer){
+  updateDataSet = function(_properties, index){
     
-    console.log("updating data set "+layer);
-    var data = prepareDataSet(layer);
-
-    updatePie(data);
+    // console.log("updating data set "+layer);
+    // activeIndex=index;
+    // updateGraph(_properties.tickerData.data[index].kciData, properties.tickerData.data[index].description);
+    // 
+    // 
+    // var data = prepareDataSet(layer);
+    // 
+    // updatePie(data);
   }
     
   this.updateDataSet=updateDataSet;

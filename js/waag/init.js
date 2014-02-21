@@ -53,7 +53,6 @@ function change() {
     
 };
 
-
 function onWindowResize( event ) {
   console.log('resize');
   
@@ -62,3 +61,7 @@ function onWindowResize( event ) {
   var stage=d3.select("#stage").style("left", (window.innerWidth/2)-(mapWidth/2)+"px");
 
 };
+
+
+
+

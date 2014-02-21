@@ -4,7 +4,7 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
   
   var margin = {top: 20, right: 40, bottom: 30, left: 20},
       width = 350 - margin.left - margin.right,
-      height = 90 - margin.top - margin.bottom;
+      height = 100 - margin.top - margin.bottom;
       
   var x,y,xaxis,yaxis, line, svgDomain;
   var activeIndex=0;
@@ -19,7 +19,7 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
         .attr("height", height + margin.top + margin.bottom)
         .style("position", "absolute")
         .style("left", 1+"em")
-        .style("top", 3+"em")
+        .style("top", 2.5+"em")
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         
@@ -31,17 +31,8 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
      y = d3.scale.linear()
         .range([height, 0]);
 
-     xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            .tickValues([0, 6, 12, 18, 23])
-            //.tickFormat(d3.time.format("%H"));
-
-      yAxis = d3.svg.axis()
-              .scale(y)
-              .orient("right")
-              .tickValues([0, 50, 100]);
-              //.ticks(10, "%"); 
+    xAxis = setXaxis();
+    yAxis = setYaxis();  
               
      line = d3.svg.line()
      .interpolate("none")
@@ -81,9 +72,44 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
 
   };
 
+  function setXaxis(){
+
+    xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            //.ticks(4)
+            .tickValues([0, 6, 12, 18, 23])
+            //.tickFormat(d3.time.format("%H"));
+
+    return xAxis;        
+
+  }
+
+  function setYaxis(){
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("right")
+            .ticks(2);
+
+    return yAxis;        
+
+  }
+
 	function updateGraph(data){
 
-	  var time=250+(Math.random()*750);
+	  yAxis=setYaxis();
+  
+    y.domain([0, d3.max(data, function(d) { return d.value; })]);
+    
+    var time=250+(Math.random()*750);
+	  
+    svgDomain.selectAll("#y_axis")
+        .transition().duration(time)  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+        .call(yAxis);  
+
+    svgDomain.selectAll("#y_axis_label")
+        .text("new value Axis");
 	  
 	  var dataArea=[];
     data.forEach(function(d){

@@ -13,7 +13,7 @@ var hNow = dNow.getHours();
 var mNow = dNow.getMinutes();
 
 
-var initialTickerData=[];
+//var initialTickerData=[];
 var admrData=[];
 var dashBoardData=[];
 //http://loosecontrol.tv:4567/dashboard
@@ -52,17 +52,7 @@ function getInitialData(){
            
     }
 
-    var dTemp=new Date();
-    //console.log("dTemp :"+dTemp);
-
-    for(var i=0; i<24; i++){
-      var timeStamp=dTemp.setHours(i);
-      var h=dTemp.getHours();
-      var object={hour:h, timestamp:timeStamp, value:null}
-      initialTickerData.push(object);
-    }
-
-    //console.log(initialTickerData);
+    
     getAdmrData()
     
    
@@ -100,7 +90,7 @@ function createDomains(){
       data:[
       {bullet:"", description: "Road pressure", value: "", kci:"transport.car.pressure"},
       {bullet:"", description: "Avg. speed", value: "", kci:"transport.car.speed"},
-      {bullet:"", description: "Parking", value: "29%", kci:"dummy"}
+      {bullet:"", description: "Parking", value: "29%", kci:"transport.car.parking"}
       ]
   };
   
@@ -117,7 +107,23 @@ function createDomains(){
     icon:"images/svg/icon_transport.car.svg", 
     tickerData:tickerData, 
     graphType:"bar",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/nodes?layer=divv.traffic&geom&per_page=1000"
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/nodes?layer=divv.traffic&geom&per_page=1000",
+    sdkProperties:{
+        type:"static",
+        userCallBacks:[
+          {key:"static", value:"http://api.citysdk.waag.org/"},
+          {key:"dynamic", value:"cdk_id"},
+          {key:"static", value:"/select/now"}
+        ],
+        sdkPath:"layers.divv.traffic.data",
+        label:[
+          {key:"location", value:"location"},
+          {key:"velocity", value:"velocity"},
+          {key:"traveltime", value:"traveltime"},
+          {key:"traveltime_freeflow", value:"traveltime_freeflow"},
+        ]    
+      }
+    
     };
   
   var tickerData = {
@@ -133,13 +139,26 @@ function createDomains(){
     icon:"images/svg/icon_transport.pt.svg", 
     tickerData:tickerData, 
     graphType:"bar",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/ptstops?geom&per_page=1000"
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/ptstops?geom&per_page=1000",
+    sdkProperties:{
+        type:"realtime",
+        userCallBacks:[],
+        sdkPath:"layers.divv.traffic.data",
+        label:[
+          {key:"location", value:"location"},
+          {key:"velocity", value:"velocity"},
+          {key:"traveltime", value:"traveltime"},
+          {key:"traveltime_freeflow", value:"traveltime_freeflow"},
+        ]    
+      }
+  
     };
 	var properties={
 	  id:"transport",
 	  label:"Transport",
 	  color:"#FFCC99",
-	  icon:"images/svg/icon_transport.svg", 
+	  icon:"images/svg/icon_transport.svg",
+	  map:true, 
 	  subDomains:[subDomainA, subDomainB]
 	};
 	list.push(properties);
@@ -186,7 +205,14 @@ function createDomains(){
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"donut",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000"  
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000",
+    sdkProperties:{
+        type:"static",
+        userCallBacks:[],
+        sdkPath:"layers.cbs.data", //"layers.sck.data".split(".")
+        label:[          
+        ]    
+      }
   };
   
   var tickerData = {
@@ -200,7 +226,14 @@ function createDomains(){
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"circlepack",
-    mapUrl:"dummy"
+    mapUrl:"dummy",
+    sdkProperties:{
+        type:"static",
+        userCallBacks:[],
+        sdkPath:"layers.cbs.data", //"layers.sck.data".split(".")
+        label:[          
+        ]    
+      }
     
     
   };
@@ -210,6 +243,7 @@ function createDomains(){
     label:"Statistics",
 	  icon:"images/svg/icon_statistics.svg", 
 	  color:"#EF7714",//F16912
+	  map:true,
     subDomains:[subDomainA, subDomainB]
 
 	};
@@ -227,8 +261,26 @@ function createDomains(){
     icon:"images/svg/icon_environment.sck.svg", 
     tickerData:tickerData, 
     graphType:"line",
-    mapUrl:"dummy"
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=sck&geom&per_page=1000",
+    sdkProperties:{
+        type:"static",
+        userCallBacks:[],
+        sdkPath:"layers.sck.data",
+        label:[
+          {key:"light", value:"light"},
+          {key:"temperature", value:"temperature"},
+          {key:"humidity", value:"humidity"},
+          {key:"noise", value:"noise"},
+          {key:"co", value:"co"},
+          {key:"no2", value:"no2"},
+          {key:"battery", value:"battery"},
+          {key:"update", value:"update"}
+          
+        ]    
+      }
   };
+  
+  
   var tickerData = {
       live:true,
       data:[
@@ -242,14 +294,51 @@ function createDomains(){
     icon:"images/svg/icon_environment.airquality.svg", 
     tickerData:tickerData, 
     graphType:"area",
-    mapUrl:"dummy"
+    mapUrl:"dummy",
+    sdkPath:"dummy"
     };
   var properties={
     id:"environment",
     label:"Environment",
 	  icon:"images/svg/icon_environment.svg", 
 	  color:"#FFB27D",
+	  map:true,
     subDomains:[subDomainA, subDomainB]
+
+	};
+	list.push(properties);
+	
+	// domain cultural  
+  var tickerData = {
+      live:true,
+      data:[
+      {bullet:">", description: "Actual events", value: "20.27 ", kci:"tourism.events.nexthour"}
+  ]};
+  subDomainA={id:"events",
+    label:"Events", 
+    icon:"images/svg/icon_tourism.events.svg", 
+    tickerData:tickerData, 
+    graphType:"sunburst",
+    
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=artsholland&geom&per_page=1000",
+    sdkProperties:{
+        type:"static",
+        userCallBacks:[],
+        sdkPath:"layers.artsholland.data", //"layers.sck.data".split(".")
+        label:[
+        
+        ] 
+
+      }
+  };
+
+  var properties={
+    id:"cultural",
+    label:"Cultural",
+	  icon:"images/svg/icon_tourism.svg", 
+	  color:"#FFB27D",
+	  map:true,
+    subDomains:[subDomainA, false]
 
 	};
 	list.push(properties);
@@ -268,9 +357,9 @@ function createDomains(){
     icon:"images/svg/icon_social.twitter.svg", 
     tickerData:tickerData, 
     graphType:"multiline",
-    mapUrl:"dummy"
-    
-    
+    mapUrl:"dummy",
+    sdkPath:"dummy"
+
     };
 
   	var tickerData = {
@@ -284,7 +373,8 @@ function createDomains(){
       icon:"images/svg/icon_social.twitter.svg", 
       tickerData:tickerData, 
       graphType:"multiline",
-      mapUrl:"dummy"
+      mapUrl:"dummy",
+      sdkPath:"dummy"
 
 
       };
@@ -293,7 +383,8 @@ function createDomains(){
     label:"Social",
 	  icon:"images/svg/icon_social.svg", 
 	  color:"#EF7714",//F16912
-    subDomains:[subDomainA, false]
+	  map:false,
+    subDomains:[subDomainA, subDomainB]
 
 	};
 	list.push(properties);
