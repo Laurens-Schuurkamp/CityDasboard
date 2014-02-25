@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="icon-sck" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+<g id="label_sck">	
 <path fill-rule="evenodd" clip-rule="evenodd" fill="#666666" d="M14.857,9.698c-0.401-1.263-0.772-2.436-1.143-3.605
 	c-4.346,0.802-8.053,4.553-8.849,9.271C3.938,20.844,6.822,25.825,11.502,28c4.862,2.26,10.236,0.895,13.566-2.792
 	c3.386-3.748,4.557-9.953,0.126-15.573c0.615-0.483,1.25-0.947,1.84-1.459c0.295-0.255,0.486-0.21,0.694,0.059
@@ -71,4 +72,5 @@
 <path fill-rule="evenodd" clip-rule="evenodd" fill="#666666" d="M12.26,22.705c-0.062-0.131-0.179-0.262-0.181-0.395
 	c-0.016-0.964-0.016-1.929,0.002-2.893c0.002-0.108,0.142-0.213,0.218-0.319c0.068,0.092,0.195,0.183,0.197,0.275
 	c0.013,1.086,0.009,2.172,0.009,3.259C12.423,22.657,12.341,22.681,12.26,22.705z"/>
+	</g>
 </svg>

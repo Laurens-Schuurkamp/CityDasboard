@@ -13,6 +13,8 @@ WAAG.Map = function Map(domains) {
   var dropDownLayers;
   var activeLayers=[];
   
+  var labelSCK;
+  var labelTextCloud;
 
 	function init(){
       
@@ -76,7 +78,12 @@ WAAG.Map = function Map(domains) {
        feMerge.append("feMergeNode")
            .attr("in", "SourceGraphic");
            
-   
+       d3.xml("images/svg/label_sck.svg", "image/svg+xml", function(xml) {
+          labelSCK = document.importNode(xml.documentElement, true);
+           d3.select("#map_container").node().appendChild(labelSCK);
+           
+           //console.log(labelSCK);
+       });
 
        createMapMenu();    
      		   
@@ -238,9 +245,7 @@ WAAG.Map = function Map(domains) {
       .style("position", "relative")
       .style("margin-top", 0+"em")
       .style("left", 1+"em")
-      .style("width", 90+"%")             
-      
-    
+      .style("width", 90+"%")     
         
   }
   
@@ -529,6 +534,7 @@ WAAG.Map = function Map(domains) {
                   }
   			        			    
     			})
+    		
   	    
   	    vis.transition()
             .duration(1000)
@@ -542,7 +548,18 @@ WAAG.Map = function Map(domains) {
          vis.exit().transition()
             .duration(500)
             .style("opacity", 0 )
-            .remove();		
+            .remove();
+        
+        //d3.select("body").node().appendChild(importedNode)
+        
+        // var labels = visPointMap.selectAll("use").data(data, function(d, i){return d.cdk_id}); 
+        // labels.enter().append("use")
+        //       .attr("transform", function(d) { return "translate(" + (d.centroid[0]) + "," + (d.centroid[1]) + ")"; })
+        //       .attr("width", 10+"px")
+        //       .attr("height", 10+"px")
+        //       .attr("xlink:href","#label_sck")
+                 
+  		
 
 	};
   

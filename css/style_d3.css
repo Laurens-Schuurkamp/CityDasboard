@@ -64,6 +64,16 @@ path {
   stroke: #fff;
 }
 
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
 .legend {
     padding: 5px;
     font-family: 'Gudea', sans-serif;
@@ -72,5 +82,12 @@ path {
     box-shadow: 2px 2px 1px #888;
   }
 
+#label_sck {
+    fill: #666;
+    stroke: #666;
+    stroke-width: 10px;
+    
+
+  }
 
 

@@ -59,10 +59,10 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
 	    d.stackValue=d.value;
 	    d.children=[];
 	    for(var i=0; i<d.value; i++){
-	      var name="event name:"+i;
-	      var discription="event description:"+i;
+	      var name="event "+i;
+	      var description="description "+i;
 	      var hour=d.hour;
-	      var child={name:name, discription:discription, hour:hour};
+	      var child={name:name, description:description, hour:hour};
 	      d.children.push(child);
 	    }
 	     
@@ -88,18 +88,33 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
           .attr("display", function(d) { 
             return d.depth ? null : "none"; }) // hide inner ring
           .attr("d", arc)
-          .style("stroke-width", 0.25+"px")
           .style("stroke", "#333")
-          .style("opacity", 0.9)
+          .style("opacity", function(d){
+              //console.log((d.children ? d : d.parent).hour)
+              if((d.children ? d : d.parent).hour>hNow){
+                return 0.75;
+              }else{
+                console.log("future");
+                return 0.9;
+              }
+            })
           .style("fill", function(d) { 
-            return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]})
+            return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]
+            })
+          .style("stroke-width", function(d){
+              if((d.children ? d : d.parent).hour<=hNow){
+                return 0.75+"px";
+              }else{
+                return 0.25+"px";
+              }
+            })  
           .each(stash)
           .on("mouseover", function(d) {
                 toolTip.transition()        
                     .duration(100)      
                     .style("opacity", .9);
                 //console.log(d);          
-                toolTip.html("name :"+d.hour+"<br/>value: ")  
+                toolTip.html("time :"+d.hour+":00 hour<br/>Name :"+d.name+"<br> description :"+d.description)  
                     .style("left", (d3.event.pageX) + 10+"px")     
                     .style("top", (d3.event.pageY - 28 - 10) + "px");    
                 })                  

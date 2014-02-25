@@ -24,18 +24,40 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         
     
-     x = d3.scale.ordinal()     
-        .rangeRoundBands([0, width], 0.1);
-   
-     y = d3.scale.linear()
-        .range([height, 0]);
+      x = d3.time.scale()
+          .range([0, width])
 
-    xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
-    yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false);
+      y = d3.scale.linear()
+          .range([height, 0]);
+
+      x.domain(d3.extent(data, function(d) { return d.timestamp; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+
+      xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom")
+              .ticks(d3.time.hours, 6)
+              .tickFormat(d3.time.format('%H'))
+
+      svgDomain.append("g")
+            .attr("class", "x axis")
+            .attr("id", "x_axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .append("text")
+              .attr("id", "x_axis_label")
+              .attr("x", 16)
+              .attr("y", 6)
+              .attr("dy", "1em")
+              .style("text-align", "center")
+              .text("time (hours)")
               
+     yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false);               
+            
      line = d3.svg.line()
      .interpolate("basis")
-      .x(function(d) { return x(d.hour); })
+      .x(function(d) { return x(d.timestamp); })
       .y(function(d) { return y(d.value); }); 
       
       // interpolation  
@@ -51,9 +73,6 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
       // cardinal-open - an open Cardinal spline; may not intersect the start or end, but will intersect other control points.
       // cardinal-closed - a closed Cardinal spline, as in a loop.
       // monotone - cubic interpolation that preserves monotonicity in y.  
-                      
-      x.domain(data.map(function(d) { return d.hour; }));
-      y.domain([0, d3.max(data, function(d) { return d.value; })]);
       
       
       updateDataSet(properties, properties.tickerData.data[0].kci, 0);
@@ -62,10 +81,12 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
 
 
 	function updateGraph(data, description, yUnits){
-    
+	  
+	  
+    var min=d3.min(data, function(d) { return d.value; });
 	  var max=d3.max(data, function(d) { return d.value; }); 
 	  var maxRound=Math.round(max/10) * 10;
-	  y.domain([10, max]); 
+	  y.domain([min, max]); 
 	  
 	  yAxis = setYaxis(data, svgDomain, width, height, 2, "units", true);
     
@@ -76,10 +97,13 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
         .call(yAxis);  
 
     svgDomain.select("#y_axis_label")
-        .text(description);
+        .html(description);
         
     svgDomain.select("#y_axis_units")
         .html(maxRound+" "+yUnits);
+
+    svgDomain.select("#y_axis_units_min")
+        .html(parseInt(min));        
 	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
     
@@ -109,7 +133,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
           }else{
             return 0;
           } })
-        .attr("cx", function(d) { return x(d.hour); })
+        .attr("cx", function(d) { return x(d.timestamp); })
         .attr("cy", function(d) { return y(d.value); })
             .on("mouseover", function(d) {
                   
@@ -133,7 +157,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
         
     visDot.transition()
         .duration(time)
-        .attr("cx", function(d) { return x(d.hour); })
+        .attr("cx", function(d) { return x(d.timestamp); })
         .attr("cy", function(d) { return y(d.value); });
         
     visDot.exit().transition()

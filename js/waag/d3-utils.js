@@ -3,9 +3,7 @@ function setXaxis(data, svgDomain, width, height, ticks, label, update){
   var xAxis = d3.svg.axis()
           .scale(x)
           .orient("bottom")
-          //.ticks(4)
           .tickValues(ticks)
-          //.tickFormat(d3.time.format("%H"));
 
   if(!update){
     svgDomain.append("g")
@@ -23,9 +21,6 @@ function setXaxis(data, svgDomain, width, height, ticks, label, update){
   };
                 
   return xAxis;
-  
-  
-          
 
 }
 
@@ -57,6 +52,14 @@ function setYaxis(data, svgDomain, width, height, ticks, label, update){
         .attr("y", 0)
         .attr("x", 8)
         .style("text-align", "right")
+        
+    svgDomain.selectAll("#y_axis")
+      .append("text")
+        .attr("id", "y_axis_units_min")
+        .attr("y", height+6)
+        .attr("x", 8)
+        .style("text-align", "right")
+        .text("test")
 
         
   }

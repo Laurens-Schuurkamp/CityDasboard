@@ -6,7 +6,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
       width = 350 - margin.left - margin.right,
       height = 120 - margin.top - margin.bottom;
       
-  var x, x1, y, xaxis, yaxis, line, svgDomain, legend;
+  var x, x1, y, xAxis, yAxis, line, svgDomain, legend;
   var color;
   var parties;
   var activeIndex=0;
@@ -28,7 +28,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
        
      line = d3.svg.line()
          .interpolate("basis")
-         .x(function(d) { return x(d.hour); })
+         .x(function(d) { return x(d.timestamp); })
          .y(function(d) { return y(d.value); })
           
       
@@ -75,7 +75,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
             return {
               name: name,
               values: dataNow.map(function(d) {
-                return {hour: d.hour, value: +d.value[name]};
+                return {timestamp:d.timestamp, hour: d.hour, value: +d.value[name]};
               })
             };
         });
@@ -84,7 +84,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
               return {
                 name: name,
                 values: dataHistory.map(function(d) {
-                  return {hour: d.hour, value: +d.value[name]};
+                  return {timestamp:d.timestamp, hour: d.hour, value: +d.value[name]};
                 })
               };
           });
@@ -98,17 +98,39 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           max=max2;
         }
         
-        x = d3.scale.ordinal()
-           .rangeRoundBands([0, width], 0.1);   
-        x1 = d3.scale.ordinal(); 
+        // x = d3.scale.ordinal()
+        //    .rangeRoundBands([0, width], 0.1);   
+        // x1 = d3.scale.ordinal();
+        
+        x = d3.time.scale()
+            .range([0, width]);
+        x1 = d3.time.scale()     
 
         y = d3.scale.linear()
            .range([height, 0]);
 
-       x.domain(data.map(function(d) { return d.hour; }));
+       
+       x.domain(d3.extent(data, function(d) { return d.timestamp; }));
        y.domain([0, max ]);
             
-       xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
+       xAxis = d3.svg.axis()
+               .scale(x)
+               .orient("bottom")
+               .ticks(d3.time.hours, 6)
+               .tickFormat(d3.time.format('%H'))
+
+       svgDomain.append("g")
+             .attr("class", "x axis")
+             .attr("id", "x_axis")
+             .attr("transform", "translate(0," + height + ")")
+             .call(xAxis)
+             .append("text")
+               .attr("id", "x_axis_label")
+               .attr("x", 16)
+               .attr("y", 6)
+               .attr("dy", "1em")
+               .style("text-align", "center")
+               .text("time (hours)")
              
        yAxis = d3.svg.axis()
              .scale(y)
@@ -155,9 +177,9 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
                     toolTip.transition()        
                         .duration(100)      
                         .style("opacity", .9);      
-                    toolTip.html("name "+d.name)  
+                    toolTip.html("Subject :"+d.name+"<br>Amount :"+d.values[d.values.length-1].value)  
                         .style("left", (d3.event.pageX) + -12+"px")     
-                        .style("top", (d3.event.pageY - 24) + "px");    
+                        .style("top", (d3.event.pageY - 36) + "px");    
                     })                  
                .on("mouseout", function(d) {       
                  d3.selectAll("#"+d.name+"-now").style("stroke-width", 0.25+"px" );
@@ -242,8 +264,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           .style("stroke", function(d) { return color(d.name); })
           .style("stroke-width", 0.5+"px")
           .on("mouseover", function(d) {
-                
-                
+
                 toolTip.transition()        
                     .duration(100)      
                     .style("opacity", .9);      

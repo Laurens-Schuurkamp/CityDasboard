@@ -127,9 +127,9 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-        {bullet:">", description: "Ontime", value: "30 %", units:"%", kci:"dummy"},
+        {bullet:">", description: "Ontime", value: "", units:"%", kci:"transport.pt.ontime"},
         {bullet:"+", description: "Avg. delay time", value: "156", units:"sec", kci:"dummy"},
-        {bullet:"+", description: "Actual trips", value: "308 of (410)", units:"amount", kci:"dummy"},
+        {bullet:"+", description: "Actual trips", value: "", units:"#", kci:"transport.pt.running"},
       ]
   };  
   var subDomainB={id:"pt", 
@@ -251,8 +251,11 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:">", description: "Temperature", value: "20.27 ", units:"&#176C", kci:"environment.sck.temperature"},
-      {bullet:"+", description: "Noise level", value: "63.24 dB", units:"dB", kci:"environment.sck.noise"}
+      {bullet:">", description: "Temperature", value: "", units:"&#176C", kci:"environment.sck.temperature"},
+      {bullet:"+", description: "Noise level", value: "", units:"dB", kci:"environment.sck.noise"},
+      {bullet:"+", description: "Humidity", value: "", units:"%", kci:"environment.sck.humidity"}
+      
+      
   ]};
   subDomainA={id:"smartcitizen",
     label:"Smartcitizen", 
@@ -282,19 +285,35 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:">", description: "NO2", value: "20.27", kci:"dummy"},
-      {bullet:"+", description: "CO", value: "117.49", kci:"dummy"},
-      {bullet:"+", description: "PM10", value: "63.24", kci:"dummy"},
-      ]
-  };    
-  subDomainB={id:"airqualities", 
-    label:"Air qualities", 
-    icon:"images/svg/icon_environment.airquality.svg", 
+      {bullet:">", description: "no2", value: "", units:"&#181g/m&#179", kci:"environment.sck.no2"},
+      {bullet:"+", description: "co", value: "", units:"K&#937", kci:"environment.sck.co"},
+      {bullet:"+", description: "Light", value: "", units:"lux", kci:"environment.sck.light"}
+      
+      
+  ]};
+  subDomainB={id:"smartcitizen",
+    label:"Smartcitizen", 
+    icon:"images/svg/icon_environment.sck.svg", 
     tickerData:tickerData, 
     graphType:"area",
-    mapUrl:"dummy",
-    sdkPath:"dummy"
-    };
+    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=sck&geom&per_page=1000",
+    sdkProperties:{
+        type:"static",
+        userCallBacks:[],
+        sdkPath:"layers:sck:data",
+        label:[
+          {key:"light", value:"light"},
+          {key:"temperature", value:"temperature"},
+          {key:"humidity", value:"humidity"},
+          {key:"noise", value:"noise"},
+          {key:"co", value:"co"},
+          {key:"no2", value:"no2"},
+          {key:"battery", value:"battery"},
+          {key:"update", value:"update"}
+          
+        ]    
+      }
+  };
   var properties={
     id:"environment",
     label:"Environment",
@@ -310,7 +329,7 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:">", description: "Actual events", value: "20.27 ", kci:"tourism.events.nexthour"}
+      {bullet:">", description: "Events today", value: "20.27 ", units:"events",  kci:"tourism.events.nexthour"}
   ]};
   subDomainA={id:"events",
     label:"Events", 
@@ -346,7 +365,7 @@ function createDomains(){
 	var tickerData = {
       live:true,
       data:[
-        {bullet:">", description: "Political parties", value: "20.27", kci:"social.twitter.sentiment"}
+        {bullet:">", description: "Political parties", value: "", units:"tweets", kci:"social.twitter.sentiment"}
       ]
   };
 
@@ -363,7 +382,7 @@ function createDomains(){
   	var tickerData = {
         live:true,
         data:[
-          {bullet:">", description: "Soccer", value: "20.27", kci:"social.twitter.soccer"}
+          {bullet:">", description: "Soccer", value: "20.27" , units:"tweets", kci:"social.twitter.soccer"}
         ]
     };
     subDomainB={id:"soccer", 

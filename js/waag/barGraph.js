@@ -47,8 +47,14 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
 
 	function updateGraph(data, description, yUnits){
 	  
+	  
+	  var min=d3.min(data, function(d) { return d.value; });
 	  var max=d3.max(data, function(d) { return d.value; }); 
-	  var maxRound=Math.round(max/10) * 10;
+	  var maxRound=Math.round(max);
+	  
+	  if(min==max)min=0;
+	  
+	  y.domain([min, max]); 
 	  y.domain([0, max]); 
 	  
 	  yAxis = setYaxis(data, svgDomain, width, height, 2, yUnits, true);
@@ -64,6 +70,9 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
         
     svgDomain.select("#y_axis_units")
         .text(maxRound+" "+yUnits);
+        
+    svgDomain.select("#y_axis_units_min")
+        .text(parseInt(min));
    
     var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
     
@@ -82,7 +91,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
               toolTip.transition()        
                   .duration(100)      
                   .style("opacity", .9);
-              toolTip.html("time "+d.hour+ "<br/>value: "  + parseInt(d.value))  
+              toolTip.html("Description: "+d.description+"<br>Time: "+d.hour+ ".00 hour<br/>Value: "  + parseInt(d.value)+" "+d.units)  
                   .style("left", (d3.event.pageX) + 10+"px")     
                   .style("top", (d3.event.pageY - 28 - 10) + "px");    
               })                  
@@ -114,6 +123,14 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
     
     console.log("updating data set "+kci);
     activeIndex=index;
+    _properties.tickerData.data[index].kciData.forEach(function(d){
+      for(var i=0; i<d.value; i++){
+        d.description=properties.tickerData.data[index].description;
+        d.units=properties.tickerData.data[index].units;
+      }
+      
+    })
+
     updateGraph(_properties.tickerData.data[index].kciData, properties.tickerData.data[index].description, properties.tickerData.data[index].units);
   }
   

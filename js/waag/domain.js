@@ -168,7 +168,6 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
       d3.json("http://loosecontrol.tv:4567/"+kci+"/"+admr+"/history", function(results){
         //console.log("loosecontrol results ="+results.length);
-      
         var i=0;
         var dTemp=new Date();
         var initialTickerData=[];
@@ -185,17 +184,22 @@ WAAG.Domain = function Domain(_propertiesAll) {
      
        // check for server down time
        for(var i=0; i<results.length; i++){
-           var d=new Date();
-           d.setTime(results[i].timestamp*1000);
-           var h=d.getHours();
+           var date=new Date();
+           date.setTime(results[i].timestamp*1000);
+           var h=date.getHours();
+           // adding 24 to sequence in front yesterday data
+           if(h>=hNow){
+              var add=(60*60*24*1000)+date.getTime();
+              date.setTime(add);
+            }
            var value=results[i][kci+":"+admr]
-         
+
            if(dummyData) {
               value=10+(Math.random()*90);
               kci="dummy"; 
            }
 
-           var object={hour:h, timestamp:d, value:value}
+           var object={hour:h, timestamp:date, value:value}
           
             for(j=0; j<_properties.tickerData.data[0].kciData.length; j++){
                 if(_properties.tickerData.data[0].kciData[j].hour==h){
@@ -273,7 +277,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
       //data.active=
       data.forEach(function(d){
   	    d.active = false;
-
+        //d.units=
       });
       data[0].active=true;
       
@@ -281,7 +285,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 
       var table = domain.append("table")
         .attr("class", "tickerTable")
-        .style("width", function(){ if(_properties.graphType=="circlepack" || _properties.graphType=="donut" || _properties.graphType=="sunburst") return 140+"px" })
+        .style("width", function(){ if(_properties.graphType=="circlepack" || _properties.graphType=="donut" || _properties.graphType=="sunburst") return 150+"px" })
       //var thead = table.append("thead");
       var tbody = table.append("tbody");
 
@@ -298,44 +302,46 @@ WAAG.Domain = function Domain(_propertiesAll) {
           .data(data)
           .enter()
           .append("tr")
-          .attr("id", function(d){return d.kci})
+          //.attr("id", function(d){return d.kci})
 
       // create a cell in each row for each column
       var cells = rows.selectAll("td")
           .data(function(row) {
               return columns.map(function(column) {     
-                  return {column: column, value: row[column], kci:row["kci"], active:row["active"]};
+                  return {column: column, value: row[column], units:row["units"], kci:row["kci"], active:row["active"]};
               });
           })
           .enter()
           .append("td")
-              .attr("id", function(d){ 
+              .attr("id", function(d, i){ 
                 if(d.column=="bullet"){
                   if(d.active){
                     return "inActive";
                   }else{
                     return "active";
                   }
+ 
+                }else if(d.column=="value"){                  
+                  var o=d.kci.split(".");
+                  //console.log(o);
                   
-                  
-                }else{
-                  return "none";
+                  d.valueId=o[o.length-1];
+                  return d.valueId;
+
                 }
 
                 })
                 .attr("class", function(d){ 
-                  if(d.column=="bullet"){
-                    return "bullet";
-                  }
-
+                    if(d.column=="bullet"){
+                      return "bullet";
+                    }
                   })  
-                
               .style("width", function(d, i){ 
                 
                 if(d.column=="description"){
-                  return "60%";
+                  return "50%";
                 }else if(d.column=="value"){
-                  return "30%";
+                  return "40%";
                 }else{
                   return 6+"%";
                 }
@@ -349,12 +355,37 @@ WAAG.Domain = function Domain(_propertiesAll) {
                 }
 
                 })  
-              .text(function(d) { 
+              .html(function(d, i) { 
+                
                 //return d.value; 
                 //console.log(d.kci+" --> value"+d.value);
-                if(d.column!="bullet"){
-                  return d.value; 
-                }
+                  if(d.column=="value"){
+                    if(d.kci=="dummy"){
+                      return "("+d.value+")";
+                    }else{
+                      //console.log("live url ="+"http://loosecontrol.tv:4567/"+d.kci+"/admr.nl.amsterdam/live"); 
+                      d3.json(apiUrlDB+d.kci+"/"+admr+"/live", function(result){
+                        var keys = d3.entries(result[d.kci+":"+admr]);
+                        //console.log("keys "+keys);
+                        if(keys.length<=0){
+                          domain.select("#"+d.valueId).html(parseInt(result[d.kci+":"+admr])+" "+d.units );
+                        }else{
+                          var amount=0;
+                          keys.forEach(function(d){
+                            //console.log(d.value);
+                            amount+=d.value;
+                          });
+                          domain.select("#"+d.valueId).html(parseInt(amount)+" "+d.units );
+                          
+                        }
+
+                      });
+                      
+                      
+                    }
+                  }else if(d.column!="bullet"){
+                    return d.value; 
+                  }
                 })
                             
               .on("mouseover", function(d) {
