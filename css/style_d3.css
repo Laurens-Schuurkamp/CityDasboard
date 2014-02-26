@@ -70,8 +70,8 @@ path {
 }
 
 .focus circle {
-  fill: none;
-  stroke: steelblue;
+  stroke:#666;
+  stroke-width:1;
 }
 
 .legend {

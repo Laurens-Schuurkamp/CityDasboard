@@ -1,4 +1,4 @@
-WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
+WAAG.AreaGraph = function AreaGraph(properties, _subDomain, domainColor) {
 
   //console.log("linegraph contructor");
   
@@ -8,12 +8,12 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
       
   var x,y,xaxis,yaxis, line, svgDomain, focus;
   var activeIndex=0;
+  var focus;
   
   function init(){
     
     var data = properties.tickerData.data[0].kciData;
-    
-    var subDomain = _subDomain;
+    var subDomain=_subDomain;
       svgDomain = subDomain.append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -26,13 +26,11 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
     x = d3.time.scale()
         .range([0, width])
         
-
     y = d3.scale.linear()
         .range([height, 0]);
 
     x.domain(d3.extent(data, function(d) { return d.timestamp; }));
     y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
     
     xAxis = d3.svg.axis()
             .scale(x)
@@ -53,7 +51,39 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
             .style("text-align", "center")
             .text("time (hours)")
 
-    yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false); 
+    yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("right")
+              .ticks(2);
+
+    svgDomain.append("g")
+        .attr("class", "y axis")
+        .attr("id", "y_axis")
+        .attr("transform", "translate(" + width + ",0)")
+        .call(yAxis)    
+      .append("text")
+        .attr("id", "y_axis_label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "-38em")
+        .style("text-anchor", "end")
+        .style("text-align", "center")
+
+    svgDomain.selectAll("#y_axis")
+      .append("text")
+        .attr("id", "y_axis_units")
+        .attr("y", 0)
+        .attr("x", 8)
+        .style("text-align", "right")
+
+    svgDomain.selectAll("#y_axis")
+      .append("text")
+        .attr("id", "y_axis_units_min")
+        .attr("y", height+6)
+        .attr("x", 8)
+        .style("text-align", "right")
+
+    
               
     line = d3.svg.line()
      .interpolate("none")
@@ -65,14 +95,13 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
     .interpolate("none")
       .x(function(d) { return x(d.timestamp); })
       .y0(height)
-      .y1(function(d) { return y(d.value); });              
-  
-
+      .y1(function(d) { return y(d.value); }); 
     
-    focus = svgDomain.append("g")
-        .attr("class", "focus")
-        .style("display", "none");  
-
+      focus = svgDomain.append("g")
+       .attr("class", "focus")
+       .style("display", "none");               
+  
+    
      updateDataSet(properties, properties.tickerData.data[0].kci, 0);
 
   };
@@ -83,9 +112,12 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
     
 	  var max=d3.max(data, function(d) { return d.value; }); 
 	  var maxRound=Math.round(max/10) * 10;
-	  y.domain([min, max]); 
+	  y.domain([0, max]);
 	  
-	  yAxis = setYaxis(data, svgDomain, width, height, 2, "units", true);
+    yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("right")
+              .ticks(2);
     
     var time=250+(Math.random()*750);
 	  
@@ -104,6 +136,8 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
 
 	  var dataArea=[];
     data.forEach(function(d){
+          d.units=yUnits;
+          d.description=description;      
 	    if(d.hour<hNow){
 	      dataArea.push(d);
 	    }
@@ -153,40 +187,24 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
     data.forEach(function(d){
         d.units=yUnits;
         d.description=description;
+        if(isNaN(d.value)) d.value=0;
       
     })
     
     var visDot=svgDomain.selectAll(".dot").data(data, function(d, i){return i});     
     
-       visDot.enter().append("circle")
-        .attr("class", "dot")
-        .attr("r", function(d) {
+    visDot.enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", function(d) {
           if(d.hour==hNow ){
-            return 2;
+            return 1;
           }else if(d.hour<hNow && d.value!=null){
             return 0.5;
           }else{
             return 0;
           } })
-        .attr("cx", function(d) { return x(d.timestamp); })
-        .attr("cy", function(d) { return y(d.value); })
-            .on("mouseover", function(d) {
-                  toolTip.transition()        
-                      .duration(100)      
-                      .style("opacity", .9);      
-                  toolTip.html("Time : "+d.hour+ ".00<br/>Value "+d.description+" : "  + parseInt(d.value)+" "+d.units)  
-                      .style("left", (d3.event.pageX) + 10+"px")     
-                      .style("top", (d3.event.pageY - 28 - 10) + "px");    
-                  })                  
-             .on("mouseout", function(d) {       
-                toolTip.transition()        
-                    .duration(250)      
-                    .style("opacity", 0);   
-            })
-            .on("click", function(d){
-                //updateDummySet(data);
-    
-             });      
+      .attr("cx", function(d) { return x(d.timestamp); })
+      .attr("cy", function(d) { return y(d.value); })     
     
     visDot.transition()
         .duration(time)
@@ -197,25 +215,44 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain) {
         .duration(time)
         .style("opacity", 0 )
         .remove();
-      
-    // svgDomain.append("rect")
-    //     .attr("class", "overlay")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .on("mousemove", mouseMove);           
+        
+    svgDomain.select(".overlay").remove();    
+    svgDomain.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .on("mouseover", function() { 
+          focus.style("display", null);
+          toolTip.transition()        
+              .duration(250)      
+              .style("opacity", 0); 
+        })
+        .on("mouseout", function() { 
+          focus.style("display", "none"); 
+          toolTip.transition()        
+              .duration(250)      
+              .style("opacity", 0);   
+
+          })
+        .on("mousemove", function(){
+          mouseMove(x, y, d3.mouse(this)[0], data, focus);
+        });
+    
+    
+    svgDomain.select(".focus").remove();    
+    focus = svgDomain.append("g")
+     .attr("class", "focus")
+     .style("display", "none");
+
+    focus.append("circle")
+       .attr("r", 4)
+       .style("fill", domainColor)
+        
+    
+    //setMouseOverLay(svgDomain, data, domainColor, width, height)
+       
 	};
-	
-	function mouseMove() {
-	  //console.log(d3.mouse(this)[0]);
-      var x0 = x.invert(d3.mouse(this)[0]),
-          i = bisectDate(data, x0, 1),
-          d0 = data[i - 1],
-          d1 = data[i],
-          d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-      //focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
-      //focus.select("text").text(formatCurrency(d.close));
-  }
-	
+
   updateDataSet = function(_properties, kci, index){
     
     //console.log("updating data set "+kci);

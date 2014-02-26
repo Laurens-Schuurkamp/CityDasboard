@@ -8,7 +8,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
       height = 90 - margin.top - margin.bottom;
       
   var x,y,xaxis,yaxis;
-    
+  var domainColor; 
 
 	function init(){
 	      
@@ -17,7 +17,10 @@ WAAG.Domain = function Domain(_propertiesAll) {
     container = stage.append("div")
       .attr("class", "domain_container")
       .attr("id", properties.id)
-      .style("background-color", function() {return colorbrewer[colorScheme]['9'][properties.index]})
+      .style("background-color", function() {
+        domainColor=colorbrewer[colorScheme]['9'][properties.index];
+        return domainColor;
+      })
       .style("top", menuHeight+(properties.index*widgetHeight)+"px")
       
       //.attr("class", "q" + quantizeBrewer(d.value) + "-9"; }) //colorBrewer
@@ -29,8 +32,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
       .attr("id", "header")
       .style("padding", 1+"em")
       //not correct hit area
-      
-       
+
     header.append("object")
         .attr("class", "domainIcon")
         .attr("data", properties.icon)
@@ -186,29 +188,48 @@ WAAG.Domain = function Domain(_propertiesAll) {
        for(var i=0; i<results.length; i++){
            var date=new Date();
            date.setTime(results[i].timestamp*1000);
+           var realTimestamp=new Date();
+           realTimestamp.setTime(results[i].timestamp*1000);
+           
            var h=date.getHours();
            // adding 24 to sequence in front yesterday data
            if(h>=hNow){
               var add=(60*60*24*1000)+date.getTime();
               date.setTime(add);
             }
-           var value=results[i][kci+":"+admr]
+           var value=0;  
+           var children=[];          
+           if(kci=="transport.pt.stopsdelayed"){
+             if(results[i][kci+":"+admr]){
+                 results[i][kci+":"+admr].forEach(function(d){
+                   //console.log("delay "+d.delay);
+                   value+=d.delay;
+                   
+                 });               
+                 value=value/results[i][kci+":"+admr].length;
+                 children=results[i][kci+":"+admr];
+             }
+           }else if(kci=="tourism.events.nexthour"){
+                //console.log("adding tourism events "+results[i][kci+":"+admr]);
+                value=results[i][kci+":"+admr].length;
+                children=results[i][kci+":"+admr];
+                       
+           }else{
+              value=results[i][kci+":"+admr]
+              if(dummyData) {
+                 value=10+(Math.random()*90);
+                 kci="dummy";
+                 description="dummy data"; 
+              }
+           };
 
-           if(dummyData) {
-              value=10+(Math.random()*90);
-              kci="dummy"; 
-           }
-
-           var object={hour:h, timestamp:date, value:value}
-          
+           var object={hour:h, timestamp:date, realTimestamp:realTimestamp, value:value, children:children}
             for(j=0; j<_properties.tickerData.data[0].kciData.length; j++){
                 if(_properties.tickerData.data[0].kciData[j].hour==h){
                   _properties.tickerData.data[0].kciData[j]=object;
-                }
-
+                };
             };
-
-       };
+        };
      
         if(_class==null){
           _properties.tickerData.data[0].kciData.sort(function(a, b) { return d3.ascending(a.hour, b.hour)});      
@@ -242,23 +263,23 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	    var graph;
  	   	  
    	  if(_properties.graphType=="bar"){
-   	    graph = new WAAG.BarGraph(_properties, subDomain);
+   	    graph = new WAAG.BarGraph(_properties, subDomain, domainColor);
    	  }else if (_properties.graphType=="line"){
-   	    graph = new WAAG.LineGraph(_properties, subDomain);
+   	    graph = new WAAG.LineGraph(_properties, subDomain, domainColor);
    	  }else if (_properties.graphType=="multiline"){
-     	  graph = new WAAG.MultiLineGraph(_properties, subDomain);
+     	  graph = new WAAG.MultiLineGraph(_properties, subDomain, domainColor);
      	}else if (_properties.graphType=="area"){
-   	    graph = new WAAG.AreaGraph(_properties, subDomain);
+   	    graph = new WAAG.AreaGraph(_properties, subDomain, domainColor);
    	  }else if (_properties.graphType=="circlepack"){
-   	    graph = new WAAG.CirclePack(_properties, subDomain);
+   	    graph = new WAAG.CirclePack(_properties, subDomain, domainColor);
    	  }else if (_properties.graphType=="donut"){
-   	    graph = new WAAG.PieGraph (_properties, subDomain, true);
+   	    graph = new WAAG.PieGraph (_properties, subDomain, true, domainColor);
    	  }else if (_properties.graphType=="pie"){
-     	    graph = new WAAG.PieGraph (_properties, subDomain, false);
+     	    graph = new WAAG.PieGraph (_properties, subDomain, false, domainColor);
      	}else if (_properties.graphType=="donutStacked"){
-     	    graph = new WAAG.PieGraphStacked (_properties, subDomain, true);
+     	    graph = new WAAG.PieGraphStacked (_properties, subDomain, true, domainColor);
      	}else if (_properties.graphType=="sunburst"){
-     	    graph = new WAAG.SunburstGraph (_properties, subDomain, true);
+     	    graph = new WAAG.SunburstGraph (_properties, subDomain, true, domainColor);
      	}
 
     
@@ -365,23 +386,33 @@ WAAG.Domain = function Domain(_propertiesAll) {
                     }else{
                       //console.log("live url ="+"http://loosecontrol.tv:4567/"+d.kci+"/admr.nl.amsterdam/live"); 
                       d3.json(apiUrlDB+d.kci+"/"+admr+"/live", function(result){
-                        var keys = d3.entries(result[d.kci+":"+admr]);
-                        //console.log("keys "+keys);
-                        if(keys.length<=0){
-                          domain.select("#"+d.valueId).html(parseInt(result[d.kci+":"+admr])+" "+d.units );
+                        if(result[d.kci+":"+admr].length>0){
+                          if(d.kci=="transport.pt.stopsdelayed"){
+                            var delay=0;
+                            result[d.kci+":"+admr].forEach(function(d){
+                              delay+=d.delay;
+                            })
+                            var avgDelay=delay/result[d.kci+":"+admr].length;
+                            domain.select("#"+d.valueId).html(parseInt(avgDelay)+" "+d.units );
+                          }
                         }else{
-                          var amount=0;
-                          keys.forEach(function(d){
-                            //console.log(d.value);
-                            amount+=d.value;
-                          });
-                          domain.select("#"+d.valueId).html(parseInt(amount)+" "+d.units );
+                          var keys = d3.entries(result[d.kci+":"+admr]);
+                          //console.log("keys "+keys);
+                          if(keys.length<=0){
+                            domain.select("#"+d.valueId).html(parseInt(result[d.kci+":"+admr])+" "+d.units );
+                          }else{
+                            var amount=0;
+                            keys.forEach(function(d){
+                              //console.log(d.value);
+                              amount+=d.value;
+                            });
+
+                          }
                           
                         }
 
                       });
-                      
-                      
+                                            
                     }
                   }else if(d.column!="bullet"){
                     return d.value; 
@@ -395,7 +426,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
                   d3.select("body").style("cursor", "default");
                 })
               .on("click", function(d){
-                  console.log("this ="+d.kci);
+                  console.log("kci ="+d.kci);
                   var activeKci=d.kci;
                   getGraphData(_properties, null, d.kci, _class);
                   

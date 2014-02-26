@@ -1,4 +1,4 @@
-WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
+WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain, donutType, domainColor) {
 
   var width=150;
   var height=150;    
@@ -17,11 +17,10 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
     
     //var defaultLayer=properties.tickerData.layers[0].value;    
     var data = prepareDataSet(properties.tickerData.data[0].kciData, properties.tickerData.data[0].description);
-	    
-	  
+
 	  //var data = properties.tickerData.data[0].kciData;
 	  var subDomain = _subDomain;
-
+        
     svgDomain = subDomain.append("svg")
       .attr("width", width+"px")
       .attr("height",height+"px")
@@ -57,18 +56,10 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
     data.forEach(function(d){
 	    d.tick = 1;
 	    d.stackValue=d.value;
-	    d.children=[];
-	    for(var i=0; i<d.value; i++){
-	      var name="event "+i;
-	      var description="description "+i;
-	      var hour=d.hour;
-	      var child={name:name, description:description, hour:hour};
-	      d.children.push(child);
-	    }
-	     
+	    d.description=description;	     
     });
     
-    var dataSunburst={name:description, children:data};
+    var dataSunburst={description:description, children:data};
     
     return dataSunburst;
     
@@ -80,7 +71,7 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
     var max =  d3.max(data.children, function(d) { return d.value; });
     var min =  d3.min(data.children, function(d) { return d.value; }); 
     var quantizeBrewer = d3.scale.quantile().domain([0, 24]).range(d3.range(rangeCB));
-    
+    var value =   function() { return 1; };  
     
     var path = svgDomain.datum(data).selectAll("path")
           .data(partition.nodes)
@@ -88,61 +79,59 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain) {
           .attr("display", function(d) { 
             return d.depth ? null : "none"; }) // hide inner ring
           .attr("d", arc)
-          .style("stroke", "#333")
-          .style("opacity", function(d){
-              //console.log((d.children ? d : d.parent).hour)
+          .style("stroke", "#666")
+          .style("fill", function(d){
               if((d.children ? d : d.parent).hour>hNow){
-                return 0.75;
+                //console.log(domainColor);
+                return domainColor;
               }else{
-                console.log("future");
-                return 0.9;
+                //console.log("future");
+                return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]
               }
-            })
-          .style("fill", function(d) { 
-            return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]
             })
           .style("stroke-width", function(d){
               if((d.children ? d : d.parent).hour<=hNow){
-                return 0.75+"px";
+                return 0.5+"px";
               }else{
-                return 0.25+"px";
+                return 0.5+"px";
               }
             })  
-          .each(stash)
-          .on("mouseover", function(d) {
+            .on("mouseover", function(d) {
+                  var label="time :"+d.hour+":00 hour<br/>Name :"+d.name+"<br> description :"+d.description;
+                  if(d.children){
+                    label=d.children.length+" - "+d.description+ " at "+d.hour+":00";
+                  }else{
+                     var date=new Date();
+                     date.setTime(d.timestamp*1000);
+                     d.realTimestamp=date;
+                    label=d.description+" "+d.realTimestamp;
+                  }
+
+                  toolTip.transition()        
+                      .duration(100)      
+                      .style("opacity", .9);
+         
+                  toolTip.html(label)  
+                      .style("left", (d3.event.pageX) + 10+"px")     
+                      .style("top", (d3.event.pageY - 28 - 10) + "px");    
+                  })                  
+             .on("mouseout", function(d) {       
                 toolTip.transition()        
-                    .duration(100)      
-                    .style("opacity", .9);
-                //console.log(d);          
-                toolTip.html("time :"+d.hour+":00 hour<br/>Name :"+d.name+"<br> description :"+d.description)  
-                    .style("left", (d3.event.pageX) + 10+"px")     
-                    .style("top", (d3.event.pageY - 28 - 10) + "px");    
-                })                  
-           .on("mouseout", function(d) {       
-              toolTip.transition()        
-                  .duration(250)      
-                  .style("opacity", 0);   
-          })
-          .on("click", function(d){
-              //updateDummySet(data);
-          });
-            
-    var value =   function() { return 1; };  
+                    .duration(250)      
+                    .style("opacity", 0);   
+            })
+            .on("click", function(d){
+                //updateDummySet(data);
+            })  
+          .each(stash)
+
+    
 
     path.data(partition.value(value).nodes)
         .transition()
         .duration(1500)
         .attrTween("d", arcTween);
     
-      // var ticks = svgDomain.selectAll("line").data(pie(data.children)).enter().append("line");
-      // ticks.attr("x1", 0)
-      // .attr("x2", 0)
-      // .attr("y1", -r+4)
-      // .attr("y2", -r-2)
-      // .attr("stroke", "gray")
-      // .attr("transform", function(d) {
-      //   return "rotate(" + (d.startAngle+d.endAngle)/2 * (180/Math.PI) + ")";
-      // });      
 
 	};
 	

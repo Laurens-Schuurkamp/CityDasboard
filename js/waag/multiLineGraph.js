@@ -1,4 +1,4 @@
-WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
+WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColor) {
 
   //console.log("linegraph contructor");
   
@@ -10,11 +10,16 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
   var color;
   var parties;
   var activeIndex=0;
+  var focus;
 
-  
   function init(){
     
     var data = properties.tickerData.data[0].kciData;
+    
+    data.forEach(function(d){
+      d.units=properties.tickerData.data[0].units;
+      d.description=properties.tickerData.data[0].description;
+    });
     
 	  var subDomain = _subDomain;
       svgDomain = subDomain.append("svg")
@@ -53,6 +58,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
       var dataHistory=[];
       
       data.forEach(function(d) {
+         
         if(d.value==null){
           d.value=data[0].value;
           console.log(d);
@@ -97,10 +103,6 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
         }else{
           max=max2;
         }
-        
-        // x = d3.scale.ordinal()
-        //    .rangeRoundBands([0, width], 0.1);   
-        // x1 = d3.scale.ordinal();
         
         x = d3.time.scale()
             .range([0, width]);
@@ -194,21 +196,15 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
 
                });
 
-            // g.append("text")
-            //   .attr("x", 36)
-            //   .attr("y", i * 11)
-            //   .attr("height",30)
-            //   .attr("width",100)
-            //   .text(d.name);
 
           });      	  
       	       
 
-      updateGraph(subjectsNow, subjectsHistory);
+      updateGraph(subjectsNow, subjectsHistory, data);
 
   };
 
-	function updateGraph(dataNow, dataHistory){
+	function updateGraph(dataNow, dataHistory, data){
 
 	  var time=250+(Math.random()*750);
 
@@ -264,7 +260,6 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
           .style("stroke", function(d) { return color(d.name); })
           .style("stroke-width", 0.5+"px")
           .on("mouseover", function(d) {
-
                 toolTip.transition()        
                     .duration(100)      
                     .style("opacity", .9);      
@@ -290,7 +285,41 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain) {
       visLineHistory.exit().transition()
           .duration(time)
           .style("opacity", 0 )
-          .remove(); 
+          .remove();
+          
+          
+      svgDomain.select(".overlay").remove();    
+      svgDomain.append("rect")
+          .attr("class", "overlay")
+          .attr("width", width)
+          .attr("height", height)
+          .on("mouseover", function() { 
+            focus.style("display", null);
+            toolTip.transition()        
+                .duration(250)      
+                .style("opacity", 0); 
+          })
+          .on("mouseout", function() { 
+            focus.style("display", "none"); 
+            toolTip.transition()        
+                .duration(250)      
+                .style("opacity", 0);   
+
+            })
+          .on("mousemove", function(){
+            
+            mouseMoveMultiGraph(x, y, d3.mouse(this)[0], data, focus);
+          });
+
+
+        svgDomain.select(".focus").remove();    
+        focus = svgDomain.append("g")
+         .attr("class", "focus")
+         .style("display", "none");
+
+       focus.append("circle")
+           .attr("r", 4)
+           .style("fill", domainColor)           
 
 
 	};

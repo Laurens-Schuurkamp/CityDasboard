@@ -1,4 +1,4 @@
-WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType) {
+WAAG.PieGraph = function PieGraph(properties, _subDomain, donutType, domainColor) {
 
   var width=150;
   var height=150;    

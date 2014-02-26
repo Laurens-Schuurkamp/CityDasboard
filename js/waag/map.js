@@ -453,6 +453,7 @@ WAAG.Map = function Map(domains) {
     var layerId=layer.layerId;
     
     console.log("setting traffic map "+layerId);
+    //http://loosecontrol.tv:4567/transport.pt.stopsdelayed/admr.nl.amsterdam/live
 
 	  data.forEach(function(d){
 	    d.value = 0.1 + Math.random();

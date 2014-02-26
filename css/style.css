@@ -307,6 +307,7 @@ input[type=checkbox]:checked + label:before {
   border-radius: 4px;           
   pointer-events: none;
   z-index:15;
+  opacity:0;
   
 }
 

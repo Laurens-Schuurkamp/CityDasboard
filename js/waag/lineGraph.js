@@ -1,4 +1,4 @@
-WAAG.LineGraph = function LineGraph(properties, _subDomain) {
+WAAG.LineGraph = function LineGraph(properties, _subDomain, domainColor) {
 
   //console.log("linegraph contructor");
   
@@ -8,6 +8,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
       
   var x,y,xaxis,yaxis, line, svgDomain;
   var activeIndex=0;
+  var focus;
   
   function init(){
     
@@ -53,12 +54,46 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
               .style("text-align", "center")
               .text("time (hours)")
               
-     yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false);               
+    yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("right")
+              .ticks(2);
+
+    svgDomain.append("g")
+        .attr("class", "y axis")
+        .attr("id", "y_axis")
+        .attr("transform", "translate(" + width + ",0)")
+        .call(yAxis)    
+      .append("text")
+        .attr("id", "y_axis_label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "-38em")
+        .style("text-anchor", "end")
+        .style("text-align", "center")
+
+    svgDomain.selectAll("#y_axis")
+      .append("text")
+        .attr("id", "y_axis_units")
+        .attr("y", 0)
+        .attr("x", 8)
+        .style("text-align", "right")
+
+    svgDomain.selectAll("#y_axis")
+      .append("text")
+        .attr("id", "y_axis_units_min")
+        .attr("y", height+6)
+        .attr("x", 8)
+        .style("text-align", "right")              
             
      line = d3.svg.line()
      .interpolate("basis")
       .x(function(d) { return x(d.timestamp); })
       .y(function(d) { return y(d.value); }); 
+      
+      focus = svgDomain.append("g")
+       .attr("class", "focus")
+       .style("display", "none");  
       
       // interpolation  
       // linear - piecewise linear segments, as in a polyline.
@@ -82,13 +117,21 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
 
 	function updateGraph(data, description, yUnits){
 	  
+	  data.forEach(function(d){
+      d.units=yUnits;
+      d.description=description;
+      if(isNaN(d.value)) d.value=0;
+    });
 	  
     var min=d3.min(data, function(d) { return d.value; });
 	  var max=d3.max(data, function(d) { return d.value; }); 
 	  var maxRound=Math.round(max/10) * 10;
 	  y.domain([min, max]); 
 	  
-	  yAxis = setYaxis(data, svgDomain, width, height, 2, "units", true);
+    yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("right")
+              .ticks(2);
     
     var time=250+(Math.random()*750);
 	  
@@ -135,25 +178,7 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
           } })
         .attr("cx", function(d) { return x(d.timestamp); })
         .attr("cy", function(d) { return y(d.value); })
-            .on("mouseover", function(d) {
-                  
-              
-                  toolTip.transition()        
-                      .duration(100)      
-                      .style("opacity", .9);      
-                  toolTip.html("time :"+d.hour+ "<br/>value: "  + parseInt(d.value))  
-                      .style("left", (d3.event.pageX) + 10+"px")     
-                      .style("top", (d3.event.pageY - 28 - 10) + "px");    
-                  })                  
-             .on("mouseout", function(d) {       
-                toolTip.transition()        
-                    .duration(250)      
-                    .style("opacity", 0);   
-            })
-            .on("click", function(d){
-                //updateDummySet(data);
-                   
-             });      
+     
         
     visDot.transition()
         .duration(time)
@@ -163,7 +188,40 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain) {
     visDot.exit().transition()
         .duration(time)
         .style("opacity", 0 )
-        .remove();        
+        .remove();
+        
+    svgDomain.select(".overlay").remove();    
+    svgDomain.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .on("mouseover", function() { 
+          focus.style("display", null);
+          toolTip.transition()        
+              .duration(250)      
+              .style("opacity", 0); 
+        })
+        .on("mouseout", function() { 
+          focus.style("display", "none"); 
+          toolTip.transition()        
+              .duration(250)      
+              .style("opacity", 0);   
+
+          })
+        .on("mousemove", function(){
+          mouseMove(x, y, d3.mouse(this)[0], data, focus);
+        });
+
+
+      svgDomain.select(".focus").remove();    
+      focus = svgDomain.append("g")
+       .attr("class", "focus")
+       .style("display", "none");
+
+      focus.append("circle")
+         .attr("r", 4)
+         .style("fill", domainColor)
+           
 
 	};
 	

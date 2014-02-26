@@ -1,4 +1,4 @@
-WAAG.CirclePack = function CirclePack(properties, _subDomain) {
+WAAG.CirclePack = function CirclePack(properties, _subDomain, domainColor) {
 
   //console.log("linegraph contructor");
   

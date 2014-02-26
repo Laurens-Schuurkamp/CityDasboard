@@ -1,4 +1,4 @@
-WAAG.BarGraph = function BarGraph(properties, _subDomain) {
+WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
 
   //console.log("bargraph contructor");
   
@@ -30,24 +30,71 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
     y = d3.scale.linear()
        .range([height, 0]);
     y.domain([0, d3.max(data, function(d) { return d.value; })]);    
-    
 
-     xAxis = setXaxis(data, svgDomain, width, height, [0, 6, 12, 18, 23], "time (hours)", false);
-     yAxis = setYaxis(data, svgDomain, width, height, 2, "units", false);
+   xAxis = d3.svg.axis()
+         .scale(x)
+         .orient("bottom")
+         .tickValues([0, 6, 12, 18, 23])
+
+   svgDomain.append("g")
+       .attr("class", "x axis")
+       .attr("id", "x_axis")
+       .attr("transform", "translate(0," + height + ")")
+       .call(xAxis)
+       .append("text")
+         .attr("id", "x_axis_label")
+         .attr("x", 16)
+         .attr("y", 6)
+         .attr("dy", "1em")
+         .style("text-align", "center")
+         .text("time (hours)")
+
+    yAxis = d3.svg.axis()
+             .scale(y)
+             .orient("right")
+             .ticks(1);
+
+       svgDomain.append("g")
+           .attr("class", "y axis")
+           .attr("id", "y_axis")
+           .attr("transform", "translate(" + width + ",0)")
+           .call(yAxis)    
+         .append("text")
+           .attr("id", "y_axis_label")
+           .attr("transform", "rotate(-90)")
+           .attr("y", 6)
+           .attr("dy", "-38em")
+           .style("text-anchor", "end")
+           .style("text-align", "center")
+
+       svgDomain.selectAll("#y_axis")
+         .append("text")
+           .attr("id", "y_axis_units")
+           .attr("y", 0)
+           .attr("x", 8)
+           .style("text-align", "right")
+
+       svgDomain.selectAll("#y_axis")
+         .append("text")
+           .attr("id", "y_axis_units_min")
+           .attr("y", height+6)
+           .attr("x", 8)
+           .style("text-align", "right")
+           .text("test")
               
     initted=true;
-    
-    
+
     updateDataSet(properties, properties.tickerData.data[0].kci, 0);      
     
 
   };
-  
-
 
 	function updateGraph(data, description, yUnits){
 	  
-	  
+	  data.forEach(function(d){ 
+	      if(isNaN(d.value)) d.value=0;
+	  });
+	  	  
 	  var min=d3.min(data, function(d) { return d.value; });
 	  var max=d3.max(data, function(d) { return d.value; }); 
 	  var maxRound=Math.round(max);
@@ -57,7 +104,10 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
 	  y.domain([min, max]); 
 	  y.domain([0, max]); 
 	  
-	  yAxis = setYaxis(data, svgDomain, width, height, 2, yUnits, true);
+	  var yAxis = d3.svg.axis()
+             .scale(y)
+             .orient("right")
+             .ticks(2);
     
     var time=250+(Math.random()*750);
 	  
@@ -82,7 +132,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(0); })
         .attr("height", function(d) { return height - y(0); })
-        .style("fill", function(d) { if(d.hour>hNow) return "none" })
+        .style("fill", function(d) { if(d.hour>hNow) return domainColor })
         .style("stroke-width", function(d) { if(d.hour>hNow) return 0.25+"px" })
         //.style("shape-rendering", function(d) { if(d.hour>hNow) return "crispEdges" })
         .style("stroke", function(d) { if(d.hour>hNow) return "#666" })
@@ -91,7 +141,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain) {
               toolTip.transition()        
                   .duration(100)      
                   .style("opacity", .9);
-              toolTip.html("Description: "+d.description+"<br>Time: "+d.hour+ ".00 hour<br/>Value: "  + parseInt(d.value)+" "+d.units)  
+              toolTip.html(d.realTimestamp+ "<br>Description: "+d.description+"<br>Value: "  + parseInt(d.value)+" "+d.units)  
                   .style("left", (d3.event.pageX) + 10+"px")     
                   .style("top", (d3.event.pageY - 28 - 10) + "px");    
               })                  

@@ -128,8 +128,8 @@ function createDomains(){
       live:true,
       data:[
         {bullet:">", description: "Ontime", value: "", units:"%", kci:"transport.pt.ontime"},
-        {bullet:"+", description: "Avg. delay time", value: "156", units:"sec", kci:"dummy"},
-        {bullet:"+", description: "Actual trips", value: "", units:"#", kci:"transport.pt.running"},
+        {bullet:"+", description: "Avg. delay time", value: "", units:"sec", kci:"transport.pt.stopsdelayed"},
+        {bullet:"+", description: "Actual trips", value: "", units:"", kci:"transport.pt.running"},
       ]
   };  
   var subDomainB={id:"pt", 
