@@ -1,4 +1,5 @@
 var bisectDate = d3.bisector(function(d) { return d.timestamp; }).left;
+var ticksYaxis=2;
 function mouseMove(x, y, mouse, data, focus) {
     
     var x0 = x.invert(mouse),
@@ -44,6 +45,89 @@ function mouseMoveMultiGraph(x, y, mouse, data, focus) {
 function formatDate(date){
 
   
+}
+
+// function getRange(data){
+//   
+//   var min=d3.min(data, function(d) { return d.value; });
+//   var max=d3.max(data, function(d) { return d.value; });
+//   
+//   var range=max-min;
+//   var ticks=(max-min)/2;
+//   
+//   min=Math.floor((min/ticks)*ticks);
+//   max=Math.ceil((max/ticks)*ticks);
+//   
+//   var nr=""+ticks;
+//   
+//   console.log("nr :"+nr);
+//   
+//   
+//   console.log("range ="+range+" --> min ="+min+" max ="+max);
+//     
+//   var values={min:parseInt(min), max:max};
+//   
+//   return values;
+//   
+// };
+function getRange(data) {
+
+  var min=d3.min(data, function(d) { return d.value; });
+  var max=d3.max(data, function(d) { return d.value; });	
+	
+	var range = max-min;
+	
+	var ticksRoundUp = roundTicks(range / 2);
+	
+	/*
+	 * Optie 1: yMin en yMax schalen op basis van omhoog afgeronde ticks
+	 * Lelijk bij min = 4000.01 en max = 8000.01, wordt 4000-10000
+	 * Daarnaast: min = 18 en max = 143 wordt 0-210, ondanks ticks=70 (143 / 70 > 2)
+	 */
+//	var ticks = ticksRoundUp;
+//	ymin = Math.floor(min/ticks) * ticks;
+//	ymax = Math.ceil(max/ticks) * ticks;
+//	document.write('min = ' + min + '<br>max = ' + max + '<br> range = ' + range + '<br>------<br>ticks = ' + ticks + '<br>ymin = ' + ymin + '<br>ymax = ' + ymax);
+	
+	/*
+	 * Optie 2: yMin en yMax schalen op basis van hun 'orde van grootte' en ticks daar op aanpassen 
+	 */ 
+	var ticksBase = baseNum(ticksRoundUp);
+	
+	ymin = Math.floor(min / ticksBase) * ticksBase;
+	ymax = Math.ceil(max / ticksBase) * ticksBase;
+	
+	var ticks = (ymax - ymin) / 2;
+	
+	console.log("ticks :"+ticks+" --> min :"+ymin+" --> max "+ymax);
+  var values={min:ymin, max:ymax};
+  
+  
+	//document.write('min = ' + min + '<br>max = ' + max + '<br> range = ' + range + '<br>baseticks = ' + ticksRoundUp + '<br>base = ' + ticksBase + '<br>---------<br>ymin = ' + ymin + '<br>ymax = ' + ymax + '<br>ticks = ' + ticks);
+  return values;
+}
+
+function roundTicks(x) {
+	if (x == 0) return 0;
+	if (x < 10) return 10;
+	var log10 = Math.log(x) / Math.log(10);
+	var base = Math.pow(10, Math.floor(log10));
+	return Math.ceil(x / base) * base;
+}
+
+function baseNum(x) {
+	if (x == 0) return 0;
+	var log10 = Math.log(x) / Math.log(10);
+	return Math.pow(10, Math.floor(log10));
+}
+
+function arrangeZindex(id, domain){
+  var vis;
+  var vis=d3.select("#cbs");
+	vis.moveToFront();
+
+  var vis=d3.select("#barChart");
+  vis.moveToFront();
 }
 
 

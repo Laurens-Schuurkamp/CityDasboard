@@ -150,7 +150,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
 	};
 	
 	function getGraphData(_properties, subDomain, kci, _class){
-	  
+
 	  console.log("getting data :"+kci+" --> "+_properties.id);
 	  // get the data and prepare it for visualisations
     var dummyData=false;
@@ -163,6 +163,11 @@ WAAG.Domain = function Domain(_propertiesAll) {
     for(var i=0; i<_properties.tickerData.data.length; i++){
       if(kci==_properties.tickerData.data[i].kci){
         index=i;
+        if(_properties.tickerData.data[i].kciData){
+            //console.log("data already loaded");
+            //return;
+        }
+        
       }
     }
 	  
@@ -211,8 +216,12 @@ WAAG.Domain = function Domain(_propertiesAll) {
              }
            }else if(kci=="tourism.events.nexthour"){
                 //console.log("adding tourism events "+results[i][kci+":"+admr]);
-                value=results[i][kci+":"+admr].length;
-                children=results[i][kci+":"+admr];
+                //console.log(results[i][kci+":"+admr])
+                if(results[i][kci+":"+admr]){
+                  value=results[i][kci+":"+admr].length;
+                  children=results[i][kci+":"+admr];
+                }
+                
                        
            }else{
               value=results[i][kci+":"+admr]
@@ -242,6 +251,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
        
       });
     }else{
+      
       console.log("get staticData --> CitySDK");
       d3.json(_properties.tickerData.data[0].kci, function(results){
         
@@ -386,26 +396,35 @@ WAAG.Domain = function Domain(_propertiesAll) {
                     }else{
                       //console.log("live url ="+"http://loosecontrol.tv:4567/"+d.kci+"/admr.nl.amsterdam/live"); 
                       d3.json(apiUrlDB+d.kci+"/"+admr+"/live", function(result){
-                        if(result[d.kci+":"+admr].length>0){
-                          if(d.kci=="transport.pt.stopsdelayed"){
-                            var delay=0;
-                            result[d.kci+":"+admr].forEach(function(d){
-                              delay+=d.delay;
-                            })
-                            var avgDelay=delay/result[d.kci+":"+admr].length;
-                            domain.select("#"+d.valueId).html(parseInt(avgDelay)+" "+d.units );
-                          }
-                        }else{
-                          var keys = d3.entries(result[d.kci+":"+admr]);
-                          //console.log("keys "+keys);
-                          if(keys.length<=0){
-                            domain.select("#"+d.valueId).html(parseInt(result[d.kci+":"+admr])+" "+d.units );
+
+                        if(result[d.kci+":"+admr]){
+                          if(result[d.kci+":"+admr].length>0){
+                            if(d.kci=="transport.pt.stopsdelayed"){
+                              var delay=0;
+                              result[d.kci+":"+admr].forEach(function(d){    
+                                delay+=d.delay;
+                              })
+                              var avgDelay=delay/result[d.kci+":"+admr].length;
+                              domain.select("#"+d.valueId).html(parseInt(avgDelay)+" "+d.units );
+                            }else if(d.kci=="tourism.events.nexthour"){
+                              var events= result[d.kci+":"+admr].length;
+                              domain.select("#"+d.valueId).html(parseInt(events)+" "+d.units );
+                              
+                              
+                            }
                           }else{
-                            var amount=0;
-                            keys.forEach(function(d){
-                              //console.log(d.value);
-                              amount+=d.value;
-                            });
+                            var keys = d3.entries(result[d.kci+":"+admr]);
+                            //console.log("keys "+keys);
+                            if(keys.length<=0){
+                              domain.select("#"+d.valueId).html(parseInt(result[d.kci+":"+admr])+" "+d.units );
+                            }else{
+                              var amount=0;
+                              keys.forEach(function(d){
+                                //console.log(d.value);
+                                amount+=d.value;
+                              });
+
+                            }
 
                           }
                           

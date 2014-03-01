@@ -52,7 +52,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
     yAxis = d3.svg.axis()
              .scale(y)
              .orient("right")
-             .ticks(1);
+             .ticks(4);
 
        svgDomain.append("g")
            .attr("class", "y axis")
@@ -80,7 +80,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
            .attr("y", height+6)
            .attr("x", 8)
            .style("text-align", "right")
-           .text("test")
+           // /.text("test")
               
     initted=true;
 
@@ -90,39 +90,38 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
   };
 
 	function updateGraph(data, description, yUnits){
+	  	  	  
+	  var range=getRange(data);
 	  
 	  data.forEach(function(d){ 
-	      if(isNaN(d.value)) d.value=0;
+	      if(isNaN(d.value)) d.value=range.min;
+	      if(!d.value) d.value=range.min;
+	      //console.log(d.value);
 	  });
-	  	  
-	  var min=d3.min(data, function(d) { return d.value; });
-	  var max=d3.max(data, function(d) { return d.value; }); 
-	  var maxRound=Math.round(max);
 	  
-	  if(min==max)min=0;
-	  
-	  y.domain([min, max]); 
-	  y.domain([0, max]); 
+	  y.domain([range.min, range.max]); 
+	  //y.domain([0, max]); 
 	  
 	  var yAxis = d3.svg.axis()
              .scale(y)
              .orient("right")
-             .ticks(2);
+             .ticks(2)
+             //ticksValues([20,30,40]);
     
     var time=250+(Math.random()*750);
 	  
     svgDomain.select("#y_axis")
-        .transition().duration(time)  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+        .transition().duration(time)
         .call(yAxis);  
 
     svgDomain.select("#y_axis_label")
         .text(description);
         
-    svgDomain.select("#y_axis_units")
-        .text(maxRound+" "+yUnits);
-        
-    svgDomain.select("#y_axis_units_min")
-        .text(parseInt(min));
+    // svgDomain.select("#y_axis_units")
+    //     .text(maxRound+" "+yUnits);
+    //     
+    // svgDomain.select("#y_axis_units_min")
+    //     .text(parseInt(min));
    
     var vis=svgDomain.selectAll(".bar").data(data, function(d, i){return i});
     
@@ -130,8 +129,17 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
         .attr("class", "bar")
         .attr("x", function(d) { return x(d.hour); })
         .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(0); })
-        .attr("height", function(d) { return height - y(0); })
+        .attr("y", function(d) {  return y(0); })
+        .attr("height", function(d) { 
+          //console.log("heigth ="+height - y(0))
+          if(height - y(0)<0){
+            return 0;
+          }else{
+            return height - y(0); 
+          }  
+          })
+          
+          
         .style("fill", function(d) { if(d.hour>hNow) return domainColor })
         .style("stroke-width", function(d) { if(d.hour>hNow) return 0.25+"px" })
         //.style("shape-rendering", function(d) { if(d.hour>hNow) return "crispEdges" })

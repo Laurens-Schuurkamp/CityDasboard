@@ -32,6 +32,7 @@ path {
   
 }
 
+
 .line {
   fill: none;
   stroke: #666;
@@ -86,8 +87,6 @@ path {
     fill: #666;
     stroke: #666;
     stroke-width: 10px;
-    
-
-  }
+}
 
 

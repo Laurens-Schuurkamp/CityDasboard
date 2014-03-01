@@ -39,11 +39,19 @@ function initDashboard(){
       .style("top", yf+"px")
   
   footer.append("object")
-      .attr("class", "plusIcon")
-      .attr("id", "plusIcon")
-      .attr("data", "images/svg/icon_logo.svg")
+      .attr("class", "logo")
+      .style("margin-top", 10+"px")
+      .attr("id", "logowaag")
+      .attr("data", "images/svg/icon_logo-waag.svg")
       .attr("type", "image/svg+xml")
 	 
+  footer.append("object")
+      .attr("class", "logo")
+      .style("margin-top", -5+"px")
+      .style("margin-left", 540+"px")
+      .attr("id", "logo-cc")
+      .attr("data", "images/svg/icon_logo-cc.svg")
+      .attr("type", "image/svg+xml")
 	
 };
 

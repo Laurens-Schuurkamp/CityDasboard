@@ -107,12 +107,19 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain, domainColor) {
   };
 
 	function updateGraph(data, description, yUnits){
-    var min=d3.min(data, function(d) { return d.value; });
-    if(min<10) min=0;
-    
-	  var max=d3.max(data, function(d) { return d.value; }); 
-	  var maxRound=Math.round(max/10) * 10;
-	  y.domain([0, max]);
+	  var range=getRange(data);
+	  
+	  var dataArea=[];
+	  data.forEach(function(d){
+	      if(isNaN(d.value)) d.value=range.min;
+	      if(!d.value) d.value=range.min;
+	      if(d.hour<hNow){
+  	      dataArea.push(d);
+  	    }
+
+	  });
+	  
+	  y.domain([range.min, range.max]);
 	  
     yAxis = d3.svg.axis()
               .scale(y)
@@ -128,21 +135,12 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain, domainColor) {
     svgDomain.select("#y_axis_label")
         .html(description);
         
-    svgDomain.select("#y_axis_units")
-        .html(maxRound+" "+yUnits);
-        
-    svgDomain.select("#y_axis_units_min")
-        .html(parseInt(min));
+    // svgDomain.select("#y_axis_units")
+    //     .html(maxRound+" "+yUnits);
+    //     
+    // svgDomain.select("#y_axis_units_min")
+    //     .html(parseInt(min));
 
-	  var dataArea=[];
-    data.forEach(function(d){
-          d.units=yUnits;
-          d.description=description;      
-	    if(d.hour<hNow){
-	      dataArea.push(d);
-	    }
-
-    });
 	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
     

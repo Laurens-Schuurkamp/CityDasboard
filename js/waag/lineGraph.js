@@ -117,16 +117,19 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain, domainColor) {
 
 	function updateGraph(data, description, yUnits){
 	  
-	  data.forEach(function(d){
-      d.units=yUnits;
-      d.description=description;
-      if(isNaN(d.value)) d.value=0;
-    });
 	  
-    var min=d3.min(data, function(d) { return d.value; });
-	  var max=d3.max(data, function(d) { return d.value; }); 
-	  var maxRound=Math.round(max/10) * 10;
-	  y.domain([min, max]); 
+	  var range=getRange(data);
+	  
+	  data.forEach(function(d){
+	      d.units=yUnits;
+        d.description=description; 
+	      if(isNaN(d.value)) d.value=range.min;
+	      if(!d.value) d.value=range.min;
+	      //console.log(d.value);
+	  });
+	  
+	  y.domain([range.min, range.max]);
+    // /y.domain([min, max]); 
 	  
     yAxis = d3.svg.axis()
               .scale(y)
@@ -142,11 +145,11 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain, domainColor) {
     svgDomain.select("#y_axis_label")
         .html(description);
         
-    svgDomain.select("#y_axis_units")
-        .html(maxRound+" "+yUnits);
-
-    svgDomain.select("#y_axis_units_min")
-        .html(parseInt(min));        
+    // svgDomain.select("#y_axis_units")
+    //     .html(maxRound+" "+yUnits);
+    // 
+    // svgDomain.select("#y_axis_units_min")
+    //     .html(parseInt(min));        
 	  
     var visLine = svgDomain.selectAll("path.line").data([data], function(d, i) { return i; });
     

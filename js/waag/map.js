@@ -11,7 +11,7 @@ WAAG.Map = function Map(domains) {
   var mapMenu;
   var llActive=false;
   var dropDownLayers;
-  var activeLayers=[];
+  var cachedLayers=[];
   
   var labelSCK;
   var labelTextCloud;
@@ -81,14 +81,15 @@ WAAG.Map = function Map(domains) {
        d3.xml("images/svg/label_sck.svg", "image/svg+xml", function(xml) {
           labelSCK = document.importNode(xml.documentElement, true);
            d3.select("#map_container").node().appendChild(labelSCK);
-           
-           //console.log(labelSCK);
+
        });
 
        createMapMenu();    
      		   
 
   };
+  
+
   
   function createMapMenu(){
     mapMenu = container.append("div")
@@ -245,9 +246,32 @@ WAAG.Map = function Map(domains) {
       .style("position", "relative")
       .style("margin-top", 0+"em")
       .style("left", 1+"em")
-      .style("width", 90+"%")     
+      .style("width", 90+"%")  
+      
+      setMainMap();   
         
   }
+  
+  function setMainMap(){
+    var layer={};
+    layer.id="mainMap";
+    
+    layer.layerId="map_"+layer.id;
+    layer.mapUrl=mainMapUrl;
+    
+    map.append("g")
+      .attr("id", layer.layerId)
+      .attr("class", "Oranges");
+    layer.sdkPath="mainMap";  
+    layer.mapActive=true;
+    layer.sdkData=[];
+    layer.mapData=[];
+    layer.page=1;
+            
+    getGeoData(layer);
+    
+  }
+  
   
   function activateLayerMenu(index){
       console.log(index);
@@ -296,6 +320,8 @@ WAAG.Map = function Map(domains) {
             if(layer.sdkPath=="dummy"){
               d.value=0.1+(Math.random()*0.9);
               
+            }else if(layer.sdkPath=="mainMap"){
+              d.value=8;
             }
           
           }
@@ -309,6 +335,12 @@ WAAG.Map = function Map(domains) {
   };
   
   function setMap(layer){
+    
+    if(layer.mapActive){
+      layer.mapData=layer.sdkData;
+    }else{
+      layer.mapData=[];
+    }
 
     if(layer.geomType=="MultiPolygon" || layer.geomType=="Polygon"){
       updatePolygonMap(layer);
@@ -320,8 +352,8 @@ WAAG.Map = function Map(domains) {
   }
 
    updatePolygonMap = function (layer){
-     
-     var data = layer.sdkData;
+          
+     var data = layer.mapData;
      var layerId=layer.layerId;
      
      if(layer.layerId=="map_cbsA"){
@@ -340,9 +372,16 @@ WAAG.Map = function Map(domains) {
      vis.enter().append("path")
    			  .attr("id", function(d, i){return d.cdk_id;})
    			  .attr("d", path)
-   			  .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
+   			  .style("fill", function(d){ 
+   			    if(layer.id!="mainMap"){
+   			      return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] }
+   			    })
+   			  .style("fill-opacity", function(){
+   			    if(layer.id=="mainMap")  return 0.25  
+   			    })  
    			  .style("opacity", 0)
    			  .on("mouseover", function(d){
+   			    if(layer.id=="mainMap")return;
    			    d3.select(this).style("stroke-width", 0.25+"px" );
    			    d3.select(this).style("fill", "#f3ece5" );
   			    
@@ -356,6 +395,7 @@ WAAG.Map = function Map(domains) {
                 .style("top", (d3.event.pageY - 28 - 10) + "px");    
             })
       			.on("mouseout", function(d){
+      			  if(layer.id=="mainMap")return;
       			  d3.select(this).style("stroke-width", 0.05+"px" );
       			  d3.select(this).style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
               toolTip.transition()        
@@ -364,12 +404,16 @@ WAAG.Map = function Map(domains) {
       			  
       			})
     			  .on("click", function(d){
+    			    if(layer.id=="mainMap")return;
     			        			    
       			})
       			
         vis.transition()
             .duration(1000)
-            .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
+            .style("fill", function(d){ 
+              if(layer.id!="mainMap"){
+     			      return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] }
+     			    })
             .style("opacity", 0.75)
 
          vis.exit().transition()
@@ -381,7 +425,7 @@ WAAG.Map = function Map(domains) {
   
   updateLinestringMap = function(layer){
     
-    var data=layer.sdkData;
+    var data=layer.mapData;
     var layerId=layer.layerId;
 
   	console.log("setting traffic map "+layerId);
@@ -449,7 +493,13 @@ WAAG.Map = function Map(domains) {
 	
 	updatePointMap = function(layer){
 	  
-	  var data=layer.sdkData;
+	  if(layer.id=="smartcitizen"){
+	    updateLabelsMap(layer);
+	    return;
+	  }
+	  
+	  
+	  var data=layer.mapData;
     var layerId=layer.layerId;
     
     console.log("setting traffic map "+layerId);
@@ -551,38 +601,88 @@ WAAG.Map = function Map(domains) {
             .style("opacity", 0 )
             .remove();
         
-        //d3.select("body").node().appendChild(importedNode)
-        
-        // var labels = visPointMap.selectAll("use").data(data, function(d, i){return d.cdk_id}); 
-        // labels.enter().append("use")
-        //       .attr("transform", function(d) { return "translate(" + (d.centroid[0]) + "," + (d.centroid[1]) + ")"; })
-        //       .attr("width", 10+"px")
-        //       .attr("height", 10+"px")
-        //       .attr("xlink:href","#label_sck")
-                 
-  		
-
+  
 	};
+	
+	updateLabelsMap = function(layer){
+	  
+	  var data=layer.mapData;
+    var layerId=layer.layerId;
+    
+  	var visPointMap=d3.select("#"+layerId);
+    //var vis = visPointMap.selectAll("path").data(data, function(d, i){return d.cdk_id});
+	  
+	  
+	  var labels = visPointMap.selectAll("use").data(data, function(d, i){return d.cdk_id}); 
+    
+    labels.enter().append("use")
+          .attr("transform", function(d) { return "translate(" + ((d.centroid[0])-4) + "," + ((d.centroid[1])-4) + ")scale("+ 0.25 +")"; })
+          .attr("width", 10+"px")
+          .attr("height", 10+"px")
+          .attr("xlink:href","#label_sck")
+          .on("mouseover", function(d){
+            
+            var label;
+            toolTip.transition()        
+              .duration(100)      
+              .style("opacity", .9); 
+                    
+              if(layer.sdkProperties.sdkPath=="dummy"){
+                  label+="value : (dummy) "+d.value.toFixed(2);  
+              }else if(layer.sdkProperties.type=="realtime"){
+                  label="Name :"+d.name+"<br>Click to load realtime schedule";
+              }else{
+                  label = setToolTipLabel(d, layer.sdkProperties.sdkPath);
+                
+              }
+     
+              toolTip.html(label)  
+                  .style("left", (d3.event.pageX) + 5+"px")     
+                  .style("top", (d3.event.pageY - 28 - 5) + "px");    
+              })
+      		.on("mouseout", function(d){
+            toolTip.transition()        
+                .duration(250)      
+                .style("opacity", 0);			  
+    			  
+    			})
+    			
+	    labels.exit().remove();		
+	  
+  }
+
   
   addDomainLayer = function(_properties){
     
-    var layers=_properties.subDomains;
     
-    // for(var i=0; i<activeLayers.length; i++){
-    //   for (var j=0; j<layers.length; j++){
-    //     if(activeLayers[i].layerId==layers[i].id){
-    //       layer.data=[];
-    //       setMap(layer.data, layer.layerId, layer.geomType);
-    //     }
-    //   }
-    // };
-    // 
-    // activeLayers=[];
-        
+    var layers=_properties.subDomains;
+    var dataLoaded=false;
+    
+    console.log("getting map data "+dataLoaded);
+    for(var i=0; i<cachedLayers.length; i++){
+          cachedLayers[i].mapActive=false;  
+          for(var j=0; j<layers.length; j++){
+            if(layers[j].id==cachedLayers[i].id){
+              cachedLayers[i].mapActive=true;
+              dataLoaded=true;
+            }
+          }
+          
+          //cachedLayers[i].mapActive=false;
+          setMap(cachedLayers[i]);
+    };
+    
+    
+    if(dataLoaded) {
+      console.log("data loaded --> no api call")
+      return;
+      
+    };
 
+            
     for (var i=0; i<layers.length; i++){
-
-      if(layers[i]!=false && layers[i].mapUrl!="dummy"){
+      
+      if(layers[i]!=false && layers[i].mapUrl!="dummy" && layers[i].mapUrl!=false ){
         //var layerId="map_"+layers[i].id;
         layers[i].layerId="map_"+layers[i].id;
 
@@ -591,11 +691,15 @@ WAAG.Map = function Map(domains) {
           map.append("g")
             .attr("id", layerId)
             .attr("class", "Oranges");
-          
+          layers[i].mapActive=true;
           layers[i].sdkData=[];
+          layers[i].mapData=[];
+          
           layers[i].page=1;
-                       
-          getGeoData(layers[i]); 
+          
+          cachedLayers.push(layers[i]);             
+          getGeoData(layers[i]);
+           
       }
       
     }

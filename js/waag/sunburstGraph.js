@@ -81,17 +81,18 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain, donutType, d
           .attr("d", arc)
           .style("stroke", "#666")
           .style("fill", function(d){
-              if((d.children ? d : d.parent).hour>hNow){
-                //console.log(domainColor);
-                return domainColor;
-              }else{
-                //console.log("future");
-                return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]
-              }
+              return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]  
+              // if((d.children ? d : d.parent).hour>hNow){
+              //   //console.log(domainColor);
+              //   return domainColor;
+              // }else{
+              //   //console.log("future");
+              //   return colorbrewer[colorScheme]['9'][quantizeBrewer((d.children ? d : d.parent).hour)]
+              // }
             })
           .style("stroke-width", function(d){
               if((d.children ? d : d.parent).hour<=hNow){
-                return 0.5+"px";
+                return 1+"px";
               }else{
                 return 0.5+"px";
               }
@@ -99,12 +100,12 @@ WAAG.SunburstGraph = function SunburstGraph(properties, _subDomain, donutType, d
             .on("mouseover", function(d) {
                   var label="time :"+d.hour+":00 hour<br/>Name :"+d.name+"<br> description :"+d.description;
                   if(d.children){
-                    label=d.children.length+" - "+d.description+ " at "+d.hour+":00";
+                    label=d.children.length+" - events at "+d.hour+":00";
                   }else{
                      var date=new Date();
                      date.setTime(d.timestamp*1000);
                      d.realTimestamp=date;
-                    label=d.description+" "+d.realTimestamp;
+                    label=d.description+"<br>"+d.realTimestamp;
                   }
 
                   toolTip.transition()        

@@ -6,6 +6,7 @@ var apiUrlDB="http://loosecontrol.tv:4567/";
 var admr="admr.nl.amsterdam";
 var assetsImages="images/images/";
 var assetsSvg="images/svg/";
+var mainMapUrl="http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&geom&per_page=1000";
 
 var dNow = new Date();
 var timeNow=dNow.getTime();
@@ -224,7 +225,7 @@ function createDomains(){
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"circlepack",
-    mapUrl:"dummy",
+    mapUrl:false,
     sdkProperties:{
         type:"static",
         userCallBacks:[],
@@ -296,7 +297,7 @@ function createDomains(){
     icon:"images/svg/icon_environment.sck.svg", 
     tickerData:tickerData, 
     graphType:"area",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=sck&geom&per_page=1000",
+    mapUrl:false,
     sdkProperties:{
         type:"static",
         userCallBacks:[],
@@ -329,7 +330,7 @@ function createDomains(){
   var tickerData = {
       live:true,
       data:[
-      {bullet:">", description: "Events today", value: "20.27 ", units:"events",  kci:"tourism.events.nexthour"}
+      {bullet:">", description: "Events at this moment", value: "20.27 ", units:"events",  kci:"tourism.events.nexthour"}
   ]};
   subDomainA={id:"events",
     label:"Events", 
