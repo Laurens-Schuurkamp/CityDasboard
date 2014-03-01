@@ -11,6 +11,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColo
   var parties;
   var activeIndex=0;
   var focus;
+  var overlay;
 
   function init(){
     
@@ -152,6 +153,28 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColo
             .style("text-anchor", "end")
             .text(properties.tickerData.data[0].description);
             
+        overlay=svgDomain.append("rect")
+            .attr("class", "overlay")
+            .attr("width", width)
+            .attr("height", height)
+            .on("mouseover", function() { 
+              focus.style("display", null);
+              toolTip.transition()        
+                  .duration(250)      
+                  .style("opacity", 0); 
+            })
+            .on("mouseout", function() { 
+              focus.style("display", "none"); 
+              toolTip.transition()        
+                  .duration(250)      
+                  .style("opacity", 0);   
+
+              })
+            .on("mousemove", function(){
+
+              mouseMoveMultiGraph(x, y, d3.mouse(this)[0], data, focus);
+            });      
+            
             // add legend   
       legend = svgDomain.append("g")
       	  .attr("class", "legend")
@@ -197,7 +220,15 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColo
                });
 
 
-          });      	  
+          });
+        
+       focus = svgDomain.append("g")
+        .attr("class", "focus")
+        .style("display", "none");
+
+      focus.append("circle")
+          .attr("r", 4)
+          .style("fill", domainColor)          	  
       	       
 
       updateGraph(subjectsNow, subjectsHistory, data);
@@ -286,40 +317,10 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColo
           .duration(time)
           .style("opacity", 0 )
           .remove();
-          
-          
-      svgDomain.select(".overlay").remove();    
-      svgDomain.append("rect")
-          .attr("class", "overlay")
-          .attr("width", width)
-          .attr("height", height)
-          .on("mouseover", function() { 
-            focus.style("display", null);
-            toolTip.transition()        
-                .duration(250)      
-                .style("opacity", 0); 
-          })
-          .on("mouseout", function() { 
-            focus.style("display", "none"); 
-            toolTip.transition()        
-                .duration(250)      
-                .style("opacity", 0);   
+   
+      //overlay.moveToFront();
+      //legend.moveToFront();
 
-            })
-          .on("mousemove", function(){
-            
-            mouseMoveMultiGraph(x, y, d3.mouse(this)[0], data, focus);
-          });
-
-
-        svgDomain.select(".focus").remove();    
-        focus = svgDomain.append("g")
-         .attr("class", "focus")
-         .style("display", "none");
-
-       focus.append("circle")
-           .attr("r", 4)
-           .style("fill", domainColor)           
 
 
 	};

@@ -121,14 +121,13 @@ function baseNum(x) {
 	return Math.pow(10, Math.floor(log10));
 }
 
-function arrangeZindex(id, domain){
-  var vis;
-  var vis=d3.select("#cbs");
-	vis.moveToFront();
-
-  var vis=d3.select("#barChart");
-  vis.moveToFront();
-}
+// function arrangeZindex(, domain){
+//   var vis=d3.select("#cbs");
+//  vis.moveToFront();
+// 
+//   vis=d3.select("#barChart");
+//   vis.moveToFront();
+// }
 
 
 
