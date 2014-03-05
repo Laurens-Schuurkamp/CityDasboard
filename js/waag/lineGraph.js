@@ -143,10 +143,11 @@ WAAG.LineGraph = function LineGraph(properties, _subDomain, domainColor) {
         .call(yAxis);  
 
     svgDomain.select("#y_axis_label")
-        .html(description);
+        .html(description+" "+yUnits);
         
     // svgDomain.select("#y_axis_units")
-    //     .html(maxRound+" "+yUnits);
+    //     .attr("x", 20)
+    //     .html(yUnits);
     // 
     // svgDomain.select("#y_axis_units_min")
     //     .html(parseInt(min));        

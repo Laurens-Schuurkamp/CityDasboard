@@ -47,34 +47,22 @@ function formatDate(date){
   
 }
 
-// function getRange(data){
-//   
-//   var min=d3.min(data, function(d) { return d.value; });
-//   var max=d3.max(data, function(d) { return d.value; });
-//   
-//   var range=max-min;
-//   var ticks=(max-min)/2;
-//   
-//   min=Math.floor((min/ticks)*ticks);
-//   max=Math.ceil((max/ticks)*ticks);
-//   
-//   var nr=""+ticks;
-//   
-//   console.log("nr :"+nr);
-//   
-//   
-//   console.log("range ="+range+" --> min ="+min+" max ="+max);
-//     
-//   var values={min:parseInt(min), max:max};
-//   
-//   return values;
-//   
-// };
 function getRange(data) {
 
-  var min=d3.min(data, function(d) { return d.value; });
-  var max=d3.max(data, function(d) { return d.value; });	
-	
+  var min=d3.min(data, function(d) { 
+    if(d.value!=null && isNaN(d.value)==false && d.value){
+      return d.value; 
+    }
+  });
+  
+  
+  var max=d3.max(data, function(d) { 
+    if(d.value!=null && isNaN(d.value)==false && d.value){
+      return d.value; 
+    }
+  
+  });
+  
 	var range = max-min;
 	
 	var ticksRoundUp = roundTicks(range / 2);
@@ -100,9 +88,8 @@ function getRange(data) {
 	var ticks = (ymax - ymin) / 2;
 	
 	console.log("ticks :"+ticks+" --> min :"+ymin+" --> max "+ymax);
-  var values={min:ymin, max:ymax};
-  
-  
+  var values={min:ymin, max:ymax, ticks:ticks};
+    
 	//document.write('min = ' + min + '<br>max = ' + max + '<br> range = ' + range + '<br>baseticks = ' + ticksRoundUp + '<br>base = ' + ticksBase + '<br>---------<br>ymin = ' + ymin + '<br>ymax = ' + ymax + '<br>ticks = ' + ticks);
   return values;
 }

@@ -139,9 +139,9 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColo
              .scale(y)
              .orient("right")
              .ticks(4)
-             //.tickValues([0, 25, 50, 75, 100]);
-             //.ticks(10, "%");
+             
 
+             
         svgDomain.append("g")
             .attr("class", "y axis")
             .attr("transform", "translate(" + width + ",0)")
@@ -151,7 +151,7 @@ WAAG.MultiLineGraph = function MultiLineGraph(properties, _subDomain, domainColo
             .attr("y", 6)
             .attr("dy", "-38em")
             .style("text-anchor", "end")
-            .text(properties.tickerData.data[0].description);
+            .text(properties.tickerData.data[0].description+" tweets");
             
         overlay=svgDomain.append("rect")
             .attr("class", "overlay")

@@ -106,24 +106,11 @@ function createDomains(){
     icon:"images/svg/icon_transport.car.svg", 
     tickerData:tickerData, 
     graphType:"bar",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/nodes?layer=divv.traffic&geom&per_page=1000",
-    sdkProperties:{
-        type:"static",
-        userCallBacks:[
-          {key:"static", value:"http://api.citysdk.waag.org/"},
-          {key:"dynamic", value:"cdk_id"},
-          {key:"static", value:"/select/now"}
-        ],
-        sdkPath:"layers:divv.traffic:data",
-        label:[
-          {key:"location", value:"location"},
-          {key:"velocity", value:"velocity"},
-          {key:"traveltime", value:"traveltime"},
-          {key:"traveltime_freeflow", value:"traveltime_freeflow"},
-        ]    
-      }
-    
-    };
+    mapLayers:[
+      {url:"http://loosecontrol.tv:4567/cache/3600/nodes?layer=divv.traffic&geom&per_page=1000", type:"static", userCallBacks:false, sdkPath:"layers:divv.traffic:data"},
+      {url:"http://loosecontrol.tv:4567/cache/3600/nodes?layer=divv.parking.capacity&geom&per_page=1000", type:"static", userCallBacks:false, sdkPath:"layers:divv.parking.capacity:data"}
+    ]
+  };
   
   var tickerData = {
       live:true,
@@ -138,18 +125,9 @@ function createDomains(){
     icon:"images/svg/icon_transport.pt.svg", 
     tickerData:tickerData, 
     graphType:"bar",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/ptstops?geom&per_page=1000",
-    sdkProperties:{
-        type:"realtime",
-        userCallBacks:[],
-        sdkPath:"layers:divv.traffic:data",
-        label:[
-          {key:"location", value:"location"},
-          {key:"velocity", value:"velocity"},
-          {key:"traveltime", value:"traveltime"},
-          {key:"traveltime_freeflow", value:"traveltime_freeflow"},
-        ]    
-      }
+    mapLayers:[
+      {url:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/ptstops?geom&per_page=1000", type:"realtime", userCallBacks:"/select/now", sdkPath:"layers:divv.traffic:data"}
+    ]
   
     };
 	var properties={
@@ -204,14 +182,9 @@ function createDomains(){
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"donut",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000",
-    sdkProperties:{
-        type:"static",
-        userCallBacks:[],
-        sdkPath:"layers:cbs:data", //"layers.sck.data".split(".")
-        label:[          
-        ]    
-      }
+    mapLayers:[
+      {url:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/regions?admr::admn_level=5&layer=cbs&geom&per_page=1000", type:"static", userCallBacks:false, sdkPath:"layers:cbs:data"}
+    ]
   };
   
   var tickerData = {
@@ -225,16 +198,7 @@ function createDomains(){
     icon:"images/svg/icon_statistics.cbs.svg", 
     tickerData:tickerData, 
     graphType:"circlepack",
-    mapUrl:false,
-    sdkProperties:{
-        type:"static",
-        userCallBacks:[],
-        sdkPath:"layers:cbs:data", //"layers.sck.data".split(".")
-        label:[          
-        ]    
-      }
-    
-    
+    mapLayers:false
   };
 
   var properties={
@@ -263,23 +227,10 @@ function createDomains(){
     icon:"images/svg/icon_environment.sck.svg", 
     tickerData:tickerData, 
     graphType:"line",
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=sck&geom&per_page=1000",
-    sdkProperties:{
-        type:"static",
-        userCallBacks:[],
-        sdkPath:"layers:sck:data",
-        label:[
-          {key:"light", value:"light"},
-          {key:"temperature", value:"temperature"},
-          {key:"humidity", value:"humidity"},
-          {key:"noise", value:"noise"},
-          {key:"co", value:"co"},
-          {key:"no2", value:"no2"},
-          {key:"battery", value:"battery"},
-          {key:"update", value:"update"}
-          
-        ]    
-      }
+    mapLayers:[
+      {url:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=sck&geom&per_page=1000", type:"static", userCallBacks:false, sdkPath:"layers:sck:data"}
+    ]
+
   };
   
   
@@ -297,23 +248,7 @@ function createDomains(){
     icon:"images/svg/icon_environment.sck.svg", 
     tickerData:tickerData, 
     graphType:"area",
-    mapUrl:false,
-    sdkProperties:{
-        type:"static",
-        userCallBacks:[],
-        sdkPath:"layers:sck:data",
-        label:[
-          {key:"light", value:"light"},
-          {key:"temperature", value:"temperature"},
-          {key:"humidity", value:"humidity"},
-          {key:"noise", value:"noise"},
-          {key:"co", value:"co"},
-          {key:"no2", value:"no2"},
-          {key:"battery", value:"battery"},
-          {key:"update", value:"update"}
-          
-        ]    
-      }
+    mapLayers:false
   };
   var properties={
     id:"environment",
@@ -337,17 +272,10 @@ function createDomains(){
     icon:"images/svg/icon_tourism.events.svg", 
     tickerData:tickerData, 
     graphType:"sunburst",
-    
-    mapUrl:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=artsholland&geom&per_page=1000",
-    sdkProperties:{
-        type:"static",
-        userCallBacks:[],
-        sdkPath:"layers:artsholland:data", 
-        label:[
-        
-        ] 
+    mapLayers:[
+      {url:"http://loosecontrol.tv:4567/cache/3600/admr.nl.amsterdam/nodes?layer=artsholland&geom&per_page=1000", type:"static", userCallBacks:false, sdkPath:"layers:artsholland:data"}
+    ]
 
-      }
   };
 
   var properties={
@@ -375,8 +303,7 @@ function createDomains(){
     icon:"images/svg/icon_social.twitter.svg", 
     tickerData:tickerData, 
     graphType:"multiline",
-    mapUrl:"dummy",
-    sdkPath:"dummy"
+    mapLayers:false
 
     };
 
@@ -391,11 +318,8 @@ function createDomains(){
       icon:"images/svg/icon_social.twitter.svg", 
       tickerData:tickerData, 
       graphType:"multiline",
-      mapUrl:"dummy",
-      sdkPath:"dummy"
-
-
-      };
+      mapLayers:"false"
+    };
   var properties={
     id:"social",
     label:"Social",

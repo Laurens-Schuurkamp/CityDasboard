@@ -97,6 +97,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
 	      if(isNaN(d.value)) d.value=range.min;
 	      if(!d.value) d.value=range.min;
 	      //console.log(d.value);
+  
 	  });
 	  
 	  y.domain([range.min, range.max]); 
@@ -115,7 +116,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
         .call(yAxis);  
 
     svgDomain.select("#y_axis_label")
-        .text(description);
+        .html(description+" "+yUnits)
         
     // svgDomain.select("#y_axis_units")
     //     .text(maxRound+" "+yUnits);
@@ -129,14 +130,19 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
         .attr("class", "bar")
         .attr("x", function(d) { return x(d.hour); })
         .attr("width", x.rangeBand())
-        .attr("y", function(d) {  return y(0); })
+        //.attr("y", function(d) {  return y(0); })
+        .attr("y", 0)
         .attr("height", function(d) { 
-          //console.log("heigth ="+height - y(0))
-          if(height - y(0)<0){
-            return 0;
-          }else{
-            return height - y(0); 
-          }  
+            //console.log("heigth ="+height - y(0))
+            if(d.value==range.min){
+              //console.log(d);
+            }
+            
+            if(height - y(0)<0){
+              return height-0;
+            }else{
+              return height - y(0); 
+            }  
           })
           
           
@@ -149,7 +155,7 @@ WAAG.BarGraph = function BarGraph(properties, _subDomain, domainColor) {
               toolTip.transition()        
                   .duration(100)      
                   .style("opacity", .9);
-              toolTip.html(d.realTimestamp+ "<br>Description: "+d.description+"<br>Value: "  + parseInt(d.value)+" "+d.units)  
+              toolTip.html(d.realTimestamp+ "<br>Description: "+d.description+"<br>Value: "  + d.value.toFixed(2)+" "+d.units)  
                   .style("left", (d3.event.pageX) + 10+"px")     
                   .style("top", (d3.event.pageY - 28 - 10) + "px");    
               })                  

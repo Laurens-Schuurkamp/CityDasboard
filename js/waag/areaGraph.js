@@ -133,7 +133,7 @@ WAAG.AreaGraph = function AreaGraph(properties, _subDomain, domainColor) {
         .call(yAxis);  
 
     svgDomain.select("#y_axis_label")
-        .html(description);
+        .html(description+" "+yUnits)
         
     // svgDomain.select("#y_axis_units")
     //     .html(maxRound+" "+yUnits);

@@ -101,7 +101,16 @@ WAAG.Map = function Map(domains) {
           .style("height", 48+"px")
           .style("width", 100+"%")
           .style("opacity", 0.95)
-          .style("z-index", 5)
+          
+    mapMenu.append("div")
+          .attr("id", "mapMenu")
+          .attr("class", "mapMenu")
+          .style("position", "absolute")
+          .style("background-color", "#e3ddd7")
+          .style("top", 0+"px")
+          .style("height", 48+"px")
+          .style("width", 100+"%")
+          .style("z-index", 10)      
 
     mapMenu.append("div")
       .attr("class", "vLine")
@@ -109,7 +118,8 @@ WAAG.Map = function Map(domains) {
       .style("margin-top", 0.5+"em")
       .style("margin-bottom", 0.5+"em")
       .style("left", mapWidth/2+"px")
-      .style("height", 2+"em");
+      .style("height", 2+"em")
+      .style("z-index", 15);
 
 
      var layerList = mapMenu.append('div')
@@ -257,7 +267,7 @@ WAAG.Map = function Map(domains) {
     layer.id="mainMap";
     
     layer.layerId="map_"+layer.id;
-    layer.mapUrl=mainMapUrl;
+    layer.mapLayers=[{url:mainMapUrl}];
     
     map.append("g")
       .attr("id", layer.layerId)
@@ -294,43 +304,46 @@ WAAG.Map = function Map(domains) {
   
   function getGeoData(layer){
     
-    d3.json(layer.mapUrl+"&page="+layer.page, function(results){
-  		console.log("results :"+results.results.length);
-  		layer.sdkData=layer.sdkData.concat(results.results);
-  		
-  		if(results.results.length>=1000){
+    for(var i=0; i<layer.mapLayers.length; i++){
+      d3.json(layer.mapLayers[i].url+"&page="+layer.page, function(results){
+    		console.log("results :"+results.results.length);
+    		layer.sdkData=layer.sdkData.concat(results.results);
 
-  		  var newPage=parseInt(layer.page+1);
-  		  console.log("getting data page :"+newPage);
-  		  layer.page=newPage;
-  		  getGeoData(layer);
-  		  return;
-  		}
-      // rewrite results to geojson
-      layer.sdkData.forEach(function(d){
-        // redefine data structure for d3.geom
-        if(d.geom){
+    		if(results.results.length>=1000){
 
-          	d.type="Feature";
-      			d.geometry=d.geom;
-      			delete d.geom;
-      			d.centroid = path.centroid(d);
-      			d.bounds= path.bounds(d);
-            layer.geomType=d.geometry.type;
-            if(layer.sdkPath=="dummy"){
-              d.value=0.1+(Math.random()*0.9);
-              
-            }else if(layer.sdkPath=="mainMap"){
-              d.value=8;
+    		  var newPage=parseInt(layer.page+1);
+    		  console.log("getting data page :"+newPage);
+    		  layer.page=newPage;
+    		  getGeoData(layer);
+    		  return;
+    		}
+        // rewrite results to geojson
+        layer.sdkData.forEach(function(d){
+          // redefine data structure for d3.geom
+          if(d.geom){
+
+            	d.type="Feature";
+        			d.geometry=d.geom;
+        			delete d.geom;
+        			d.centroid = path.centroid(d);
+        			d.bounds= path.bounds(d);
+              layer.geomType=d.geometry.type;
+              if(layer.sdkPath=="dummy"){
+                d.value=0.1+(Math.random()*0.9);
+
+              }else if(layer.sdkPath=="mainMap"){
+                d.value=8;
+              }
+
             }
-          
-          }
 
-    	  });
+      	  });
 
-        setMap(layer);
+          setMap(layer);
 
-  		});
+    		});
+      
+    }
 
   };
   
@@ -377,7 +390,7 @@ WAAG.Map = function Map(domains) {
    			      return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] }
    			    })
    			  .style("fill-opacity", function(){
-   			    if(layer.id=="mainMap")  return 0.25  
+   			    if(layer.id=="mainMap")  return 0.35  
    			    })  
    			  .style("opacity", 0)
    			  .on("mouseover", function(d){
