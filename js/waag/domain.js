@@ -76,8 +76,12 @@ WAAG.Domain = function Domain(_propertiesAll) {
         });
       }
 
-	  setDomainA(properties.subDomains[0]);
-    setDomainB(properties.subDomains[1]);
+    if(properties.subDomains[0]!=false){
+      setDomainA(properties.subDomains[0]);
+    }
+    if(properties.subDomains[1]!=false){
+      setDomainB(properties.subDomains[1]);
+    }
    
 	};
 
@@ -101,14 +105,15 @@ WAAG.Domain = function Domain(_propertiesAll) {
     getGraphData(_properties, subDomainA, kci, null);
     
     
+    
     if(_properties.id=="smartcitizen"){
       subDomainA.append("object")
           .attr("id", "tempGraph")
           .attr("data", "images/svg/icon_tempGraph.svg")
           .attr("type", "image/svg+xml")
           .style("position", "relative")
-          .style("left", 20.5+"em")
-          .style("top", -0.5+"em")
+          .style("left", 21+"em")
+          .style("top", -0.1+"em")
           .on("mouseover", function(d) {
                 toolTip.transition()        
                     .duration(100)      
@@ -317,8 +322,12 @@ WAAG.Domain = function Domain(_propertiesAll) {
       var table = domain.append("table")
         .attr("class", "tickerTable")
         .style("width", function(){ if(_properties.graphType=="circlepack" || _properties.graphType=="donut" || _properties.graphType=="sunburst") return 150+"px" })
+        .style("top", function(){
+          if(data.length>3) return -1.75+"em";
+        })
       //var thead = table.append("thead");
-      var tbody = table.append("tbody");
+      var tbody = table.append("tbody")
+      
 
       // create & append the header row
       // thead.append("tr")
@@ -333,7 +342,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
           .data(data)
           .enter()
           .append("tr")
-          //.attr("id", function(d){return d.kci})
+
 
       // create a cell in each row for each column
       var cells = rows.selectAll("td")
@@ -405,10 +414,10 @@ WAAG.Domain = function Domain(_propertiesAll) {
                                 delay+=d.delay;
                               })
                               var avgDelay=delay/result[d.kci+":"+admr].length;
-                              domain.select("#"+d.valueId).html(parseInt(avgDelay)+" "+d.units );
+                              domain.select("#"+d.valueId).html(Math.round(avgDelay)+" "+d.units );
                             }else if(d.kci=="tourism.events.nexthour"){
                               var events= result[d.kci+":"+admr].length;
-                              domain.select("#"+d.valueId).html(parseInt(events)+" "+d.units );
+                              domain.select("#"+d.valueId).html(Math.round(events)+" "+d.units );
                               
                               
                             }
@@ -416,7 +425,7 @@ WAAG.Domain = function Domain(_propertiesAll) {
                             var keys = d3.entries(result[d.kci+":"+admr]);
                             //console.log("keys "+keys);
                             if(keys.length<=0){
-                              domain.select("#"+d.valueId).html(parseInt(result[d.kci+":"+admr])+" "+d.units );
+                              domain.select("#"+d.valueId).html(Math.round(result[d.kci+":"+admr])+" "+d.units );
                             }else{
                               var amount=0;
                               keys.forEach(function(d){
@@ -439,21 +448,25 @@ WAAG.Domain = function Domain(_propertiesAll) {
                 })
                             
               .on("mouseover", function(d) {
-                  d3.select("body").style("cursor", "pointer");
+                  if(!d.active){
+                    d3.select("body").style("cursor", "pointer");
+                  }
                 })                  
                .on("mouseout", function(d) {       
                   d3.select("body").style("cursor", "default");
                 })
               .on("click", function(d){
-                  console.log("kci ="+d.kci);
+                  
                   var activeKci=d.kci;
                   getGraphData(_properties, null, d.kci, _class);
-                  
+                                    
                   domain.selectAll(".bullet").attr("id", 
-                    function(d){ 
-                    if(d.kci==activeKci){
+                    function(o){ 
+                    if(o.kci==activeKci){
+                      
                       return "inActive"
                     }else{
+                      
                       return "active"
                     }
 
@@ -500,7 +513,7 @@ function activateMap(_properties){
   
   var index=parseInt(_properties.index);
   
-  console.log("index :"+index);
+  // /console.log("index :"+index);
   var map_container=d3.select("#map_container");
   map_container.transition()
       .duration(750)      

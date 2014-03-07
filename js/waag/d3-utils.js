@@ -12,8 +12,10 @@ function mouseMove(x, y, mouse, data, focus) {
     toolTip.transition()        
         .duration(100)      
         .style("opacity", 0.9);
+        
+    var timeLabel=formatDate(d.realTimestamp);    
 
-    toolTip.html("Time : "+d.realTimestamp+ "<br/>Value "+d.description+" : "  + parseInt(d.value)+" "+d.units)  
+    toolTip.html("Time : "+d.realTimestamp+ "<br/>Value "+d.description+" : "  +d.value.toFixed(2)+" "+d.units)  
         .style("left", (d3.event.pageX) + 10+"px")     
         .style("top", (d3.event.pageY - 28 - 10) + "px");
     
@@ -35,6 +37,8 @@ function mouseMoveMultiGraph(x, y, mouse, data, focus) {
     for(var key in v) {
 			label+=key+": "+v[key]+"<br>"
 		};    
+    
+    var timeLabel=formatDate(d.realTimestamp);
      
     toolTip.html("Time : "+d.realTimestamp+"<br/>"+label)  
         .style("left", (d3.event.pageX) + 10+"px")     
@@ -43,6 +47,8 @@ function mouseMoveMultiGraph(x, y, mouse, data, focus) {
 }
 
 function formatDate(date){
+  
+  
 
   
 }
@@ -64,6 +70,18 @@ function getRange(data) {
   });
   
 	var range = max-min;
+	var values;
+	var ticks; 
+	
+	if(range<10){
+	  min=parseInt(min);
+	  max=Math.ceil(max);
+	  ticks = (max - min) / 2;
+	  values={min:min, max:max, ticks:ticks};
+	  return values;
+	}
+	
+	
 	
 	var ticksRoundUp = roundTicks(range / 2);
 	
@@ -84,8 +102,7 @@ function getRange(data) {
 	
 	ymin = Math.floor(min / ticksBase) * ticksBase;
 	ymax = Math.ceil(max / ticksBase) * ticksBase;
-	
-	var ticks = (ymax - ymin) / 2;
+	ticks = (ymax - ymin) / 2;
 	
 	console.log("ticks :"+ticks+" --> min :"+ymin+" --> max "+ymax);
   var values={min:ymin, max:ymax, ticks:ticks};

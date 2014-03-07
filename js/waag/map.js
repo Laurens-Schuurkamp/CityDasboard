@@ -84,6 +84,12 @@ WAAG.Map = function Map(domains) {
 
        });
 
+       d3.xml("images/svg/label_parking-building.svg", "image/svg+xml", function(xml) {
+          labelSCK = document.importNode(xml.documentElement, true);
+           d3.select("#map_container").node().appendChild(labelSCK);
+
+       });
+
        createMapMenu();    
      		   
 
@@ -265,21 +271,20 @@ WAAG.Map = function Map(domains) {
   function setMainMap(){
     var layer={};
     layer.id="mainMap";
-    
     layer.layerId="map_"+layer.id;
-    layer.mapLayers=[{url:mainMapUrl}];
-    
-    map.append("g")
-      .attr("id", layer.layerId)
-      .attr("class", "Oranges");
-    layer.sdkPath="mainMap";  
+    layer.url=mainMapUrl;
+    layer.mapId="main-map";
+    layer.sdkPath=false;  
     layer.mapActive=true;
     layer.sdkData=[];
     layer.mapData=[];
     layer.page=1;
+    map.append("g")
+      .attr("id", layer.mapId)
+      .attr("class", "Oranges");
             
     getGeoData(layer);
-    
+        
   }
   
   
@@ -304,15 +309,14 @@ WAAG.Map = function Map(domains) {
   
   function getGeoData(layer){
     
-    for(var i=0; i<layer.mapLayers.length; i++){
-      d3.json(layer.mapLayers[i].url+"&page="+layer.page, function(results){
-    		console.log("results :"+results.results.length);
+      d3.json(layer.url+"&page="+layer.page, function(results){
+    		//console.log("results :"+results.results.length);
     		layer.sdkData=layer.sdkData.concat(results.results);
 
     		if(results.results.length>=1000){
 
     		  var newPage=parseInt(layer.page+1);
-    		  console.log("getting data page :"+newPage);
+    		  //console.log("getting data page :"+newPage);
     		  layer.page=newPage;
     		  getGeoData(layer);
     		  return;
@@ -343,7 +347,6 @@ WAAG.Map = function Map(domains) {
 
     		});
       
-    }
 
   };
   
@@ -367,7 +370,7 @@ WAAG.Map = function Map(domains) {
    updatePolygonMap = function (layer){
           
      var data = layer.mapData;
-     var layerId=layer.layerId;
+     var layerId=layer.mapId;
      
      if(layer.layerId=="map_cbsA"){
        data.forEach(function(d){
@@ -439,9 +442,9 @@ WAAG.Map = function Map(domains) {
   updateLinestringMap = function(layer){
     
     var data=layer.mapData;
-    var layerId=layer.layerId;
+    var layerId=layer.mapId;
 
-  	console.log("setting traffic map "+layerId);
+  	//console.log("setting traffic map "+layerId);
   	
   	data.forEach(function(d){
 	     var g= d.layers["divv.traffic"];
@@ -506,16 +509,15 @@ WAAG.Map = function Map(domains) {
 	
 	updatePointMap = function(layer){
 	  
-	  if(layer.id=="smartcitizen"){
+	  if(layer.id=="sck" ){
 	    updateLabelsMap(layer);
 	    return;
-	  }
-	  
+	  };
 	  
 	  var data=layer.mapData;
-    var layerId=layer.layerId;
+    var layerId=layer.mapId;
     
-    console.log("setting traffic map "+layerId);
+    //console.log("setting traffic map "+layerId);
     //http://loosecontrol.tv:4567/transport.pt.stopsdelayed/admr.nl.amsterdam/live
 
 	  data.forEach(function(d){
@@ -549,12 +551,12 @@ WAAG.Map = function Map(domains) {
               .duration(100)      
               .style("opacity", .9); 
                     
-              if(layer.sdkProperties.sdkPath=="dummy"){
+              if(layer.sdkPath=="dummy"){
                   label+="value : (dummy) "+d.value.toFixed(2);  
-              }else if(layer.sdkProperties.type=="realtime"){
+              }else if(layer.type=="realtime"){
                   label="Name :"+d.name+"<br>Click to load realtime schedule";
               }else{
-                  label = setToolTipLabel(d, layer.sdkProperties.sdkPath);
+                  label = setToolTipLabel(d, layer.sdkPath);
                 
               }
      
@@ -569,7 +571,7 @@ WAAG.Map = function Map(domains) {
     			  
     			})
   			  .on("click", function(d){
-  			    if(layer.sdkProperties.type=="realtime"){
+  			    if(layer.type=="realtime"){
       			    toolTip.transition()        
                   .duration(100)      
                   .style("opacity", .9); 
@@ -605,7 +607,12 @@ WAAG.Map = function Map(domains) {
             .style("opacity", 1)
             .style("fill", function(d){ return colorbrewer[colorScheme]['9'][quantizeBrewer([d.value])] })
             .attr("d", function(d){
-              path.pointRadius(d.value);
+              if(d.layer=="divv.parking.capacity"){
+    			      path.pointRadius(3);
+    			    }else{
+    			      path.pointRadius(d.value);
+    			    }
+              //path.pointRadius(d.value);
               return path(d);
             })
 
@@ -620,7 +627,7 @@ WAAG.Map = function Map(domains) {
 	updateLabelsMap = function(layer){
 	  
 	  var data=layer.mapData;
-    var layerId=layer.layerId;
+    var layerId=layer.mapId;
     
   	var visPointMap=d3.select("#"+layerId);
     //var vis = visPointMap.selectAll("path").data(data, function(d, i){return d.cdk_id});
@@ -633,6 +640,7 @@ WAAG.Map = function Map(domains) {
           .attr("width", 10+"px")
           .attr("height", 10+"px")
           .attr("xlink:href","#label_sck")
+          .style("fill", "#666")
           .on("mouseover", function(d){
             
             var label;
@@ -640,12 +648,12 @@ WAAG.Map = function Map(domains) {
               .duration(100)      
               .style("opacity", .9); 
                     
-              if(layer.sdkProperties.sdkPath=="dummy"){
+              if(layer.sdkPath=="dummy"){
                   label+="value : (dummy) "+d.value.toFixed(2);  
-              }else if(layer.sdkProperties.type=="realtime"){
+              }else if(layer.type=="realtime"){
                   label="Name :"+d.name+"<br>Click to load realtime schedule";
               }else{
-                  label = setToolTipLabel(d, layer.sdkProperties.sdkPath);
+                  label = setToolTipLabel(d, layer.sdkPath);
                 
               }
      
@@ -666,52 +674,68 @@ WAAG.Map = function Map(domains) {
 
   
   addDomainLayer = function(_properties){
-    
-    
+
     var layers=_properties.subDomains;
     var dataLoaded=false;
     
-    console.log("getting map data "+dataLoaded);
     for(var i=0; i<cachedLayers.length; i++){
-          cachedLayers[i].mapActive=false;  
-          for(var j=0; j<layers.length; j++){
-            if(layers[j].id==cachedLayers[i].id){
-              cachedLayers[i].mapActive=true;
-              dataLoaded=true;
+      cachedLayers[i].mapActive=false;
+    };
+ 
+    for(var i=0; i<layers.length; i++){
+          if(layers[i].mapLayers){
+            for(var j=0; j<layers[i].mapLayers.length; j++){
+              if(layers[i].mapLayers[j].sdkData){
+                    for(var l=0; l<cachedLayers.length; l++){
+                      if(cachedLayers[l].mapId==layers[i].mapLayers[j].mapId){
+                        console.log("already loaded map data");
+                        layers[i].mapLayers[j].mapActive=true;
+                      }
+                    }
+
+                   dataLoaded=true;
+
+              }
             }
           }
-          
-          //cachedLayers[i].mapActive=false;
-          setMap(cachedLayers[i]);
-    };
-    
+      }
+      
+      for(var i=0; i<cachedLayers.length; i++){
+        setMap(cachedLayers[i]);
+        //cachedLayers[i].mapActive=false;
+      };  
+
     
     if(dataLoaded) {
       console.log("data loaded --> no api call")
       return;
-      
     };
-
-            
+    
+    
+       
     for (var i=0; i<layers.length; i++){
       
-      if(layers[i]!=false && layers[i].mapUrl!="dummy" && layers[i].mapUrl!=false ){
-        //var layerId="map_"+layers[i].id;
-        layers[i].layerId="map_"+layers[i].id;
+      if(layers[i]!=false && layers[i].mapLayers!="dummy" && layers[i].mapLayers!=false ){
+        
+        for(var j=0; j<layers[i].mapLayers.length; j++){
+        
+          layers[i].mapLayers[j].domainId=_properties.id;
+          layers[i].mapLayers[j].mapId="map_"+_properties.id+"_"+layers[i].mapLayers[j].id;
 
-        console.log("adding map layer :"+layers[i].id);
-          var layerId=layers[i].layerId;
-          map.append("g")
-            .attr("id", layerId)
-            .attr("class", "Oranges");
-          layers[i].mapActive=true;
-          layers[i].sdkData=[];
-          layers[i].mapData=[];
+          console.log("adding map layer :"+layers[i].mapLayers[j].mapId);
+            
+            map.append("g")
+              .attr("id", layers[i].mapLayers[j].mapId)
+              .attr("class", "Oranges");
+            layers[i].mapLayers[j].mapActive=true;
+            layers[i].mapLayers[j].sdkData=[];
+            layers[i].mapLayers[j].mapData=[];
+            layers[i].mapLayers[j].page=1;
           
-          layers[i].page=1;
-          
-          cachedLayers.push(layers[i]);             
-          getGeoData(layers[i]);
+            cachedLayers.push(layers[i].mapLayers[j]);  
+            //cachedLayers.push(layers[i].mapLayers[j].mapId);  
+            getGeoData(layers[i].mapLayers[j]);
+        }
            
       }
       
